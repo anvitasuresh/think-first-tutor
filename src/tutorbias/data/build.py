@@ -1,4 +1,4 @@
-"""Stage 1 data CLI. Run the steps in order (see Makefile / slurm/data.sbatch):
+"""Stage 1 data CLI. Run the steps in order (or `bash scripts/run_stage.sh items|variants`):
 
   python -m tutorbias.data.build items     --config configs/data.yaml
   python -m tutorbias.data.build messages  --config configs/data.yaml

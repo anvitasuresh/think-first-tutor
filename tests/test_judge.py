@@ -76,3 +76,16 @@ def test_zero_valid_mass_is_uniform_and_flagged():
     (s,) = ScaffoldingJudge(be, "v1").score([ROW])
     assert s.valid_mass_scaffolding == 0.0
     assert s.scaffolding == pytest.approx(0.0)
+
+
+def test_hf_fallback_translation(monkeypatch):
+    from tutorbias.models import backends
+
+    spec = {"backend": "vllm", "model": "m", "dtype": "float16", "tensor_parallel_size": 2,
+            "gpu_memory_utilization": 0.9, "max_model_len": 3072}
+    hf = backends.vllm_spec_to_hf(spec)
+    assert hf == {"backend": "hf", "model": "m", "dtype": "float16", "device_map": "auto", "batch_size": 8}
+    seen = {}
+    monkeypatch.setattr(backends, "HFBackend", lambda **kw: seen.update(kw) or "hf-backend")
+    monkeypatch.setenv("TUTORBIAS_BACKEND", "hf")
+    assert backends.load_backend(spec) == "hf-backend" and seen["device_map"] == "auto"

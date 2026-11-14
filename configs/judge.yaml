@@ -11,6 +11,12 @@ judges:
     rubric: v1
     mode: logprob
     model: {backend: vllm, model: Qwen/Qwen2.5-7B-Instruct, max_model_len: 4096, gpu_memory_utilization: 0.85}
+  # GRPO reward judge (stage 4): same model and rubric, 4-bit so it fits on one T4 beside the policy.
+  # The audit scores it too (SCORERS=judge_reward), so the exact reward used in training is audited.
+  reward:
+    rubric: v1
+    mode: logprob
+    model: {backend: hf, model: Qwen/Qwen2.5-7B-Instruct, load_in_4bit: true, dtype: float16, batch_size: 8}
   # Sanity-check judge (design doc): is the 7B judge's behaviour an artifact of a small model?
   api:
     rubric: v1

@@ -32,5 +32,6 @@ analysis:
   scorers:
     judge_scaffolding: {file: judge.jsonl, column: scaffolding}
     judge_helpfulness: {file: judge.jsonl, column: helpfulness}
+    judge_reward_scaffolding: {file: judge_reward.jsonl, column: scaffolding}   # 4-bit GRPO reward judge
     skywork_v2: {file: skywork_v2.jsonl, column: reward}
     armorm: {file: armorm.jsonl, column: reward}

@@ -1,6 +1,8 @@
 """Score audit pairs with off-the-shelf reward models from RewardBench.
 
   python -m tutorbias.audit.reward_models --config configs/audit.yaml --rm skywork_v2
+  # any other rows (e.g. tutor replies in stage 5, as a held-out scorer):
+  python -m tutorbias.audit.reward_models --rm skywork_v2 --input X.jsonl --output Y.jsonl --id-field eval_id
 
 These are the kind of reward models people plug into RLHF pipelines. They are *audited only* (never
 used for training here). Each RM sees the same conversation the tutor saw:
@@ -32,7 +34,7 @@ class SequenceClassifierRM:
     (Skywork-Reward, most RewardBench classifiers). ArmoRM uses remote code and returns `.score`."""
 
     def __init__(self, model: str, max_length: int = 4096, batch_size: int = 8, trust_remote_code: bool = False,
-                 score_attr: str | None = None, dtype: str = "bfloat16", **_: Any):
+                 score_attr: str | None = None, dtype: str = "bfloat16", load_in_4bit: bool = False, **_: Any):
         import torch
         from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
@@ -42,12 +44,20 @@ class SequenceClassifierRM:
         if self.tok.pad_token is None:
             self.tok.pad_token = self.tok.eos_token
         self.tok.padding_side = "right"
+        kwargs: dict[str, Any] = {}
+        if load_in_4bit:
+            # Fallback only (one 16 GB GPU, or OOM). A 4-bit RM is not exactly the model we claim to audit,
+            # so the name in every score row says so, and the README must report it.
+            from transformers import BitsAndBytesConfig
+
+            kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=getattr(torch, dtype))
+            self.name = f"{model} (nf4)"
         self.model = AutoModelForSequenceClassification.from_pretrained(
-            # device_map="auto" splits an 8B model across two small GPUs (e.g. Kaggle's 2x T4) if needed.
-            # T4s have no bfloat16, so the t4 profile sets dtype: float16. We don't quantize: a 4-bit RM
-            # would be a different model from the one we claim to audit.
+            # device_map="auto" splits an 8B model across Kaggle's 2x T4 (16 GB of fp16 weights over 30 GB).
+            # T4s have no bfloat16, so the t4 profile sets dtype: float16.
             model, torch_dtype=getattr(torch, dtype), device_map="auto" if torch.cuda.is_available() else None,
-            trust_remote_code=trust_remote_code, attn_implementation="sdpa",
+            trust_remote_code=trust_remote_code, attn_implementation="sdpa", **kwargs,
         ).eval()
         self.max_length = max_length
         self.batch_size = batch_size
@@ -86,20 +96,25 @@ def main(argv: list[str] | None = None) -> None:
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--config", default="configs/audit.yaml")
     p.add_argument("--rm", required=True, help="key under reward_models in the config")
+    p.add_argument("--input", default=None, help="rows to score (default: the audit pairs)")
+    p.add_argument("--output", default=None, help="default: <scores_dir>/<rm>.jsonl")
+    p.add_argument("--id-field", default="pair_id")
     p.add_argument("--limit", type=int, default=None)
     a = p.parse_args(argv)
     cfg = load_config(a.config)
     spec = cfg["reward_models"][a.rm]
-    out = Path(cfg["paths"]["scores_dir"]) / f"{a.rm}.jsonl"
+    src = a.input or cfg["paths"]["pairs"]
+    out = Path(a.output or Path(cfg["paths"]["scores_dir"]) / f"{a.rm}.jsonl")
 
+    # Resumable: scores are appended per chunk (flush_every rows) and finished ids are skipped on rerun.
     done = {r["id"] for r in iter_jsonl(out)} if out.exists() else set()
-    rows = [r for r in iter_jsonl(cfg["paths"]["pairs"]) if r["pair_id"] not in done]
+    rows = [r for r in iter_jsonl(src) if r[a.id_field] not in done]
     if a.limit:
         rows = rows[: a.limit]
     print(f"[rm:{a.rm}] {len(done)} done, {len(rows)} to go")
     if not rows:
         return
-    run = init_run("audit-rm", {**cfg, "rm": a.rm, "pairs_sha": sha256_file(cfg["paths"]["pairs"])})
+    run = init_run("audit-rm", {**cfg, "rm": a.rm, "input_sha": sha256_file(src)})
     rm = SequenceClassifierRM(**spec)
     check_batching(rm, rows[:8])
     # Sort by length so batches pad less; output order doesn't matter (keyed by id).
@@ -108,7 +123,8 @@ def main(argv: list[str] | None = None) -> None:
     for i in range(0, len(rows), chunk):
         batch = rows[i : i + chunk]
         scores = rm.score(batch)
-        append_jsonl(out, ({"id": r["pair_id"], "scorer": a.rm, "reward": s} for r, s in zip(batch, scores)))
+        append_jsonl(out, ({"id": r[a.id_field], "scorer": a.rm, "model": rm.name, "reward": s}
+                           for r, s in zip(batch, scores)))
         n = i + len(batch)
         run.log({"scored": n, "rows_per_sec": n / (time.time() - t0)})
         print(f"[rm:{a.rm}] {n}/{len(rows)}  {n / (time.time() - t0):.1f} rows/s")

@@ -49,3 +49,24 @@ To span "gives the answer" to "pure hint", replies are generated with 8 style in
 
 ### W&B is optional
 Every stage writes its outputs and stats locally. W&B adds run tracking and dataset versioning when credentials exist and is a no-op otherwise (tests and CI run with `WANDB_MODE=disabled`).
+
+### Compute: Kaggle's free 2x T4, not a cluster (Nov 14)
+DCC access never arrived and the budget is $0, so every GPU stage runs on Kaggle (about 30 free GPU-hours a week, 12 h sessions). Consequences: all models run in **float16** (T4s have no bfloat16), the 7B judge and 8B reward models are split across two 16 GB GPUs, and every stage checkpoints in batches and resumes from a previous session's output (`python -m tutorbias.kaggle restore`). P100 sessions are refused up front: vLLM needs compute capability >= 7.0. If a vLLM release misbehaves on T4, `TUTORBIAS_BACKEND=hf` runs the same model blocks through transformers. Cost: fp16 can differ slightly from bf16; we report "fp16 on T4" with every number.
+
+### Reward models are audited unquantized
+Two 8B RMs fit in fp16 across both T4s with `device_map="auto"`, so we audit the published weights exactly. 4-bit loading exists only as a fallback, and any score produced that way carries "(nf4)" in its model name.
+
+### The GRPO reward judge is 4-bit, and it is audited too
+A 7B fp16 judge (~15 GB) can't share a 16 GB T4 with anything, and the policy needs the other GPU. So the training reward uses the same model and rubric in 4-bit NF4 (~5.5 GB) on GPU 1, in its own process (this also keeps the HF Trainer from seeing two GPUs and wrapping the policy in DataParallel). Rather than assume the 4-bit judge behaves like the fp16 one, the audit scores it as a separate scorer (`judge_reward`): the bias that can propagate into the tutor is measured on the exact reward used.
+
+### GRPO sized for a T4
+Qwen2.5-1.5B-Instruct + LoRA (r=16, all linear layers), fp16 mixed precision with the LoRA weights in fp32 (the grad scaler refuses fp16 gradients), 4 samples per prompt, 4 prompts per step, 300 steps, completions up to 256 tokens, KL 0.04 to the base model (the adapter switched off, so no second model in memory). No gradient checkpointing by default: with it on, HF generation can't use its KV cache during training and sampling gets much slower. Fallback: Qwen2.5-0.5B. TRL's config changes between releases, so unknown keys are dropped with a warning instead of crashing (tested with TRL 1.18 on CPU with a tiny model: training, checkpoint resume, adapter merge).
+
+### Training prompts: one dialect per question, balanced
+Each rl_train question appears once, in one of MAE / AAE / Indian English / L2, assigned round-robin. Bias in the judge can only reach the policy if the policy sees dialect prompts in training; balancing keeps groups equally weighted. Rewards are logged per sample with the group, so per-group reward curves during training are a direct view of propagation.
+
+### Tutor B = canonicalized judge (stretch)
+The cheapest debiasing that removes dialect from the reward by construction: the judge scores the reply against the MAE version of the student's message, while the tutor still sees the dialect version. One config line (`judge_sees: mae`). It doesn't need a new judge or new labels, and E7's difference-in-differences then compares Tutor A and Tutor B directly. Cost: in deployment you need the canonical message, which is easy here (we generated it) and not in real use, where the analogue is running the judge on a normalized rewrite.
+
+### E3 attribution uses randomized feature co-occurrence
+Each allowed dialect feature is applied with p = 0.5 independently, so which features a message got is close to randomized. Regressing paired score gaps on feature indicators therefore estimates per-feature effects without re-generating text. A permutation null (features shuffled within group) sets the bar and handles multiple comparisons. Leave-one-feature-out regeneration would be cleaner and is stretch.

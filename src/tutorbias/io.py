@@ -82,3 +82,16 @@ def stable_seed(*parts: Any, base: int = 0) -> int:
     """Deterministic per-item seed (Python's hash() is salted per process, so don't use it)."""
     key = "::".join(str(p) for p in parts)
     return (int(hashlib.md5(key.encode()).hexdigest()[:8], 16) + base) % (2**31 - 1)
+
+
+def md_table(df: Any, digits: int = 3) -> str:
+    """A pandas DataFrame as a Markdown table (no `tabulate` dependency)."""
+    def fmt(v: Any) -> str:
+        if isinstance(v, float):
+            return "" if v != v else f"{v:.{digits}g}" if abs(v) < 1e-3 and v != 0 else f"{v:.{digits}f}"
+        return str(v)
+
+    cols = list(df.columns)
+    lines = ["| " + " | ".join(map(str, cols)) + " |", "|" + "---|" * len(cols)]
+    lines += ["| " + " | ".join(fmt(v) for v in row) + " |" for row in df.itertuples(index=False)]
+    return "\n".join(lines)

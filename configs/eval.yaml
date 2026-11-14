@@ -1,0 +1,30 @@
+# Stage 5: evaluate the base model and the trained tutors on held-out GSM8K test questions (E5-E7).
+#   bash scripts/run_stage.sh eval        # build prompts, sample each model, judge + held-out RM, analysis
+seed: 13
+paths:
+  items: data/processed/items_test.jsonl
+  variants: data/processed/variants.jsonl
+  prompts: data/processed/eval_prompts.jsonl
+  replies: results/eval/replies.jsonl
+  scores_dir: results/eval/scores
+  results_dir: results/eval
+
+groups: null            # null = every group: dialects, paraphrase control, names
+flush_every: 1024
+generation: {max_tokens: 256, temperature: 0.7, top_p: 0.95}
+
+# Tutors are loaded from their merged weights (written at the end of a finished GRPO run).
+# Missing tutors are skipped, so this runs with only the base model too.
+models:
+  base:     {backend: vllm, model: Qwen/Qwen2.5-1.5B-Instruct, dtype: float16, max_model_len: 2048, gpu_memory_utilization: 0.85}
+  tutor_a:  {backend: vllm, model: results/tutor/tutor_a/merged, dtype: float16, max_model_len: 2048, gpu_memory_utilization: 0.85}
+  tutor_b:  {backend: vllm, model: results/tutor/tutor_b/merged, dtype: float16, max_model_len: 2048, gpu_memory_utilization: 0.85}
+
+heldout_rm: skywork_v2  # scored with configs/t4/audit.yaml's RM settings; never used in training (E6)
+
+analysis:
+  base_model: base
+  baseline_group: mae
+  gap_metrics: [scaffolding, scaffolds, helpfulness, answer_leaked, heldout_rm]
+  n_boot: 2000
+  alpha: 0.05

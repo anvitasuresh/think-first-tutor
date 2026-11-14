@@ -1,6 +1,6 @@
 # Datasheet
 
-Following Gebru et al., "Datasheets for Datasets" (2021). Numbers marked TBD are filled from the `*_stats.json` files after the DCC runs.
+Following Gebru et al., "Datasheets for Datasets" (2021). Numbers marked TBD are filled from the `*_stats.json` files after the pipeline runs.
 
 ## Motivation
 Built to test whether reward models score identical tutoring help differently depending on how a student writes (dialect) or their name, and whether that bias carries into a tutor trained with RL. Not intended for training production tutors or for drawing conclusions about real students.

@@ -13,3 +13,7 @@ data/processed/
 results/**/*.jsonl
 !results/.gitkeep
 .env
+# Model weights, checkpoints and activations (they live in Kaggle notebook outputs)
+results/tutor/
+*.safetensors
+*.npz

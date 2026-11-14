@@ -1,0 +1,64 @@
+# Stage 4: GRPO tutor. Sized for Kaggle's free 2x T4 (fp16, no bf16): policy on GPU 0, 4-bit judge on GPU 1.
+#   bash scripts/run_stage.sh grpo-data                  # training prompts (CPU, seconds)
+#   bash scripts/run_stage.sh grpo-smoke                 # 10 steps, ~10 min: checks memory and the reward
+#   RUN=tutor_a bash scripts/run_stage.sh grpo           # the real run (~3 h), resumable
+seed: 13
+out_root: results/tutor
+merge_partial: false        # merge the adapter only when max_steps is reached
+
+data:
+  items: data/processed/items_rl_train.jsonl
+  variants: data/processed/variants.jsonl
+  train_prompts: data/processed/grpo_train.jsonl
+  groups: [mae, aae, indian, l2]   # one group per question, round-robin (tutor/data.py)
+  limit: null
+
+policy:
+  model: Qwen/Qwen2.5-1.5B-Instruct   # fallback if 1.5B is too slow or OOMs: Qwen/Qwen2.5-0.5B-Instruct
+  dtype: float16                      # T4: no bfloat16
+  gpu: 0
+
+lora:
+  r: 16
+  lora_alpha: 32
+  lora_dropout: 0.05
+  target_modules: [q_proj, k_proj, v_proj, o_proj, gate_proj, up_proj, down_proj]
+
+reward:
+  judge_config: configs/judge.yaml
+  judge: reward              # Qwen2.5-7B-Instruct, rubric v1, 4-bit (see configs/judge.yaml)
+  gpu: null                  # null = GPU 1 if there are two, else share GPU 0
+  w_scaffolding: 1.0
+  w_helpfulness: 0.5         # (helpfulness - 3) / 2, so both terms are in [-1, 1]
+  judge_sees: student        # Tutor A: the judge sees the student's real (dialect) message
+
+# Passed to TRL's GRPOConfig. Keys this TRL version doesn't know are dropped with a warning.
+train:
+  max_steps: 300                    # 300 steps x 4 prompts = 1200 questions, ~30-40 s/step on 2x T4
+  learning_rate: 2.0e-5
+  lr_scheduler_type: constant_with_warmup
+  warmup_steps: 10
+  per_device_train_batch_size: 4    # completions per micro-batch
+  gradient_accumulation_steps: 4    # 16 completions per step = 4 prompts x 4 samples
+  num_generations: 4                # GRPO group size (small, to fit a T4)
+  max_prompt_length: 512
+  max_completion_length: 256
+  temperature: 0.9
+  beta: 0.04                        # KL to the base model (adapter off), keeps the tutor fluent
+  max_grad_norm: 1.0
+  gradient_checkpointing: false     # true saves memory but makes HF generation much slower; turn on only if OOM
+  logging_steps: 1
+  save_steps: 25
+  save_total_limit: 2
+  log_completions: false
+  max_hours: 11                     # stop and save before Kaggle's 12 h session limit
+
+runs:
+  smoke:                            # 10 steps: checks memory, speed (s/step) and the reward plumbing
+    train: {max_steps: 10, save_steps: 5, logging_steps: 1}
+  tutor_a: {}                       # original judge
+  tutor_b:                          # STRETCH: debiased judge (canonicalized: it sees the MAE message)
+    reward: {judge_sees: mae}
+  tutor_a_0.5b:                     # fallback policy
+    policy: {model: Qwen/Qwen2.5-0.5B-Instruct}
+    train: {per_device_train_batch_size: 8, gradient_accumulation_steps: 2}

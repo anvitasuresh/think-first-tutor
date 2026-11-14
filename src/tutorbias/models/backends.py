@@ -8,8 +8,8 @@ start of the assistant turn (e.g. "SCAFFOLDING: "), which forces the output form
 the judge's probability over score labels in a single forward pass.
 
 Backends:
-  VLLMBackend   GPU, batched, used on DCC for everything heavy.
-  HFBackend     transformers on CPU/GPU; slow, but exact logits for any candidate. Debugging/tests.
+  VLLMBackend   GPU, batched, the default for everything heavy (Kaggle 2x T4).
+  HFBackend     transformers on CPU/GPU; exact logits for any candidate. 4-bit reward judge, vLLM fallback, tests.
   OpenAIBackend any OpenAI-compatible API; generate-only (no pre-fill), used for the API sanity judge.
   FakeBackend   deterministic stand-in for unit tests.
 """
@@ -97,17 +97,41 @@ class VLLMBackend(_ChatTemplateMixin, Backend):
 
 
 class HFBackend(_ChatTemplateMixin, Backend):
-    def __init__(self, model: str, device: str | None = None, dtype: str = "auto", batch_size: int = 4, **_: Any):
+    """transformers backend. Exact logits for any candidate token, batched generation.
+
+    Also the fallback when vLLM won't run on a GPU (set TUTORBIAS_BACKEND=hf; see load_backend), and
+    the backend of the GRPO reward judge, which needs 4-bit weights to share a 16 GB T4.
+      device_map="auto"  splits a model across every visible GPU (a 7B fp16 judge on Kaggle's 2x T4)
+      load_in_4bit=True  NF4 weights via bitsandbytes (~5.5 GB for 7B), fp16 compute
+    """
+
+    def __init__(self, model: str, device: str | None = None, dtype: str = "auto", batch_size: int = 4,
+                 device_map: str | None = None, load_in_4bit: bool = False, **_: Any):
         import torch
         from transformers import AutoModelForCausalLM, AutoTokenizer
 
         self.name = model
         self.torch = torch
-        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
         self.tokenizer = AutoTokenizer.from_pretrained(model, padding_side="left")
         if self.tokenizer.pad_token is None:
             self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.model = AutoModelForCausalLM.from_pretrained(model, torch_dtype=dtype).to(self.device).eval()
+        torch_dtype = dtype if dtype == "auto" else getattr(torch, dtype)
+        kwargs: dict[str, Any] = {"torch_dtype": torch_dtype}
+        if load_in_4bit:
+            from transformers import BitsAndBytesConfig
+
+            compute = torch.float16 if torch_dtype in ("auto", torch.float32) else torch_dtype
+            kwargs["quantization_config"] = BitsAndBytesConfig(
+                load_in_4bit=True, bnb_4bit_quant_type="nf4", bnb_4bit_compute_dtype=compute,
+                bnb_4bit_use_double_quant=True)
+            device_map = device_map or "auto"
+            self.name = f"{model} (nf4)"  # recorded in every score row, so 4-bit scores are never mixed up
+        if device_map and torch.cuda.is_available():
+            self.model = AutoModelForCausalLM.from_pretrained(model, device_map=device_map, **kwargs).eval()
+            self.device = next(self.model.parameters()).device
+        else:
+            self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+            self.model = AutoModelForCausalLM.from_pretrained(model, **kwargs).to(self.device).eval()
         self.batch_size = batch_size
 
     def _cand_ids(self, cand: str) -> list[int]:
@@ -128,6 +152,7 @@ class HFBackend(_ChatTemplateMixin, Backend):
             enc = self.tokenizer(prompts[i : i + self.batch_size], return_tensors="pt", padding=True,
                                  add_special_tokens=False).to(self.device)
             with self.torch.no_grad():
+                # logits_to_keep=1 would save memory but isn't in every transformers version; slice instead.
                 logits = self.model(**enc).logits[:, -1, :].float()
             logp = self.torch.log_softmax(logits, dim=-1)
             for row in logp:
@@ -139,14 +164,17 @@ class HFBackend(_ChatTemplateMixin, Backend):
             self.torch.manual_seed(seed)
         prompts = [self.render(c, prefix) for c in convs]
         results = []
-        for p in prompts:
-            enc = self.tokenizer(p, return_tensors="pt", add_special_tokens=False).to(self.device)
-            gen = self.model.generate(
-                **enc, max_new_tokens=max_tokens, do_sample=temperature > 0, temperature=temperature or None,
-                top_p=top_p, num_return_sequences=n, pad_token_id=self.tokenizer.pad_token_id,
-            )
-            new = gen[:, enc["input_ids"].shape[1] :]
-            results.append(self.tokenizer.batch_decode(new, skip_special_tokens=True))
+        for i in range(0, len(prompts), self.batch_size):
+            enc = self.tokenizer(prompts[i : i + self.batch_size], return_tensors="pt", padding=True,
+                                 add_special_tokens=False).to(self.device)
+            with self.torch.no_grad():
+                gen = self.model.generate(
+                    **enc, max_new_tokens=max_tokens, do_sample=temperature > 0,
+                    temperature=temperature or None, top_p=top_p if temperature > 0 else None,
+                    num_return_sequences=n, pad_token_id=self.tokenizer.pad_token_id,
+                )
+            new = self.tokenizer.batch_decode(gen[:, enc["input_ids"].shape[1] :], skip_special_tokens=True)
+            results += [new[j * n : (j + 1) * n] for j in range(len(new) // n)]
         return results
 
 
@@ -190,9 +218,33 @@ class FakeBackend(Backend):
         return [[self.gen_fn(c, prefix) for _ in range(n)] for c in convs]
 
 
+# vLLM-only constructor arguments, dropped when a vLLM block is run with transformers instead.
+_VLLM_ONLY = ("max_model_len", "gpu_memory_utilization", "tensor_parallel_size", "enable_lora", "seed",
+              "enforce_eager", "swap_space")
+
+
+def vllm_spec_to_hf(spec: dict[str, Any]) -> dict[str, Any]:
+    """Translate a {"backend": "vllm", ...} block into an equivalent transformers block.
+
+    Same model and dtype; the model is spread over all visible GPUs with device_map="auto" instead of
+    vLLM tensor parallelism. Scores match vLLM up to numerical noise; generation is slower.
+    """
+    out = {k: v for k, v in spec.items() if k not in _VLLM_ONLY}
+    out["backend"] = "hf"
+    out.setdefault("device_map", "auto")
+    out.setdefault("batch_size", 8)
+    return out
+
+
 def load_backend(spec: dict[str, Any]) -> Backend:
-    """Build a backend from a config block like {"backend": "vllm", "model": "Qwen/...", ...}."""
+    """Build a backend from a config block like {"backend": "vllm", "model": "Qwen/...", ...}.
+
+    TUTORBIAS_BACKEND=hf runs every vLLM block with transformers instead: the escape hatch if a vLLM
+    release doesn't support the GPU (vLLM needs compute capability >= 7.0: fine on T4, not on P100).
+    """
     spec = dict(spec)
+    if spec.get("backend") == "vllm" and os.environ.get("TUTORBIAS_BACKEND", "").lower() == "hf":
+        spec = vllm_spec_to_hf(spec)
     kind = spec.pop("backend")
     if kind == "vllm":
         return VLLMBackend(**spec)

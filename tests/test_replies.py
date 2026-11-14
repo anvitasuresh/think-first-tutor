@@ -41,3 +41,26 @@ def test_generate_and_select_pool(tmp_path, monkeypatch):
     for i in range(10):
         styles = [r["style"] for r in pool if r["item_id"] == f"q{i}"]
         assert len(styles) == len(set(styles)) == 5
+
+
+def test_generate_resumes_per_style(tmp_path, monkeypatch):
+    items = [{"item_id": "q0", "question": "Q0", "final_answer": "7"}]
+    msgs = [{"message_id": "q0::msg", "item_id": "q0", "message_type": "dont_get", "text": "stuck"}]
+    write_jsonl(tmp_path / "items.jsonl", items)
+    write_jsonl(tmp_path / "msgs.jsonl", msgs)
+    cfg = {"seed": 0, "wandb": {"enabled": False}, "styles": ["socratic", "vague"],
+           "paths": {"items": str(tmp_path / "items.jsonl"), "messages": str(tmp_path / "msgs.jsonl"),
+                     "out_dir": str(tmp_path / "replies")},
+           "generation": {"max_tokens": 50, "temperature": 0.7, "top_p": 0.95},
+           "models": {"m1": {"model": {"backend": "fake"}}}}
+    from tutorbias.models.backends import FakeBackend
+
+    # A previous session finished "socratic" before timing out.
+    write_jsonl(tmp_path / "replies" / "replies_m1.parts" / "socratic.jsonl",
+                [{"reply_id": "q0::m1::socratic", "style": "socratic", "text": "old", "answer_leaked": False}])
+    fake = FakeBackend(gen_fn=lambda conv, prefix: "What next?")
+    monkeypatch.setattr(gen, "load_backend", lambda spec: fake)
+    gen.generate(cfg, "m1")
+    rows = read_jsonl(tmp_path / "replies" / "replies_m1.jsonl")
+    assert [r["style"] for r in rows] == ["socratic", "vague"] and rows[0]["text"] == "old"
+    assert len(fake.calls) == 1  # only the missing style was generated

@@ -1,10 +1,11 @@
 #!/bin/bash
-# Set up the two Python environments without conda or SLURM: works on a laptop (CPU steps), Colab,
-# or any rented Linux GPU machine (RunPod, Lambda, etc.).
+# Set up the two Python environments with uv (no conda): a laptop for the CPU steps, Kaggle for the GPU
+# steps (the notebooks in kaggle/ call `bash scripts/setup_local.sh gpu` with VENV_ROOT=/tmp).
 #   bash scripts/setup_local.sh          # both envs
 #   bash scripts/setup_local.sh data     # only the dialect env (enough for variants, labeling, calibration)
+#   bash scripts/setup_local.sh gpu      # only the GPU env (Kaggle: vLLM, TRL, PEFT, bitsandbytes)
 #
-# Creates .venv-data (Python 3.10, Multi-VALUE) and .venv-gpu (Python 3.11, vLLM) with uv, which
+# Creates .venv-data (Python 3.10, Multi-VALUE) and .venv-gpu (Python 3.11, vLLM + TRL) with uv, which
 # downloads the right Python version itself. Set VENV_ROOT to build the envs elsewhere (e.g. /tmp on
 # Kaggle, where the working directory is capped at 20 GB); the repo then gets symlinks to them.
 set -euo pipefail

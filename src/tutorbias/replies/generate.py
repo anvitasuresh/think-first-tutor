@@ -47,34 +47,48 @@ def tutor_conv(question: str, student_message: str, style: str | None) -> list[d
 
 
 def generate(cfg: dict[str, Any], model_key: str) -> None:
+    """Generate one reply per (audit message, style) with one model.
+
+    Checkpointed per style: each finished style is written to replies_<model>.parts/<style>.jsonl and
+    skipped on rerun, so a Kaggle session that times out loses at most one style.
+    """
     mcfg = cfg["models"][model_key]
     pcfg = cfg["paths"]
+    path = Path(pcfg["out_dir"]) / f"replies_{model_key}.jsonl"
+    parts = Path(pcfg["out_dir"]) / f"replies_{model_key}.parts"
+    todo = [s for s in cfg["styles"] if not (parts / f"{s}.jsonl").exists()]
+    if path.exists() and not todo:
+        print(f"[replies] {path} already complete; delete it to regenerate")
+        return
     items = {r["item_id"]: r for r in read_jsonl(pcfg["items"])}
     msgs = read_jsonl(pcfg["messages"])
-    run = init_run("replies-generate", {**cfg, "model_key": model_key})
-    backend = load_backend(mcfg["model"])
     g = cfg["generation"]
-
-    rows = []
-    for style in cfg["styles"]:
-        convs = [tutor_conv(items[m["item_id"]]["question"], m["text"], style) for m in msgs]
-        outs = backend.generate(convs, max_tokens=g["max_tokens"], temperature=g["temperature"],
-                                top_p=g["top_p"], seed=stable_seed(model_key, style, base=cfg["seed"]))
-        for m, o in zip(msgs, outs):
-            text = o[0].strip()
-            it = items[m["item_id"]]
-            rows.append({
-                "reply_id": f"{m['item_id']}::{model_key}::{style}",
-                "item_id": m["item_id"], "message_id": m["message_id"], "message_type": m["message_type"],
-                "source_model": model_key, "style": style, "text": text,
-                "n_words": len(text.split()), "answer_leaked": answer_leaked(text, it["final_answer"]),
-            })
-        print(f"[replies] {model_key} / {style}: {len(msgs)} replies")
-    path = Path(pcfg["out_dir"]) / f"replies_{model_key}.jsonl"
+    if todo:
+        print(f"[replies] {model_key}: {len(cfg['styles']) - len(todo)} styles done, {len(todo)} to go")
+        run = init_run("replies-generate", {**cfg, "model_key": model_key})
+        backend = load_backend(mcfg["model"])
+        for style in todo:
+            convs = [tutor_conv(items[m["item_id"]]["question"], m["text"], style) for m in msgs]
+            outs = backend.generate(convs, max_tokens=g["max_tokens"], temperature=g["temperature"],
+                                    top_p=g["top_p"], seed=stable_seed(model_key, style, base=cfg["seed"]))
+            rows = []
+            for m, o in zip(msgs, outs):
+                text = o[0].strip()
+                it = items[m["item_id"]]
+                rows.append({
+                    "reply_id": f"{m['item_id']}::{model_key}::{style}",
+                    "item_id": m["item_id"], "message_id": m["message_id"], "message_type": m["message_type"],
+                    "source_model": model_key, "style": style, "text": text,
+                    "n_words": len(text.split()), "answer_leaked": answer_leaked(text, it["final_answer"]),
+                })
+            write_jsonl(parts / f"{style}.jsonl", rows)  # atomic, so a half-written style never counts as done
+            print(f"[replies] {model_key} / {style}: {len(msgs)} replies")
+        run.finish()
+    rows = [r for s in cfg["styles"] for r in read_jsonl(parts / f"{s}.jsonl")]
     write_jsonl(path, rows)
     leak = Counter((r["style"], r["answer_leaked"]) for r in rows)
-    run.summary({f"leak_rate/{s}": leak[(s, True)] / max(1, leak[(s, True)] + leak[(s, False)]) for s in cfg["styles"]})
-    run.finish()
+    print("[replies] leak rate by style: " + ", ".join(
+        f"{s} {leak[(s, True)] / max(1, leak[(s, True)] + leak[(s, False)]):.2f}" for s in cfg["styles"]))
 
 
 def select_pool(cfg: dict[str, Any]) -> None:

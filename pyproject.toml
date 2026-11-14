@@ -21,8 +21,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# GPU env on DCC: fast batched generation and judge scoring.
-gpu = ["vllm>=0.6.3", "torch>=2.4", "transformers>=4.45", "datasets>=2.20"]
+# GPU env (Kaggle 2x T4 by default): batched generation and judge scoring (vLLM), plus GRPO training
+# (TRL + LoRA) and the 4-bit reward judge (bitsandbytes). vLLM pins its own torch version.
+gpu = ["vllm>=0.6.3", "torch>=2.4", "transformers>=4.45", "datasets>=2.20", "accelerate>=0.34",
+       "trl>=0.19", "peft>=0.13", "bitsandbytes>=0.44"]
 # Small CPU fallback for the judge (tests, debugging with tiny models).
 hf = ["torch>=2.4", "transformers>=4.45"]
 # Dialect env: Multi-VALUE pins spacy/nltk/stanza, so it lives in its own env (see docs/design_decisions.md).

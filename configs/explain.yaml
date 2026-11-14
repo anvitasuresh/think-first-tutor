@@ -1,0 +1,28 @@
+# Stage 3: explain the audit gaps (E3 features + probes, E4 rationale faithfulness).
+#   bash scripts/run_stage.sh explain
+seed: 13
+audit_config: configs/t4/audit.yaml
+judge_config: configs/t4/judge.yaml
+paths:
+  subset: data/processed/explain_pairs.jsonl       # replies x {MAE, dialects, paraphrase}
+  rationales: results/explain/rationales.jsonl     # judge scores + REASON on the subset
+  activations: results/explain/activations.npz
+  results_dir: results/explain
+
+features:                    # E3 part 1 (CPU, from the audit scores)
+  scorers: [judge_scaffolding, judge_helpfulness, judge_reward_scaffolding, skywork_v2, armorm]
+  min_count: 30              # a feature needs >= 30 pairs to get its own coefficient
+  n_boot: 1000
+  n_perm: 500
+
+rationales:                  # E4
+  n_replies: 200             # balanced by reply style; x 5 versions = ~1000 judge calls with rationales
+  groups: [mae, aae, indian, l2, paraphrase]
+  large_gap: 0.2             # |scaffolding gap| on the [-1, 1] scale
+  no_gap: 0.02
+
+probes:                      # E3 part 2 (GPU)
+  dtype: float16
+  batch_size: 4
+  layers: null               # null = 8 evenly spaced layers
+  folds: 5
