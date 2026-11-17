@@ -77,3 +77,18 @@ def test_variants_unchanged_is_recorded(tmp_path, monkeypatch):
     build.cmd_variants(cfg, 0, 1)
     fake = next(r for r in read_jsonl(tmp_path / "variants.shard00-of-01.jsonl") if r["group"] == "fake")
     assert not fake["changed"]
+
+
+def test_variants_resume_from_partial(tmp_path, monkeypatch):
+    """A shard killed midway leaves a .partial file; the next run skips those messages and keeps their rows."""
+    cfg = _setup(tmp_path, monkeypatch)
+    msgs = read_jsonl(tmp_path / "messages_audit.jsonl")
+    msgs.append({**msgs[0], "message_id": "q2::msg", "item_id": "q2"})
+    write_jsonl(tmp_path / "messages_audit.jsonl", msgs)
+    partial = tmp_path / "variants.shard00-of-01.partial"
+    partial.write_text(json.dumps({"message_id": "q1::msg", "group": "marker"}) + "\n")
+    build.cmd_variants(cfg, 0, 1)
+    rows = read_jsonl(tmp_path / "variants.shard00-of-01.jsonl")
+    assert not partial.exists()
+    assert [r["group"] for r in rows if r["message_id"] == "q1::msg"] == ["marker"]  # not redone
+    assert any(r["message_id"] == "q2::msg" for r in rows)

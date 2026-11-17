@@ -93,9 +93,21 @@ def cmd_variants(cfg: dict[str, Any], shard: int, num_shards: int) -> None:
     names = pick_names(load_names(vcfg["names"]["file"]), vcfg["names"]["per_gender"], cfg["seed"])
     name_splits = set(vcfg["names"]["splits"])
 
+    # Checkpoint: rows are appended to a .partial file after every message, so a shard that gets killed
+    # (laptop sleep, closed terminal) resumes where it stopped instead of starting over.
+    path = out / f"variants.shard{shard:02d}-of-{num_shards:02d}.jsonl"
+    partial = path.with_suffix(".partial")
+    done_ids = {r["message_id"] for r in read_jsonl(partial)} if partial.exists() else set()
+    if done_ids:
+        print(f"[variants] shard {shard}: resuming, {len(done_ids)} messages already done")
+    pf = open(partial, "a")
+
     rows: list[dict[str, Any]] = []
     errors = 0
     for i, msg in enumerate(msgs):
+        if msg["message_id"] in done_ids:
+            continue
+        n_before = len(rows)
         # 1) Dialect axis. Retry with new seeds if a probabilistic transform happened to change nothing.
         for group, tr in transformers.items():
             text, feats, attempts, err = msg["text"], {}, 0, None
@@ -123,12 +135,17 @@ def cmd_variants(cfg: dict[str, Any], shard: int, num_shards: int) -> None:
                         name=n["name"], name_group=n["name_group"], gender=n["gender"],
                     )
                 )
+        for r in rows[n_before:]:
+            pf.write(json.dumps(r, ensure_ascii=False) + "\n")
+        pf.flush()
         if (i + 1) % 50 == 0:
             print(f"[variants] shard {shard}: {i + 1}/{len(msgs)} messages")
             run.log({"messages_done": i + 1})
 
-    path = out / f"variants.shard{shard:02d}-of-{num_shards:02d}.jsonl"
+    pf.close()
+    rows = read_jsonl(partial)  # includes rows from earlier, interrupted runs
     write_jsonl(path, rows)
+    partial.unlink()
     run.summary({"n_variants": len(rows), "transform_errors": errors})
     run.finish()
     print(f"[variants] wrote {len(rows)} rows to {path} ({errors} transform errors)")

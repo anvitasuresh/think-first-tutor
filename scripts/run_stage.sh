@@ -57,17 +57,24 @@ case "$STAGE" in
     if [ -n "${SHARD:-}" ]; then
       $P -m tutorbias.data.build variants --config "$DATA_CFG" --shard "$SHARD" --num-shards "$N"
     else
-      rm -f data/processed/variants.shard*.jsonl logs/variants-shard*.log
+      # Finished shards are kept; interrupted ones resume from their .partial file. Delete
+      # data/processed/variants.shard* to start from scratch.
+      # On a Mac, caffeinate keeps the laptop awake while the shards run.
+      CAF=""; command -v caffeinate >/dev/null && CAF="caffeinate -i"
       echo "Running $N shards in parallel; progress in logs/variants-shard*.log"
-      pids=()
+      pids=(); sids=()
       for i in $(seq 0 $((N - 1))); do
-        $P -m tutorbias.data.build variants --config "$DATA_CFG" --shard "$i" --num-shards "$N" \
-          > "logs/variants-shard$i.log" 2>&1 &
-        pids+=($!)
+        if [ -f "data/processed/variants.shard$(printf %02d "$i")-of-$(printf %02d "$N").jsonl" ]; then
+          echo "Shard $i already finished, skipping"; continue
+        fi
+        $CAF $P -m tutorbias.data.build variants --config "$DATA_CFG" --shard "$i" --num-shards "$N" \
+          >> "logs/variants-shard$i.log" 2>&1 &
+        pids+=($!); sids+=("$i")
       done
       failed=0
-      for i in "${!pids[@]}"; do
-        wait "${pids[$i]}" || { echo "Shard $i FAILED, see logs/variants-shard$i.log:"; tail -5 "logs/variants-shard$i.log"; failed=1; }
+      for k in "${!pids[@]}"; do
+        s="${sids[$k]}"
+        wait "${pids[$k]}" || { echo "Shard $s FAILED, see logs/variants-shard$s.log:"; tail -5 "logs/variants-shard$s.log"; failed=1; }
       done
       [ "$failed" -eq 0 ] || exit 1
     fi
