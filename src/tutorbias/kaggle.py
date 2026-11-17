@@ -30,7 +30,7 @@ import sys
 from pathlib import Path
 
 INPUT_ROOT = Path("/kaggle/input")
-SKIP_PARTS = {".git", "wandb", "__pycache__", ".ipynb_checkpoints"}
+SKIP_PARTS = {"src", "tests", ".git", "wandb", "__pycache__", ".ipynb_checkpoints"}
 # Laptop uploads of data/processed often put the files at the dataset's top level.
 PROCESSED_RE = re.compile(r"^(items_|messages_|variants|audit_pairs|grpo_|eval_)[\w.-]*\.(jsonl|json)$")
 LABELS_RE = re.compile(r"^(label_set|label_key|labels_)[\w.-]*\.(jsonl|csv)$")

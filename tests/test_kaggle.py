@@ -13,6 +13,7 @@ def test_destination_rules():
     assert destination(Path("label_set.jsonl")) == Path("data/labels/label_set.jsonl")
     assert destination(Path("xai_proj2/.git/config")) is None
     assert destination(Path("xai_proj2/src/tutorbias/io.py")) is None
+    assert destination(Path("xai_proj2/src/tutorbias/data/build.py")) is None
     assert destination(Path("random.txt")) is None
 
 

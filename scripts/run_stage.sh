@@ -98,6 +98,7 @@ case "$STAGE" in
     ;;
   audit)
     gpu_check; P=$(py gpu)
+    test -f data/processed/variants.jsonl || { echo "Missing data/processed/variants.jsonl: add it from your laptop to the tutorbias-data dataset (New Version)."; exit 1; }
     $P -m tutorbias.audit.pairs --config "$(cfg audit)"
     mkdir -p results/audit/scores
     for s in ${SCORERS:-judge skywork_v2 armorm judge_reward}; do
