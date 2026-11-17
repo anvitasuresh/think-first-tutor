@@ -126,14 +126,14 @@ def plot_confusion(cm: list[list[int]], path: Path, title: str) -> None:
     plt.close(fig)
 
 
-def write_report(rep: dict, path: Path) -> None:
+def write_report(rep: dict, path: Path, primary: str = "reference", second: str = "second labeler") -> None:
     jh = rep["judge_vs_human"]
     lines = [
         f"# Judge calibration (E1), split = {rep['split']}",
         "",
         f"Items: {jh['n']}",
         "",
-        "| Metric | Judge vs human | 95% CI |",
+        f"| Metric | Judge vs {primary} labels | 95% CI |",
         "|---|---|---|",
         f"| Scaffolding kappa | {jh['scaffolding_kappa']:.3f} | {jh['scaffolding_kappa_ci'][0]:.3f} to {jh['scaffolding_kappa_ci'][1]:.3f} |",
         f"| Scaffolding kappa (quadratic) | {jh['scaffolding_kappa_quadratic']:.3f} | {jh['scaffolding_kappa_quadratic_ci'][0]:.3f} to {jh['scaffolding_kappa_quadratic_ci'][1]:.3f} |",
@@ -142,7 +142,7 @@ def write_report(rep: dict, path: Path) -> None:
     ]
     if "human_vs_human" in rep:
         hh = rep["human_vs_human"]
-        lines += ["", f"Human-human ceiling (n={hh['n']}): scaffolding kappa {hh['scaffolding_kappa']:.3f}, "
+        lines += ["", f"{second} vs {primary} (n={hh['n']}, the agreement ceiling): scaffolding kappa {hh['scaffolding_kappa']:.3f}, "
                   f"helpfulness Spearman {hh['helpfulness_spearman']:.3f}"]
     g = rep["gate"]
     lines += ["", f"**Gate** (kappa >= {g['min_scaffolding_kappa']}, Spearman >= {g['min_helpfulness_spearman']}): "
@@ -174,7 +174,7 @@ def main(argv: list[str] | None = None) -> None:
     (out / "metrics.json").write_text(json.dumps(rep, indent=2))
     plot_confusion(rep["judge_vs_human"]["confusion_scaffolding"], out / "confusion.png",
                    f"Scaffolding, {a.split} (n={rep['judge_vs_human']['n']})")
-    write_report(rep, out / "report.md")
+    write_report(rep, out / "report.md", ccfg["primary_labeler"], ccfg["second_labeler"])
     print((out / "report.md").read_text())
 
     run = init_run("calibrate", {**cfg, "split": a.split})

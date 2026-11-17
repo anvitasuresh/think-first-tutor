@@ -6,7 +6,7 @@ An AI tutor trained with reinforcement learning learns whatever its reward model
 
 This repo builds the whole pipeline:
 
-1. **Scaffolding judge.** An LLM judge (Qwen2.5-7B-Instruct + rubric) scores tutor replies from -1 (gives the answer) to +1 (useful hint), plus 1-5 helpfulness, calibrated against human labels.
+1. **Scaffolding judge.** An LLM judge (Qwen2.5-7B-Instruct + rubric) scores tutor replies from -1 (gives the answer) to +1 (useful hint), plus 1-5 helpfulness, calibrated against reference labels on 300 replies (see Limitations: the reference labels are from a model annotator, spot-checked by a human).
 2. **Counterfactual reward-model audit.** Identical replies, with only the student's dialect or name changed. Any score gap is bias by construction.
 3. **Explanation.** Which dialect features drive the gaps; whether the judge's stated reasons match them; linear probes on activations.
 4. **GRPO tutor.** Qwen2.5-1.5B + LoRA trained with the judge as reward (Tutor A). Stretch: the same with a debiased judge (Tutor B).
@@ -75,8 +75,8 @@ bash scripts/run_stage.sh replies    # tutor reply pool + blinded label set
 bash scripts/run_stage.sh judge      # judge scores + rationales on the label set
 
 # laptop: label, then calibrate (E1)
-streamlit run src/tutorbias/labeling/app.py -- --labeler anvita
-streamlit run src/tutorbias/labeling/app.py -- --labeler second --double-only
+# reference labels for all 300 items are in data/labels/labels_model_ref.csv
+streamlit run src/tutorbias/labeling/app.py -- --labeler anvita --subset data/labels/spotcheck_ids.txt   # 40-item human spot check
 python -m tutorbias.labeling.calibrate --split dev    # iterate on the rubric
 python -m tutorbias.labeling.calibrate --split test   # once, after the rubric is frozen
 
@@ -126,7 +126,7 @@ The judge sees the problem, its correct answer, the student's message, and the t
 
 | # | Question | Metric | Control | Status |
 |---|---|---|---|---|
-| E1 | Is the judge trustworthy? | Cohen's kappa (scaffolding), Spearman (helpfulness), bootstrap CIs, per-group agreement | Human-human agreement on ~100 items | code ready |
+| E1 | Is the judge trustworthy? | Cohen's kappa (scaffolding), Spearman (helpfulness), bootstrap CIs, per-group agreement | Human spot check (40 items) vs the reference labels | code ready |
 | E2 | Are reward models biased by dialect or name? | Paired gap vs MAE (SD units) with clustered bootstrap CIs, Holm; preference flip rate; gap by reply style | MAE paraphrase (rewording, no dialect) | code ready |
 | E3 | What drives the gaps? | Per-feature effect on paired score gaps (randomized feature assignment); probe accuracy and dialect-vs-score direction by layer | Permutation null over features; shuffled-label probe | code ready |
 | E4 | Are the judge's explanations faithful? | Share of large-gap cases whose rationale mentions the student's language | Cases with no score gap | code ready |
@@ -138,7 +138,7 @@ The judge sees the problem, its correct answer, the student's message, and the t
 
 - **Synthetic dialects.** Rule-based transforms are cleaner than real speech. Gaps show sensitivity to dialect *features*, not real-world effect sizes, and a dialect is not a race or nationality. Variants use only eWAVE features rated pervasive for each variety and are checked by native speakers; see [docs/ethics.md](docs/ethics.md). Learner (L2) English is a feature list that overlaps with AAE.
 - **Small models, free GPUs.** 1.5B tutor, 7B judge, fp16 on T4s, one short GRPO run: a mechanism demonstration, not a claim about deployed tutors. The training reward uses the judge in 4-bit; the audit reports how closely it tracks the fp16 judge.
-- **My labels set the standard.** "Good scaffolding" reflects one rubric; second-labeler agreement shows how subjective it is.
+- **The reference labels are not human labels.** For time reasons, all 300 calibration items were labeled by a model annotator (`model_ref`) following [docs/labeling_guide.md](docs/labeling_guide.md), blind to each reply's intended style, source model and judge score. A human labeled a stratified 40-item subset to measure agreement with the reference. E1 therefore shows that the judge agrees with a careful reference annotator, and the spot check shows how far that reference is from a human; it is weaker evidence than 300 human labels. "Good scaffolding" also reflects one rubric.
 - **Single-turn, math only.**
 - **Fairness definition.** Counterfactual fairness (same help, same score) assumes every student should get the same kind of help, which may be wrong if some students need more direct help.
 - **Names** partly come from unvalidated placeholder lists (marked in `data/names/names.yaml`).

@@ -89,3 +89,9 @@ def test_hf_fallback_translation(monkeypatch):
     monkeypatch.setattr(backends, "HFBackend", lambda **kw: seen.update(kw) or "hf-backend")
     monkeypatch.setenv("TUTORBIAS_BACKEND", "hf")
     assert backends.load_backend(spec) == "hf-backend" and seen["device_map"] == "auto"
+
+
+def test_rubric_v2_keeps_output_format():
+    v2 = load_rubric("v2")
+    assert "SCAFFOLDING: <0, 1 or 2>" in v2 and "HELPFULNESS: <1, 2, 3, 4 or 5>" in v2
+    assert v2 != load_rubric("v1")

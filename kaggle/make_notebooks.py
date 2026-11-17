@@ -99,6 +99,15 @@ NOTEBOOKS = {
         stage("bash scripts/run_stage.sh judge     # judge scores + rationales on the label set"),
         TIDY,
     ],
+    "01b_rescore_judge.ipynb": [
+        settings("1b. Re-score the label set with a revised rubric (E1 iteration)", "~15 min",
+                 ["**tutorbias-data**"],
+                 "Only needed if the judge missed the E1 gate on dev. Scores the 300 label-set replies with "
+                 "rubric v2 (no rationales). Output: `results/judge/label_set_scores_v2.jsonl`."),
+        SECRETS, SETUP,
+        stage("RUBRIC=v2 EXTRA= OUTPUT=results/judge/label_set_scores_v2.jsonl bash scripts/run_stage.sh judge"),
+        TIDY,
+    ],
     "02_audit.ipynb": [
         settings("2. Reward-model audit (stage 2, E2)", "~4-5 h",
                  ["**tutorbias-data**", "the Output of notebook **01_replies_judge**"],

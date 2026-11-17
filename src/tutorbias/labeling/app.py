@@ -2,6 +2,7 @@
 
   streamlit run src/tutorbias/labeling/app.py -- --labeler anvita
   streamlit run src/tutorbias/labeling/app.py -- --labeler second --double-only   # second labeler, ~100 items
+  streamlit run src/tutorbias/labeling/app.py -- --labeler anvita --subset data/labels/spotcheck_ids.txt  # 40-item spot check
 
 Each save appends one row to data/labels/labels_<labeler>.csv, so you can stop and resume any time;
 re-labeling an item just adds a newer row (the newest wins). Items appear in a fixed shuffled order
@@ -31,15 +32,19 @@ def parse_args() -> argparse.Namespace:
     p.add_argument("--labeler", required=True)
     p.add_argument("--labels-dir", default="data/labels")
     p.add_argument("--double-only", action="store_true")
+    p.add_argument("--subset", default=None, help="text file with one label_id per line; show only those items")
     return p.parse_args(sys.argv[1:])
 
 
-def load_items(labels_dir: Path, labeler: str, double_only: bool) -> list[dict]:
+def load_items(labels_dir: Path, labeler: str, double_only: bool, subset: str | None = None) -> list[dict]:
     items = [json.loads(line) for line in (labels_dir / "label_set.jsonl").read_text().splitlines() if line]
     if double_only:
         key = [json.loads(line) for line in (labels_dir / "label_key.jsonl").read_text().splitlines() if line]
         dbl = {k["label_id"] for k in key if k["double"]}
         items = [i for i in items if i["label_id"] in dbl]
+    if subset:
+        keep = {line.strip() for line in Path(subset).read_text().splitlines() if line.strip()}
+        items = [i for i in items if i["label_id"] in keep]
     random.Random(f"order::{labeler}").shuffle(items)
     return items
 
@@ -66,7 +71,7 @@ def main() -> None:
     out = labels_dir / f"labels_{args.labeler}.csv"
     st.set_page_config(page_title="Tutor reply labeling", layout="wide")
 
-    items = load_items(labels_dir, args.labeler, args.double_only)
+    items = load_items(labels_dir, args.labeler, args.double_only, args.subset)
     done = load_done(out)
     if "pos" not in st.session_state:
         todo = [i for i, it in enumerate(items) if it["label_id"] not in done]

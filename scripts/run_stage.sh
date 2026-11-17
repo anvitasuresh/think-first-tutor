@@ -94,7 +94,7 @@ case "$STAGE" in
     gpu_check; P=$(py gpu)
     $P -m tutorbias.judge.score --config "$(cfg judge)" --judge "${JUDGE:-primary}" \
       --input "${INPUT:-data/labels/label_set.jsonl}" --output "${OUTPUT:-results/judge/label_set_scores.jsonl}" \
-      --id-field "${ID_FIELD:-label_id}" ${EXTRA---explain} $LIM
+      --id-field "${ID_FIELD:-label_id}" ${RUBRIC:+--rubric "$RUBRIC"} ${EXTRA---explain} $LIM
     ;;
   audit)
     gpu_check; P=$(py gpu)

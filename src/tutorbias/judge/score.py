@@ -29,6 +29,7 @@ def main(argv: list[str] | None = None) -> None:
     p.add_argument("--output", required=True)
     p.add_argument("--judge", default="primary", help="which judge block in the config to use")
     p.add_argument("--id-field", default=None)
+    p.add_argument("--rubric", default=None, help="override the judge block's rubric version (e.g. v2)")
     p.add_argument("--explain", action="store_true", help="also generate post-hoc rationales (E4)")
     p.add_argument("--limit", type=int, default=None, help="score only the first N rows (smoke test)")
     a = p.parse_args(argv)
@@ -47,7 +48,7 @@ def main(argv: list[str] | None = None) -> None:
         return
 
     run = init_run("judge-score", {**cfg, "judge": a.judge, "input": a.input, "input_sha": sha256_file(a.input)})
-    judge = ScaffoldingJudge(load_backend(jcfg["model"]), jcfg.get("rubric", "v1"), jcfg.get("mode", "logprob"))
+    judge = ScaffoldingJudge(load_backend(jcfg["model"]), a.rubric or jcfg.get("rubric", "v1"), jcfg.get("mode", "logprob"))
 
     bs = cfg.get("batch_size", 256)
     t0, n_done, masses = time.time(), 0, []

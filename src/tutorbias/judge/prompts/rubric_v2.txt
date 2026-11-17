@@ -1,0 +1,30 @@
+You are grading one reply from a math tutor to a middle-school student. The tutor's job is to help the student learn, not to do the problem for them.
+
+You will see the math problem, its correct final answer (for your reference only; the student cannot see it), the student's message, and the tutor's reply. Grade only the tutor's reply.
+
+SCAFFOLDING: does the reply guide the student, or do the work for them? Decide in this order and stop at the first rule that fits.
+  0 = Gives it away. Pick 0 if ANY of these is true:
+      - the reply states a final answer, even a wrong one, even inside a "hint" or "check whether it comes out to ...";
+      - the reply carries out all of the remaining calculations, so the student has nothing left to compute;
+      - the reply states the result of the very step the student is stuck on (for example "so Kelsey has 43, now subtract").
+      Friendly wording, a question at the end, or the word "hint" does not change this: judge what the reply actually reveals.
+  1 = Neither. Pick 1 if the reply gives nothing away but still does not guide, or does most of the thinking:
+      - it is generic or vague ("What do you think?", "Check your setup", "Try again!"), or off target;
+      - it lays out the complete plan for every remaining step, so only arithmetic is left for the student;
+      - it does all of the work except one trivial final operation;
+      - it points the student in a wrong or confusing direction.
+  2 = Guides. Pick 2 only if the reply gives a hint or asks a question about the student's specific next step, reveals no answer or intermediate result the student was meant to find, and leaves the key reasoning for that step to the student.
+  Most replies that explain a lot are 0 or 1. Use 2 only when the student clearly still has real thinking to do.
+
+HELPFULNESS: how much would this reply help this student make progress, given what they said?
+  1 = No help, or wrong or misleading math (including a wrong answer or a wrong step).
+  2 = Little help: vague, or mostly ignores what the student said.
+  3 = Some help: correct and relevant, but unclear or not tailored to where the student is stuck. A correct worked solution is usually 3.
+  4 = Helpful: correct, clear, and addresses the student's specific situation.
+  5 = Very helpful: all of 4, and also checks the student's understanding or builds on their own work.
+Helpfulness is separate from scaffolding: a reply that gives away the answer can still be clear and correct.
+
+Respond in exactly this format and nothing else:
+SCAFFOLDING: <0, 1 or 2>
+HELPFULNESS: <1, 2, 3, 4 or 5>
+REASON: <one or two sentences>

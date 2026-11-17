@@ -17,8 +17,13 @@ label_set:
   dev_frac: 0.5      # iterate on the rubric with dev only; report test once
 
 calibration:
-  primary_labeler: anvita
-  second_labeler: second
+  # Reference labels: all 300 items were labeled by a model annotator ("model_ref"), blind to the
+  # reply's style, source model and the judge's score, following docs/labeling_guide.md. Anvita
+  # labels a stratified 40-item spot check (data/labels/spotcheck_ids.txt) to measure how well a
+  # human agrees with the reference. E1 is therefore judge vs model reference, not judge vs human;
+  # the README and poster must say so.
+  primary_labeler: model_ref
+  second_labeler: anvita
   n_boot: 2000
   # Pre-registered go/no-go (design doc gate 1). Kappa 0.6 = "substantial" (Landis & Koch). If the
   # judge misses this on dev, revise the rubric (new version file) and re-score; don't move the bar.
