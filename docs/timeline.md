@@ -17,6 +17,10 @@ the fallback. **Tutor B (debiased judge) is stretch only.**
 - **Stretch:** Tutor B (canonicalized judge, `RUN=tutor_b`), extra GRPO seeds, leave-one-feature-out
   re-generation, Hispanic/South Asian name lists from a published source.
 
+**Status Mon Nov 16 night.** Notebook 01 done. Gate 1 passed against 40 human labels with rubric v1
+(kappa 0.65, CI 0.41 to 0.85; Spearman 0.56); a stricter model-annotated set of 300 is a second view.
+Running about 1.5 days late: audit (02) and the GRPO smoke test are next.
+
 ## Plan (each gate is a go/no-go)
 
 | Date | Work | GPU (Kaggle) | Gate |

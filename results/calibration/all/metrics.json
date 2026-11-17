@@ -1,0 +1,99 @@
+{
+  "split": "all",
+  "judge_vs_human": {
+    "n": 40,
+    "scaffolding_kappa": 0.6482412060301508,
+    "scaffolding_kappa_ci": [
+      0.4095027583939206,
+      0.8487323083189081
+    ],
+    "scaffolding_kappa_quadratic": 0.7633136094674556,
+    "scaffolding_kappa_quadratic_ci": [
+      0.5178273809523809,
+      0.9330722891566265
+    ],
+    "scaffolding_accuracy": 0.825,
+    "helpfulness_spearman": 0.5593857484679001,
+    "helpfulness_spearman_ci": [
+      0.26772244615971197,
+      0.770136829967804
+    ],
+    "confusion_scaffolding": [
+      [
+        11,
+        0,
+        2
+      ],
+      [
+        0,
+        0,
+        0
+      ],
+      [
+        1,
+        4,
+        22
+      ]
+    ]
+  },
+  "by_style": {
+    "targeted_hint": {
+      "n": 11,
+      "human_mean": 0.455,
+      "judge_mean": 0.378
+    },
+    "partial_work": {
+      "n": 3,
+      "human_mean": -0.333,
+      "judge_mean": 0.314
+    },
+    "socratic": {
+      "n": 9,
+      "human_mean": 1.0,
+      "judge_mean": 0.794
+    },
+    "hint_with_leak": {
+      "n": 5,
+      "human_mean": -0.2,
+      "judge_mean": -0.003
+    },
+    "direct_answer": {
+      "n": 1,
+      "human_mean": -1.0,
+      "judge_mean": -0.995
+    },
+    "vague": {
+      "n": 4,
+      "human_mean": 0.5,
+      "judge_mean": 0.499
+    },
+    "misleading": {
+      "n": 3,
+      "human_mean": 1.0,
+      "judge_mean": 0.59
+    },
+    "worked_solution": {
+      "n": 4,
+      "human_mean": -0.5,
+      "judge_mean": -0.514
+    }
+  },
+  "human_vs_human": {
+    "n": 40,
+    "scaffolding_kappa": 0.46153846153846156,
+    "scaffolding_kappa_ci": [
+      0.2857142857142857,
+      0.6456354923117631
+    ],
+    "helpfulness_spearman": 0.623578234177217,
+    "helpfulness_spearman_ci": [
+      0.3615454343032925,
+      0.818778202920308
+    ]
+  },
+  "gate": {
+    "min_scaffolding_kappa": 0.6,
+    "min_helpfulness_spearman": 0.5,
+    "passed": true
+  }
+}

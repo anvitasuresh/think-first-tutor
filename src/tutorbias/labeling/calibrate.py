@@ -142,7 +142,7 @@ def write_report(rep: dict, path: Path, primary: str = "reference", second: str 
     ]
     if "human_vs_human" in rep:
         hh = rep["human_vs_human"]
-        lines += ["", f"{second} vs {primary} (n={hh['n']}, the agreement ceiling): scaffolding kappa {hh['scaffolding_kappa']:.3f}, "
+        lines += ["", f"{second} vs {primary} (n={hh['n']}, agreement between the two label sets): scaffolding kappa {hh['scaffolding_kappa']:.3f}, "
                   f"helpfulness Spearman {hh['helpfulness_spearman']:.3f}"]
     g = rep["gate"]
     lines += ["", f"**Gate** (kappa >= {g['min_scaffolding_kappa']}, Spearman >= {g['min_helpfulness_spearman']}): "
