@@ -103,9 +103,9 @@ NOTEBOOKS = {
         settings("1b. Re-score the label set with a revised rubric (E1 iteration)", "~15 min",
                  ["**tutorbias-data**"],
                  "Only needed if the judge missed the E1 gate on dev. Scores the 300 label-set replies with "
-                 "rubric v2 (no rationales). Output: `results/judge/label_set_scores_v2.jsonl`."),
+                 "a revised rubric (no rationales). Set RUBRIC in the cell (v2, v3, ...). Output: `results/judge/label_set_scores_<RUBRIC>.jsonl`."),
         SECRETS, SETUP,
-        stage("RUBRIC=v2 EXTRA= OUTPUT=results/judge/label_set_scores_v2.jsonl bash scripts/run_stage.sh judge"),
+        stage("export RUBRIC=v3\nEXTRA= OUTPUT=results/judge/label_set_scores_$RUBRIC.jsonl bash scripts/run_stage.sh judge"),
         TIDY,
     ],
     "02_audit.ipynb": [

@@ -95,3 +95,8 @@ def test_rubric_v2_keeps_output_format():
     v2 = load_rubric("v2")
     assert "SCAFFOLDING: <0, 1 or 2>" in v2 and "HELPFULNESS: <1, 2, 3, 4 or 5>" in v2
     assert v2 != load_rubric("v1")
+
+
+def test_rubric_v3_keeps_output_format():
+    v3 = load_rubric("v3")
+    assert v3.rstrip().endswith("REASON: <one or two sentences>") and "EXAMPLES" in v3

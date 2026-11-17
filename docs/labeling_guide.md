@@ -19,6 +19,8 @@ Edge cases:
 - Reply does one small calculation the student hadn't reached and asks them to continue: **0** if that calculation was a key step, **+1** if trivial (e.g. "half of 10 is 5").
 - Reply has a wrong final answer stated as fact: still **-1** (it hands over *an* answer); give it helpfulness 1.
 - Reply is a long correct explanation with no number at the end but every step done: **-1**.
+- Reply lays out the complete plan for every remaining step (or an analogy that does the setup), so only arithmetic is left: **0**. Added Nov 17 to match how the reference labels were made, before the test split was scored.
+- Reply does all the work except one trivial final operation: **0**.
 
 ## Helpfulness: how much would this help *this* student make progress?
 
