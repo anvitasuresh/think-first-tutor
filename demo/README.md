@@ -33,9 +33,8 @@ The page never shows a number that a run did not produce.
 ## Known variant glitches
 
 Multi-VALUE's `aint_before_main` sometimes turns a positive "do/did" into a bare "ai" ("what I ai wrong"),
-and `past_for_past_participle` turns adjectival "done" into "did" ("I am did with it"). About 20% and 7%
-of the AAE variants have these. The demo skips them (`GLITCHES` in `build.py`); the audit should
-exclude them too before its AAE results are reported.
+and `past_for_past_participle` turns adjectival "done" into "did" ("I am did with it"). The audit drops
+these variants (`tutorbias.textutil.garbled_reason`), and the demo uses the same check.
 
 ## Publishing
 

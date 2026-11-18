@@ -22,13 +22,6 @@ def test_game_uses_the_40_human_labels():
     assert all(-1 <= r["judge"] <= 1 for r in game["rounds"])
 
 
-def test_glitch_filter_catches_broken_aint():
-    b = _load_build()
-    assert any(p.search("I don't see what I ai wrong.") for p in b.GLITCHES)
-    assert any(p.search("I am did with it.") for p in b.GLITCHES)
-    assert not any(p.search("I ain't know where to start.") for p in b.GLITCHES)
-
-
 def test_page_builds_and_embeds_data(tmp_path, monkeypatch):
     b = _load_build()
     monkeypatch.setattr(b, "OUT", tmp_path / "index.html")
@@ -39,4 +32,4 @@ def test_page_builds_and_embeds_data(tmp_path, monkeypatch):
     for ex in data["voices"]["examples"]:
         assert "mae" in ex["variants"]
         for v in ex["variants"].values():
-            assert not any(p.search(v["text"]) for p in b.GLITCHES)
+            assert b.garbled_reason(v["text"]) is None

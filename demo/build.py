@@ -15,7 +15,8 @@ The page has three parts, and each one fills itself from whatever results exist 
      results/eval/replies.jsonl + results/eval/scores/judge.jsonl and results/eval/metrics_by_group.csv
      (E5-E7). Pending until stage 5 has run.
 
-Only the standard library is used, so this runs anywhere with Python 3.10+. Rerun it after each Kaggle
+Only the standard library (plus the repo's own src/tutorbias/textutil.py) is used, so this runs anywhere
+with Python 3.10+, no install needed. Rerun it after each Kaggle
 stage finishes and commit demo/site/index.html; the GitHub Pages workflow publishes it.
 """
 
@@ -24,11 +25,15 @@ from __future__ import annotations
 import csv
 import json
 import random
-import re
+import sys
 from collections import defaultdict
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "src"))
+# Same list of known Multi-VALUE breakages ("what I ai wrong", "I am did with it") that the audit
+# drops, so the demo never shows broken text labeled as a dialect. textutil only needs the stdlib.
+from tutorbias.textutil import garbled_reason  # noqa: E402
 DEMO = ROOT / "demo"
 OUT = DEMO / "site" / "index.html"
 
@@ -51,11 +56,6 @@ SCORERS = {
     "tulu3_rm": "Tulu-3 8B reward model",
     "judge_helpfulness": "Judge helpfulness (1-5)",
 }
-# Known Multi-VALUE glitches found in the audit variants (Nov 18): `aint_before_main` sometimes turns a
-# positive "do/did" into a bare "ai" ("what I ai wrong"), and `past_for_past_participle` turns adjectival
-# "done" into "did" ("I am did with it"). Neither is real AAE. The demo skips variants with these
-# glitches rather than show broken text labeled as a dialect; the audit itself should exclude them too.
-GLITCHES = [re.compile(r"\bai\b(?!n't)", re.I), re.compile(r"\b(am|is|are) did\b", re.I)]
 LABEL_WORDS = {-1: "Gives it away", 0: "Neither", 1: "Guides"}
 
 
@@ -179,7 +179,7 @@ def build_voices(game: dict) -> dict:
         variants = {"mae": {"text": r["student"], "features": {}}}
         for g in GROUPS:
             if (g != "mae" and g in v and v[g].get("changed", True) and v[g].get("numbers_ok", True)
-                    and not any(p.search(v[g]["text"]) for p in GLITCHES)):
+                    and not garbled_reason(v[g]["text"])):
                 variants[g] = {"text": v[g]["text"], "features": v[g].get("features", {}), "name": v[g].get("name")}
         n_dialect = sum(1 for g in ("aae", "indian", "l2") if g in variants)
         if n_dialect < 2:
