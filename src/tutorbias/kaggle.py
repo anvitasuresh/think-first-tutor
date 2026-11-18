@@ -34,6 +34,8 @@ SKIP_PARTS = {"src", "tests", ".git", "wandb", "__pycache__", ".ipynb_checkpoint
 # Laptop uploads of data/processed often put the files at the dataset's top level.
 PROCESSED_RE = re.compile(r"^(items_|messages_|variants|audit_pairs|grpo_|eval_)[\w.-]*\.(jsonl|json)$")
 LABELS_RE = re.compile(r"^(label_set|label_key|labels_)[\w.-]*\.(jsonl|csv)$")
+# Audit scorer outputs uploaded loose (e.g. a dataset made from a failed run's downloads).
+AUDIT_SCORES_RE = re.compile(r"^(judge|judge_reward|skywork_v2|tulu3_rm|armorm)\.jsonl$")
 
 
 def on_kaggle() -> bool:
@@ -55,6 +57,8 @@ def destination(rel: Path) -> Path | None:
         return Path("data/processed", *parts[-2:]) if len(parts) > 1 and parts[-2] == "replies" else Path("data/processed", name)
     if LABELS_RE.match(name):
         return Path("data/labels", name)
+    if AUDIT_SCORES_RE.match(name):
+        return Path("results/audit/scores", name)
     return None
 
 

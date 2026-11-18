@@ -15,6 +15,7 @@ def test_destination_rules():
     assert destination(Path("xai_proj2/src/tutorbias/io.py")) is None
     assert destination(Path("xai_proj2/src/tutorbias/data/build.py")) is None
     assert destination(Path("random.txt")) is None
+    assert destination(Path("skywork_v2.jsonl")) == Path("results/audit/scores/skywork_v2.jsonl")
 
 
 def _write(p: Path, text: str) -> None:
