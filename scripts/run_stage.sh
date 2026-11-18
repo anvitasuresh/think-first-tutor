@@ -108,17 +108,25 @@ case "$STAGE" in
     test -f data/processed/variants.jsonl || { echo "Missing data/processed/variants.jsonl: add it from your laptop to the tutorbias-data dataset (New Version)."; exit 1; }
     $P -m tutorbias.audit.pairs --config "$(cfg audit)"
     mkdir -p results/audit/scores
+    # The 4-bit reward judge only needs the groups GRPO trains on (configs/grpo.yaml) plus the paraphrase
+    # control: 7,500 pairs instead of 31,500 (the name pairs are 24,000 and never reach training).
+    $P -c "import json; open('data/processed/audit_pairs_dialect.jsonl','w').writelines(l for l in open('data/processed/audit_pairs.jsonl') if json.loads(l)['axis'] != 'name')"
+    failed=()
     for s in ${SCORERS:-judge skywork_v2 tulu3_rm judge_reward}; do
       case "$s" in
-        judge|judge_reward)
-          J=primary; [ "$s" = "judge_reward" ] && J=reward
-          $P -m tutorbias.judge.score --config "$(cfg judge)" --judge "$J" \
+        judge)
+          $P -m tutorbias.judge.score --config "$(cfg judge)" --judge primary \
             --input data/processed/audit_pairs.jsonl --output "results/audit/scores/$s.jsonl" --id-field pair_id $LIM ;;
+        judge_reward)
+          $P -m tutorbias.judge.score --config "$(cfg judge)" --judge reward \
+            --input data/processed/audit_pairs_dialect.jsonl --output "results/audit/scores/$s.jsonl" --id-field pair_id $LIM ;;
         *)
           $P -m tutorbias.audit.reward_models --config "$(cfg audit)" --rm "$s" $LIM ;;
-      esac
+      esac || { echo "!!! scorer $s FAILED; continuing with the others (rerun later with SCORERS=$s)"; failed+=("$s"); }
     done
+    # Analysis runs on whatever scorers finished, so one broken model never costs the whole run.
     $P -m tutorbias.audit.analyze --config "$(cfg audit)"
+    [ ${#failed[@]} -eq 0 ] || echo "!!! Finished WITHOUT: ${failed[*]}"
     ;;
   explain)
     gpu_check; P=$(py gpu)

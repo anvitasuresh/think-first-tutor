@@ -59,6 +59,10 @@ class SequenceClassifierRM:
             model, torch_dtype=getattr(torch, dtype), device_map="auto" if torch.cuda.is_available() else None,
             trust_remote_code=trust_remote_code, attn_implementation="sdpa", **kwargs,
         ).eval()
+        # Batched sequence classifiers find each row's last real token through config.pad_token_id. Some RMs
+        # (e.g. Tulu-3-RM) ship a tokenizer pad token but leave the config's unset, which breaks batch > 1.
+        if self.model.config.pad_token_id is None:
+            self.model.config.pad_token_id = self.tok.pad_token_id
         self.max_length = max_length
         self.batch_size = batch_size
         self.score_attr = score_attr
