@@ -34,6 +34,7 @@ sys.path.insert(0, str(ROOT / "src"))
 # Same list of known Multi-VALUE breakages ("what I ai wrong", "I am did with it") that the audit
 # drops, so the demo never shows broken text labeled as a dialect. textutil only needs the stdlib.
 from tutorbias.textutil import garbled_reason  # noqa: E402
+
 DEMO = ROOT / "demo"
 OUT = DEMO / "site" / "index.html"
 
