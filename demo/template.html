@@ -1,0 +1,365 @@
+<title>Who Does the Tutor Learn From?</title>
+<meta name="description" content="An interactive demo: can you tell a hint from an answer, and does an AI reward model give every student the same credit for the same help?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: one reading column of worksheet "cards" on graph paper; each section is one interactive exercise. */
+:root {
+  --paper: #f6f7f4;        /* page ground, a faintly green exercise-book white */
+  --sheet: #ffffff;        /* worksheet surface */
+  --grid: #e3e8e4;         /* graph-paper rule */
+  --ink: #1d2a3a;          /* text: blue-black pen */
+  --graphite: #5b6672;     /* secondary text */
+  --rule: #d4dad6;         /* borders */
+  --pen: #2453c7;          /* accent: ballpoint blue */
+  --pen-soft: #e6edfc;
+  --guide: #1f7a4d;        /* semantic: guides (good) */
+  --guide-soft: #e1f2e8;
+  --away: #c2412d;         /* semantic: gives it away */
+  --away-soft: #fbe7e3;
+  --neither: #8a6a12;      /* semantic: neither */
+  --neither-soft: #f6efd9;
+  --hl: #fff09a;           /* highlighter for changed words */
+  --hl-ink: #1d2a3a;
+  --font-display: "Bricolage Grotesque", "Avenir Next", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Atkinson Hyperlegible", "Verdana", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --s-1: 0.8125rem; --s0: 1rem; --s1: 1.1875rem; --s2: 1.5rem; --s3: 2.125rem; --s4: clamp(2.25rem, 6vw, 3.5rem);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper: #12171d; --sheet: #1a2129; --grid: #1e262f; --ink: #e6ebf0; --graphite: #9aa6b2; --rule: #2d3742;
+    --pen: #7ea2ff; --pen-soft: #1f2b47; --guide: #5cc98f; --guide-soft: #173327; --away: #ff8a73; --away-soft: #3a1f1a;
+    --neither: #e0bd5c; --neither-soft: #352c14; --hl: #5c5212; --hl-ink: #fff7c2; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --paper: #12171d; --sheet: #1a2129; --grid: #1e262f; --ink: #e6ebf0; --graphite: #9aa6b2; --rule: #2d3742;
+  --pen: #7ea2ff; --pen-soft: #1f2b47; --guide: #5cc98f; --guide-soft: #173327; --away: #ff8a73; --away-soft: #3a1f1a;
+  --neither: #e0bd5c; --neither-soft: #352c14; --hl: #5c5212; --hl-ink: #fff7c2; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink); font-family: var(--font-body); font-size: var(--s0); line-height: 1.55;
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+.wrap { max-width: 880px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 40px 64px; display: grid; gap: 40px; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.01em; }
+h1 { font-size: var(--s4); font-weight: 800; line-height: 1.02; }
+h2 { font-size: var(--s3); font-weight: 700; line-height: 1.1; }
+h3 { font-size: var(--s1); font-weight: 700; }
+p { margin: 0; max-width: 65ch; }
+a { color: var(--pen); }
+.eyebrow { font-family: var(--font-mono); font-size: var(--s-1); text-transform: uppercase; letter-spacing: 0.08em; color: var(--graphite); }
+.lede { font-size: var(--s1); color: var(--ink); }
+.muted { color: var(--graphite); }
+.small { font-size: var(--s-1); }
+.mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+header.hero { display: grid; gap: 18px; }
+.hero h1 em { font-style: normal; color: var(--pen); }
+.hero nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.hero nav a { font-family: var(--font-display); font-weight: 600; text-decoration: none; color: var(--ink); background: var(--sheet); border: 1px solid var(--rule); border-radius: 999px; padding: 6px 14px; }
+.hero nav a:hover, .hero nav a:focus-visible { border-color: var(--pen); color: var(--pen); }
+
+section { display: grid; gap: 16px; scroll-margin-top: 16px; }
+.sheet { background: var(--sheet); border: 1px solid var(--rule); border-radius: 6px; padding: 22px; display: grid; gap: 18px; min-width: 0; box-shadow: 0 1px 0 var(--rule); }
+.problem { font-size: var(--s0); border-left: 3px solid var(--rule); padding-left: 14px; display: grid; gap: 4px; }
+.problem .eyebrow { margin-bottom: 2px; }
+
+.chat { display: grid; gap: 10px; }
+.bubble { padding: 12px 14px; border-radius: 14px; max-width: 92%; min-width: 0; overflow-wrap: anywhere; }
+.bubble .who { display: block; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--graphite); margin-bottom: 4px; }
+.bubble.student { background: var(--pen-soft); border-bottom-left-radius: 4px; justify-self: start; }
+.bubble.tutor { background: var(--paper); border: 1px solid var(--rule); border-bottom-right-radius: 4px; justify-self: end; }
+
+.choices { display: flex; flex-wrap: wrap; gap: 10px; }
+button { font: inherit; cursor: pointer; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--pen); outline-offset: 2px; }
+.choice { flex: 1 1 160px; padding: 12px 14px; border-radius: 8px; border: 2px solid var(--rule); background: var(--sheet); color: var(--ink); text-align: left; display: grid; gap: 2px; }
+.choice b { font-family: var(--font-display); font-size: var(--s1); }
+.choice span { font-size: var(--s-1); color: var(--graphite); }
+.choice[data-v="-1"]:hover { border-color: var(--away); }
+.choice[data-v="0"]:hover { border-color: var(--neither); }
+.choice[data-v="1"]:hover { border-color: var(--guide); }
+.choice[disabled] { cursor: default; opacity: 0.55; }
+.choice.picked { opacity: 1; border-color: var(--ink); }
+.btn { background: var(--pen); color: var(--sheet); border: 0; border-radius: 8px; padding: 10px 16px; font-family: var(--font-display); font-weight: 700; }
+.btn.ghost { background: transparent; color: var(--pen); border: 1px solid var(--pen); }
+
+.reveal { display: grid; gap: 14px; border-top: 1px dashed var(--rule); padding-top: 16px; }
+.verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.verdict { border: 1px solid var(--rule); border-radius: 8px; padding: 12px; display: grid; gap: 6px; align-content: start; min-width: 0; }
+.pill { display: inline-block; justify-self: start; width: max-content; max-width: 100%; font-family: var(--font-display); font-weight: 700; border-radius: 999px; padding: 2px 10px; font-size: var(--s-1); }
+.pill.g { background: var(--guide-soft); color: var(--guide); }
+.pill.a { background: var(--away-soft); color: var(--away); }
+.pill.n { background: var(--neither-soft); color: var(--neither); }
+.gauge { position: relative; height: 10px; border-radius: 5px; background: linear-gradient(90deg, var(--away-soft), var(--neither-soft) 50%, var(--guide-soft)); border: 1px solid var(--rule); margin-top: 6px; }
+.gauge i { position: absolute; top: -5px; width: 4px; height: 18px; background: var(--ink); border-radius: 2px; transform: translateX(-2px); }
+.gauge-ends { display: flex; justify-content: space-between; font-size: 0.72rem; color: var(--graphite); font-family: var(--font-mono); }
+blockquote { margin: 0; padding: 10px 14px; border-left: 3px solid var(--pen); background: var(--pen-soft); border-radius: 0 6px 6px 0; font-style: italic; }
+.scorebar { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; justify-content: space-between; }
+.tally { font-family: var(--font-mono); font-size: var(--s-1); color: var(--graphite); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tab { border: 1px solid var(--rule); background: var(--sheet); color: var(--ink); border-radius: 6px; padding: 6px 10px; font-size: var(--s-1); }
+.tab[aria-selected="true"] { background: var(--ink); color: var(--sheet); border-color: var(--ink); }
+.tabgroup { display: grid; gap: 6px; }
+mark { background: var(--hl); color: var(--hl-ink); padding: 0 2px; border-radius: 2px; }
+del { color: var(--graphite); }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font-size: var(--s-1); border: 1px solid var(--rule); border-radius: 999px; padding: 2px 10px; background: var(--paper); }
+.pending { border: 2px dashed var(--rule); border-radius: 8px; padding: 16px; display: grid; gap: 8px; }
+.pending .eyebrow { color: var(--neither); }
+.nav-ex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.chart { overflow-x: auto; }
+.chart svg { display: block; max-width: 100%; height: auto; }
+.chart text { fill: var(--graphite); font-family: var(--font-mono); font-size: 11px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.col { display: grid; gap: 10px; align-content: start; min-width: 0; }
+.note { font-size: var(--s-1); color: var(--graphite); display: grid; gap: 6px; }
+table { border-collapse: collapse; font-size: var(--s-1); width: 100%; }
+th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); font-variant-numeric: tabular-nums; }
+.tablewrap { overflow-x: auto; }
+footer { display: grid; gap: 10px; font-size: var(--s-1); color: var(--graphite); border-top: 1px solid var(--rule); padding-top: 20px; }
+@media (prefers-reduced-motion: no-preference) { .reveal { animation: up 0.25s ease-out; } @keyframes up { from { transform: translateY(4px); opacity: 0.4; } } }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <span class="eyebrow">Responsible AI demo · Duke XAI Project 2</span>
+    <h1>An AI tutor should help you <em>think</em>, not think for you.</h1>
+    <p class="lede">Kids can use AI to learn better, without losing skills, if the AI gives hints instead of answers. These tutors are trained by another AI that scores their replies. This page lets you check that scorer: can it tell a hint from an answer, and does it give every student the same credit for the same help?</p>
+    <nav aria-label="Sections">
+      <a href="#game">1 · Hint or answer?</a>
+      <a href="#voices">2 · Same help, different student</a>
+      <a href="#tutor">3 · What the tutor learned</a>
+    </nav>
+  </header>
+
+  <section id="game" aria-labelledby="game-h">
+    <span class="eyebrow">Part 1 · You vs. the AI judge</span>
+    <h2 id="game-h">Hint or answer?</h2>
+    <p>A student is stuck on a math word problem. Read the tutor's reply and decide: does it guide the student, or give the work away? Then see what a human grader and the AI judge said.</p>
+    <div class="sheet" id="game-card" aria-live="polite"></div>
+  </section>
+
+  <section id="voices" aria-labelledby="voices-h">
+    <span class="eyebrow">Part 2 · The fairness check</span>
+    <h2 id="voices-h">Same help, different student</h2>
+    <p>The tutor's reply below never changes. Only the student's message does: the same words in a different variety of English, or with a name added. If a reward model scores the reply differently, that difference can only come from how the student writes or who they seem to be, and an AI tutor trained on that reward learns it.</p>
+    <div class="sheet" id="voice-card"></div>
+  </section>
+
+  <section id="tutor" aria-labelledby="tutor-h">
+    <span class="eyebrow">Part 3 · After training</span>
+    <h2 id="tutor-h">What the tutor learned</h2>
+    <p>A small open model (Qwen2.5-1.5B) is trained with reinforcement learning (GRPO), using the judge from Part 1 as its reward. This section compares its replies before and after training.</p>
+    <div class="sheet" id="tutor-card"></div>
+  </section>
+
+  <footer>
+    <p><b>About the data.</b> Every student message is synthetic. No real students and no minors took part. Math problems come from GSM8K. Dialect versions are made by rules from Multi-VALUE (Ziems et al., 2023) using only grammar features that the eWAVE atlas rates as common in that variety, so they are not written to sound like a stereotype. A dialect is not a race, and a name is only a cue: these tests measure how the AI reacts to that cue, nothing more.</p>
+    <p><b>Limits.</b> The human labels in Part 1 come from one grader on 40 replies, so agreement numbers have wide intervals. Rule-based dialect text is not the same as real speech, and some rules misfire; the demo skips messages with known glitches. Results are for these models and prompts only.</p>
+    <p>Code, data and full results: <a href="https://github.com/anvitasuresh/xai_proj2">github.com/anvitasuresh/xai_proj2</a></p>
+  </footer>
+</div>
+
+<script>
+const D = /*__DATA__*/null;
+const LW = { "-1": "Gives it away", "0": "Neither", "1": "Guides" };
+const PILL = { "-1": "a", "0": "n", "1": "g" };
+const STYLE_WORDS = {
+  direct_answer: "tell the answer directly", worked_solution: "show the full solution", hint_with_leak: "give a hint and mention the answer",
+  partial_work: "do the next steps, leave the last one", targeted_hint: "give one short hint, no calculations", socratic: "ask guiding questions",
+  vague: "give general encouragement only", misleading: "give a confident hint toward a wrong method"
+};
+const FEATURES = {
+  aint_before_main: "ain't before a main verb", aint_be: "ain't for isn't / am not", negative_concord: "negative concord (“ain't get no”)",
+  dont: "don't with it / he / she", progressives: "-ing form for a state (“am knowing”)", null_referential_pronouns: "subject pronoun left out",
+  object_pronoun_drop: "object pronoun left out", present_perfect_for_past: "have + verb for simple past", inverted_indirect_question: "question word order inside a sentence",
+  reduplicate_interrogative: "doubled question word (“what-what”)", plural_interrogative: "plural question word", definite_for_indefinite_articles: "“the” where MAE uses “a”",
+  remove_det_definite: "“the” left out", remove_det_indefinite: "“a” left out", zero_plural: "plural -s left out", bare_past_tense: "past tense without -ed",
+  uninflect: "verb ending left out", drop_aux_yn: "helper verb left out in a yes/no question", past_for_past_participle: "past form for participle"
+};
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+// Some model replies contain LaTeX; show it as plain math text.
+const tex = s => String(s ?? "").replace(/\\[()\[\]]/g, "").replace(/\\frac\{([^}]*)\}\{([^}]*)\}/g, "$1/$2")
+  .replace(/\\times/g, "\u00d7").replace(/\\div/g, "\u00f7").replace(/\\cdot/g, "\u00b7").replace(/\\(text|mathrm)\{([^}]*)\}/g, "$2").replace(/\\,/g, " ");
+const gauge = v => `<div class="gauge" role="img" aria-label="score ${v.toFixed(2)} on a scale from -1 to +1"><i style="left:${((v + 1) / 2 * 100).toFixed(1)}%"></i></div><div class="gauge-ends"><span>-1 gives it away</span><span>+1 guides</span></div>`;
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+/* ---------------------------------------------------------------- Part 1: guessing game */
+const G = { i: 0, played: 0, agreeHuman: 0, judgeAgree: 0 };
+{ const saved = parseInt(store.get("tutor-demo-round") || "0", 10); if (saved > 0 && saved < D.game.rounds.length) G.i = saved; }
+function renderGame(guess) {
+  const r = D.game.rounds[G.i], c = D.game.calibration, card = document.getElementById("game-card");
+  const head = `
+    <div class="scorebar"><span class="eyebrow">Reply ${G.i + 1} of ${D.game.rounds.length}</span>
+      <span class="tally">${G.played ? `You matched the human grader ${G.agreeHuman} of ${G.played} · the AI judge matched ${G.judgeAgree} of ${G.played}` : "Make a guess to start your score"}</span></div>
+    <div class="problem"><span class="eyebrow">The problem</span><p>${esc(tex(r.question))}</p></div>
+    <div class="chat">
+      <div class="bubble student"><span class="who">Student</span>${esc(r.student)}</div>
+      <div class="bubble tutor"><span class="who">AI tutor</span>${esc(tex(r.reply))}</div>
+    </div>`;
+  const choices = `<div class="choices" role="group" aria-label="Your guess">
+      ${[-1, 0, 1].map(v => `<button class="choice${guess === v ? " picked" : ""}" data-v="${v}" ${guess !== undefined ? "disabled" : ""}>
+        <b>${LW[v]}</b><span>${v === -1 ? "states the answer or does the remaining work" : v === 0 ? "doesn't give it away, but doesn't really help" : "points to the next step, leaves the thinking to the student"}</span></button>`).join("")}
+    </div>`;
+  let reveal = "";
+  if (guess !== undefined) {
+    const youMatch = guess === r.human, judgeMatch = r.judge_label === r.human;
+    reveal = `<div class="reveal">
+      <h3>${youMatch ? "You agreed with the human grader." : "The human grader saw it differently."} ${judgeMatch ? "The AI judge agreed with the grader." : "The AI judge did not agree with the grader."}</h3>
+      <div class="verdicts">
+        <div class="verdict"><span class="eyebrow">Your call</span><span class="pill ${PILL[guess]}">${LW[guess]}</span></div>
+        <div class="verdict"><span class="eyebrow">Human grader</span><span class="pill ${PILL[r.human]}">${LW[r.human]}</span><span class="small muted">Helpfulness ${r.human_help} of 5</span></div>
+        <div class="verdict"><span class="eyebrow">AI judge (reward for training)</span><span class="pill ${PILL[r.judge_label]}">${LW[r.judge_label]}</span>
+          ${gauge(r.judge)}<span class="small muted mono">score ${r.judge >= 0 ? "+" : ""}${r.judge.toFixed(2)} · helpfulness ${r.judge_help.toFixed(1)} of 5</span></div>
+      </div>
+      ${r.rationale ? `<div class="note"><span class="eyebrow">The judge's own explanation</span><blockquote>${esc(r.rationale)}</blockquote>
+        <span>A stated reason is not always the real reason. Part of this project tests whether the judge's explanations match what actually moves its scores.</span></div>` : ""}
+      <p class="small muted">Behind the scenes, the reply was written by a model told to <b>${esc(STYLE_WORDS[r.style] || r.style)}</b>. Models don't always follow instructions, which is why every reply is graded rather than trusted. The correct answer is <span class="mono">${esc(r.answer)}</span>.</p>
+      <div class="nav-ex"><button class="btn" id="next">Next reply</button></div>
+    </div>`;
+  }
+  const foot = `<p class="small muted">Across all ${c.n} replies the human graded, the AI judge agreed ${Math.round(c.accuracy * 100)}% of the time (Cohen's kappa ${c.kappa.toFixed(2)}, 95% CI ${c.kappa_ci[0].toFixed(2)} to ${c.kappa_ci[1].toFixed(2)}). That is good enough to train with, but not perfect, and its mistakes become the tutor's lessons.</p>`;
+  card.innerHTML = head + choices + reveal + foot;
+  card.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => {
+    const v = +b.dataset.v; G.played++; if (v === r.human) G.agreeHuman++; if (r.judge_label === r.human) G.judgeAgree++;
+    renderGame(v); document.getElementById("next")?.focus({ preventScroll: true });
+  }));
+  document.getElementById("next")?.addEventListener("click", () => {
+    G.i = (G.i + 1) % D.game.rounds.length; store.set("tutor-demo-round", String(G.i)); renderGame();
+    document.getElementById("game").scrollIntoView({ block: "start" });
+  });
+}
+
+/* ---------------------------------------------------------------- Part 2: counterfactual students */
+function diffWords(a, b) {
+  // Word-level LCS: returns b's words with changed ones marked, and a's words that were removed.
+  const A = a.split(/\s+/), B = b.split(/\s+/), n = A.length, m = B.length;
+  const L = Array.from({ length: n + 1 }, () => new Array(m + 1).fill(0));
+  for (let i = n - 1; i >= 0; i--) for (let j = m - 1; j >= 0; j--) L[i][j] = A[i] === B[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+  const outB = [], outA = []; let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (A[i] === B[j]) { outB.push(esc(B[j])); outA.push(esc(A[i])); i++; j++; }
+    else if (L[i + 1][j] >= L[i][j + 1]) { outA.push(`<del>${esc(A[i])}</del>`); i++; }
+    else { outB.push(`<mark>${esc(B[j])}</mark>`); j++; }
+  }
+  while (i < n) outA.push(`<del>${esc(A[i++])}</del>`);
+  while (j < m) outB.push(`<mark>${esc(B[j++])}</mark>`);
+  return { b: outB.join(" "), a: outA.join(" ") };
+}
+const V = { ex: 0, g: "aae" };
+function gapChart(rows) {
+  // One row per (scorer, group): dot = gap vs the Mainstream US student in SD units, line = 95% CI.
+  const groups = Object.keys(D.groups).filter(g => g !== "mae" && g !== "name_white");
+  const scorers = [...new Set(rows.map(r => r.scorer))];
+  const ext = Math.max(0.25, ...rows.map(r => Math.max(Math.abs(r.lo), Math.abs(r.hi)))) * 1.1;
+  const W = 640, left = 210, right = 20, rowH = 22, x = v => left + (v + ext) / (2 * ext) * (W - left - right);
+  let y = 10, out = "";
+  for (const s of scorers) {
+    out += `<text x="0" y="${y + 12}" style="font-weight:600;fill:var(--ink)">${esc(D.scorers[s] || s)}</text>`; y += 20;
+    for (const g of groups) {
+      const r = rows.find(q => q.scorer === s && q.group === g); if (!r) continue;
+      const sig = r.p !== null && r.p < 0.05, col = sig ? "var(--away)" : "var(--graphite)";
+      out += `<text x="12" y="${y + 12}">${esc(D.groups[g].short)}</text>
+        <line x1="${x(r.lo)}" x2="${x(r.hi)}" y1="${y + 8}" y2="${y + 8}" stroke="${col}" stroke-width="2"/>
+        <circle cx="${x(r.gap)}" cy="${y + 8}" r="4.5" fill="${col}"/>`;
+      y += rowH;
+    }
+    y += 8;
+  }
+  const axis = `<line x1="${x(0)}" x2="${x(0)}" y1="0" y2="${y}" stroke="var(--rule)" stroke-width="1.5"/>
+    <text x="${x(-ext)}" y="${y + 14}">${(-ext).toFixed(2)}</text><text x="${x(0) - 4}" y="${y + 14}">0</text><text x="${x(ext) - 30}" y="${y + 14}">+${ext.toFixed(2)}</text>`;
+  return `<div class="chart"><svg viewBox="0 0 ${W} ${y + 22}" width="${W}" role="img" aria-label="Score gap by student group">${axis}${out}</svg></div>
+    <p class="small muted">Gap = average score change for the identical reply, versus the Mainstream US student (names versus the white-coded name), in standard deviations. Lines are 95% intervals; red means the gap is unlikely to be chance (Holm-corrected p &lt; .05). Left of 0 means that student's help was scored lower.</p>`;
+}
+function renderVoices() {
+  const card = document.getElementById("voice-card"), exs = D.voices.examples;
+  if (!exs.length) { card.innerHTML = `<div class="pending"><span class="eyebrow">Waiting for data</span><p>Run <span class="mono">python demo/build.py</span> after the dialect variants are built.</p></div>`; return; }
+  const e = exs[V.ex], groups = Object.keys(D.groups).filter(g => e.variants[g]);
+  if (!e.variants[V.g]) V.g = "mae";
+  const v = e.variants[V.g], base = e.variants.mae.text, d = diffWords(base, v.text);
+  const tabset = (axis, title) => {
+    const gs = groups.filter(g => D.groups[g].axis === axis || (axis === "dialect" && g === "mae"));
+    if (!gs.length) return "";
+    return `<div class="tabgroup"><span class="eyebrow">${title}</span><div class="tabs" role="tablist">${gs.map(g =>
+      `<button class="tab" role="tab" data-g="${g}" aria-selected="${g === V.g}">${esc(g.startsWith("name_") && e.variants[g].name ? e.variants[g].name : D.groups[g].short)}</button>`).join("")}</div></div>`;
+  };
+  const feats = Object.keys(v.features || {});
+  const scores = e.scores && Object.keys(e.scores).length ? e.scores : null;
+  let scorePanel;
+  if (scores && scores[V.g]) {
+    const keys = Object.keys(scores[V.g]);
+    scorePanel = `<div class="verdicts">${keys.map(k => {
+      const s = scores[V.g][k], b = scores.mae?.[k];
+      return `<div class="verdict"><span class="eyebrow">${esc(D.scorers[k] || k)}</span><span class="mono">${s.toFixed(3)}</span>
+        ${b !== undefined && V.g !== "mae" ? `<span class="small ${s < b ? "" : "muted"}">${s - b >= 0 ? "+" : ""}${(s - b).toFixed(3)} vs. Mainstream US</span>` : ""}</div>`; }).join("")}</div>`;
+  } else {
+    scorePanel = `<div class="pending"><span class="eyebrow">Result pending · audit running on Kaggle</span>
+      <p>The reward-model audit scores this exact reply against all ${groups.length} versions of the message, with the scaffolding judge and two open reward models (Skywork-Reward-V2 and Tulu-3 8B RM). Scores appear here when that run finishes. Nothing on this page is a made-up number.</p></div>`;
+  }
+  card.innerHTML = `
+    <div class="nav-ex"><span class="eyebrow">Example ${V.ex + 1} of ${exs.length}</span>
+      <button class="btn ghost" id="vprev" aria-label="Previous example">Previous</button><button class="btn ghost" id="vnext" aria-label="Next example">Next</button></div>
+    <div class="problem"><span class="eyebrow">The problem</span><p>${esc(tex(e.question))}</p></div>
+    ${tabset("dialect", "How the student writes")}${tabset("control", "Control")}${tabset("name", "Who the student says they are")}
+    <div class="chat">
+      <div class="bubble student"><span class="who">Student · ${esc(V.g.startsWith("name_") ? (v.name || D.groups[V.g].short) + " (" + D.groups[V.g].label.toLowerCase() + ")" : D.groups[V.g].label)}</span>${V.g === "mae" ? esc(v.text) : d.b}</div>
+      ${V.g !== "mae" ? `<p class="small muted">Original: ${d.a}</p>` : ""}
+      <div class="bubble tutor"><span class="who">AI tutor · identical for every student</span>${esc(tex(e.reply))}</div>
+    </div>
+    ${feats.length ? `<div class="note"><span class="eyebrow">Grammar features applied</span><div class="chips">${feats.map(f => `<span class="chip">${esc(FEATURES[f] || f.replace(/_/g, " "))}</span>`).join("")}</div>
+      <span>Each one is a documented feature of this variety in the eWAVE atlas, applied by Multi-VALUE rules. Part of the project removes them one at a time to see which ones move the scores.</span></div>`
+      : V.g === "paraphrase" ? `<p class="note">Same meaning in different Mainstream US wording. If scores move this much for plain rewording, a dialect gap of the same size would not mean much.</p>` : ""}
+    <div class="note"><span class="eyebrow">Did the reward models score this reply the same for everyone?</span></div>
+    ${scorePanel}
+    ${D.voices.gaps ? `<h3>Across the whole audit</h3>${gapChart(D.voices.gaps)}` : `<div class="pending"><span class="eyebrow">Audit-wide result pending</span><p>When the audit finishes, this panel shows the average gap for every student group and every scorer across every tutor reply in the audit, with confidence intervals.</p></div>`}`;
+  card.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { V.g = b.dataset.g; renderVoices(); card.querySelector(`.tab[data-g="${V.g}"]`)?.focus(); }));
+  document.getElementById("vprev").addEventListener("click", () => { V.ex = (V.ex - 1 + exs.length) % exs.length; renderVoices(); });
+  document.getElementById("vnext").addEventListener("click", () => { V.ex = (V.ex + 1) % exs.length; renderVoices(); });
+}
+
+/* ---------------------------------------------------------------- Part 3: before vs after RL */
+const T = { ex: 0 };
+function renderTutor() {
+  const card = document.getElementById("tutor-card"), t = D.tutor;
+  if (!t.examples.length && !t.metrics) {
+    card.innerHTML = `<div class="pending"><span class="eyebrow">Result pending · training on Kaggle</span>
+      <p>When GRPO training and evaluation finish, this section shows the base model and the trained tutor answering the same held-out question side by side, with the judge's score for each and a check for whether the answer slipped out.</p>
+      <p>It will also show the question this whole project is about: after training, does the tutor give some groups of students more real hints than others?</p></div>
+      <div class="cols">
+        <div class="col"><span class="eyebrow">What we expect to see</span><p>More guiding questions and fewer answers handed over, because that is what the reward pays for.</p></div>
+        <div class="col"><span class="eyebrow">What we are watching for</span><p>Reward hacking: short, generic questions ("What do you think?") that score well with the judge but don't teach. A second reward model the tutor never trained on acts as a referee.</p></div>
+      </div>`;
+    return;
+  }
+  let html = "";
+  if (t.examples.length) {
+    const e = t.examples[T.ex];
+    const side = (title, r) => `<div class="col"><span class="eyebrow">${title}</span><div class="bubble tutor" style="max-width:100%">${esc(tex(r.reply))}</div>
+      ${r.judge !== null && r.judge !== undefined ? gauge(r.judge) + `<span class="small mono muted">judge score ${r.judge >= 0 ? "+" : ""}${r.judge.toFixed(2)}</span>` : ""}
+      ${r.leaked ? `<span class="pill a">Answer slipped out</span>` : `<span class="pill g">No answer given</span>`}</div>`;
+    html += `<div class="nav-ex"><span class="eyebrow">Question ${T.ex + 1} of ${t.examples.length}</span>
+      <button class="btn ghost" id="tprev">Previous</button><button class="btn ghost" id="tnext">Next</button></div>
+      <div class="problem"><span class="eyebrow">The problem</span><p>${esc(tex(e.question))}</p></div>
+      <div class="bubble student"><span class="who">Student</span>${esc(e.student)}</div>
+      <div class="cols">${side("Before training (base model)", e.base)}${side("After training (Tutor A)", e.tutor)}</div>`;
+  }
+  if (t.metrics) {
+    const cols = ["scaffolds", "answer_leaked", "helpfulness", "generic_question"].filter(k => k in t.metrics[0]);
+    const names = { scaffolds: "Guides (share)", answer_leaked: "Answer leaked (share)", helpfulness: "Helpfulness (1-5)", generic_question: "Generic question (share)" };
+    html += `<h3>Every student group, before and after</h3><div class="tablewrap"><table><thead><tr><th>Model</th><th>Student group</th>${cols.map(c => `<th>${names[c]}</th>`).join("")}</tr></thead><tbody>
+      ${t.metrics.filter(r => D.groups[r.group]).map(r => `<tr><td>${esc(r.model)}</td><td>${esc(D.groups[r.group].short)}</td>${cols.map(c => `<td class="mono">${typeof r[c] === "number" ? r[c].toFixed(2) : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
+  }
+  card.innerHTML = html;
+  document.getElementById("tprev")?.addEventListener("click", () => { T.ex = (T.ex - 1 + t.examples.length) % t.examples.length; renderTutor(); });
+  document.getElementById("tnext")?.addEventListener("click", () => { T.ex = (T.ex + 1) % t.examples.length; renderTutor(); });
+}
+
+renderGame(); renderVoices(); renderTutor();
+</script>
