@@ -112,7 +112,7 @@ NOTEBOOKS = {
         settings("2. Reward-model audit (stage 2, E2)", "~4-5 h",
                  ["**tutorbias-data**", "the Output of notebook **01_replies_judge**"],
                  "Run only after the judge passed the E1 gate on your laptop (labels committed to the repo). "
-                 "Scorers: the judge (fp16, vLLM on both T4s), Skywork-Reward-V2 and ArmoRM (fp16, split over "
+                 "Scorers: the judge (fp16, vLLM on both T4s), Skywork-Reward-V2 and Tulu-3-8B-RM (fp16, split over "
                  "both T4s), and the 4-bit GRPO reward judge. Results: `results/audit/summary.md`."),
         SECRETS, SETUP,
         stage("bash scripts/run_stage.sh audit"),

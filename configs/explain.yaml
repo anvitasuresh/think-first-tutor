@@ -10,7 +10,7 @@ paths:
   results_dir: results/explain
 
 features:                    # E3 part 1 (CPU, from the audit scores)
-  scorers: [judge_scaffolding, judge_helpfulness, judge_reward_scaffolding, skywork_v2, armorm]
+  scorers: [judge_scaffolding, judge_helpfulness, judge_reward_scaffolding, skywork_v2, tulu3_rm]
   min_count: 30              # a feature needs >= 30 pairs to get its own coefficient
   n_boot: 1000
   n_perm: 500

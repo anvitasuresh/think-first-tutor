@@ -21,7 +21,7 @@
 #             the base configs (bf16, for a single 24 GB+ Ampere GPU).
 #   TUTORBIAS_BACKEND=hf   run vLLM model blocks with transformers instead (if vLLM fails on a GPU)
 #   SHARDS / SHARD (variants), DATA_CONFIG (items/variants), MODELS (replies; default "qwen1.5b qwen7b"),
-#   SCORERS (audit; default "judge skywork_v2 armorm judge_reward"), RUN (grpo; default tutor_a),
+#   SCORERS (audit; default "judge skywork_v2 tulu3_rm judge_reward"), RUN (grpo; default tutor_a),
 #   POLICY (grpo; override the policy model, e.g. Qwen/Qwen2.5-0.5B-Instruct), EVAL_MODELS (eval;
 #   default "base tutor_a tutor_b", missing tutors are skipped), LIMIT (smoke-test any GPU stage on N rows).
 # Uses .venv-data / .venv-gpu if they exist (scripts/setup_local.sh); otherwise the active Python.
@@ -108,7 +108,7 @@ case "$STAGE" in
     test -f data/processed/variants.jsonl || { echo "Missing data/processed/variants.jsonl: add it from your laptop to the tutorbias-data dataset (New Version)."; exit 1; }
     $P -m tutorbias.audit.pairs --config "$(cfg audit)"
     mkdir -p results/audit/scores
-    for s in ${SCORERS:-judge skywork_v2 armorm judge_reward}; do
+    for s in ${SCORERS:-judge skywork_v2 tulu3_rm judge_reward}; do
       case "$s" in
         judge|judge_reward)
           J=primary; [ "$s" = "judge_reward" ] && J=reward

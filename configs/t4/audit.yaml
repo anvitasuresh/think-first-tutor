@@ -2,4 +2,5 @@
 base: ../audit.yaml
 reward_models:
   skywork_v2: {dtype: float16, batch_size: 4, max_length: 3072}
+  tulu3_rm: {dtype: float16, batch_size: 4, max_length: 3072}
   armorm: {dtype: float16, batch_size: 1, max_length: 3072}

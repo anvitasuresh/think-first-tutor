@@ -80,7 +80,7 @@ streamlit run src/tutorbias/labeling/app.py -- --labeler anvita --subset data/la
 python -m tutorbias.labeling.calibrate --split all    # E1 as reported: judge (rubric v1) vs the 40 human labels
 
 # Kaggle notebooks 02-05
-bash scripts/run_stage.sh audit      # E2: judge + Skywork-Reward-V2 + ArmoRM + 4-bit reward judge (~4-5 h)
+bash scripts/run_stage.sh audit      # E2: judge + Skywork-Reward-V2 + Tulu-3-8B-RM + 4-bit reward judge (~4-5 h)
 bash scripts/run_stage.sh grpo-smoke # 10 GRPO steps: memory, speed, reward plumbing (~15 min)
 bash scripts/run_stage.sh grpo       # Tutor A (~3-4 h); RUN=tutor_b for the stretch run
 bash scripts/run_stage.sh explain    # E3 feature effects + probes, E4 rationale faithfulness (~1-1.5 h)
@@ -95,7 +95,7 @@ configs. Old Duke DCC SLURM scripts are in [legacy/slurm/](legacy/slurm/) (unmai
 ## Stage 2: reward-model audit (after the judge passes the E1 gate)
 
 ```bash
-bash scripts/run_stage.sh audit   # pairs -> judge + Skywork-Reward-V2 + ArmoRM scores -> analysis
+bash scripts/run_stage.sh audit   # pairs -> judge + Skywork-Reward-V2 + Tulu-3-8B-RM scores -> analysis
 # -> results/audit/summary.md, gaps.csv, flips.csv, gaps_by_style.csv, forest_all.png
 ```
 

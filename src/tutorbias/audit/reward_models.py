@@ -31,7 +31,7 @@ def rm_conversation(row: dict[str, Any]) -> list[dict[str, str]]:
 
 class SequenceClassifierRM:
     """Reward models exposed as AutoModelForSequenceClassification with one output logit
-    (Skywork-Reward, most RewardBench classifiers). ArmoRM uses remote code and returns `.score`."""
+    (Skywork-Reward, Tulu-3-RM, most RewardBench classifiers). Remote-code RMs (e.g. ArmoRM) can set `score_attr`."""
 
     def __init__(self, model: str, max_length: int = 4096, batch_size: int = 8, trust_remote_code: bool = False,
                  score_attr: str | None = None, dtype: str = "bfloat16", load_in_4bit: bool = False, **_: Any):

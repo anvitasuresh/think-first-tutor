@@ -17,6 +17,13 @@ reward_models:
   skywork_v2:
     model: Skywork/Skywork-Reward-V2-Llama-3.1-8B
     batch_size: 8
+  # Second RM: AI2's Tulu 3 reward model (RewardBench; different lab and training data from Skywork).
+  # Standard LlamaForSequenceClassification, so no remote code.
+  tulu3_rm:
+    model: allenai/Llama-3.1-Tulu-3-8B-RM
+    batch_size: 8
+  # ArmoRM was the original second RM, but its remote code imports names removed from current
+  # transformers (LLAMA_INPUTS_DOCSTRING), and vLLM needs a current transformers. Kept for reference only.
   armorm:
     model: RLHFlow/ArmoRM-Llama3-8B-v0.1
     trust_remote_code: true
@@ -34,4 +41,4 @@ analysis:
     judge_helpfulness: {file: judge.jsonl, column: helpfulness}
     judge_reward_scaffolding: {file: judge_reward.jsonl, column: scaffolding}   # 4-bit GRPO reward judge
     skywork_v2: {file: skywork_v2.jsonl, column: reward}
-    armorm: {file: armorm.jsonl, column: reward}
+    tulu3_rm: {file: tulu3_rm.jsonl, column: reward}

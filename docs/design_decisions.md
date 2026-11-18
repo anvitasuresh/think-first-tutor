@@ -70,3 +70,9 @@ The cheapest debiasing that removes dialect from the reward by construction: the
 
 ### E3 attribution uses randomized feature co-occurrence
 Each allowed dialect feature is applied with p = 0.5 independently, so which features a message got is close to randomized. Regressing paired score gaps on feature indicators therefore estimates per-feature effects without re-generating text. A permutation null (features shuffled within group) sets the bar and handles multiple comparisons. Leave-one-feature-out regeneration would be cleaner and is stretch.
+
+## Second reward model: Tulu-3-8B-RM instead of ArmoRM (Nov 18)
+ArmoRM's remote modeling code imports `LLAMA_INPUTS_DOCSTRING`, which current transformers removed, and
+the GPU env can't pin an old transformers because vLLM needs a current one. The audit now uses AI2's
+`allenai/Llama-3.1-Tulu-3-8B-RM` (on RewardBench, a standard sequence classifier, different lab and
+training data from Skywork). We lose ArmoRM's per-objective breakdown, which the pipeline never used.
