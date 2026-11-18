@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Who Does the Tutor Learn From? (Expo poster)</title>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/* 24 x 24 in poster = 2304 x 2304 CSS px. Boxes with class="pending" are results still to come. */
+:root {
+  --navy: #0b2a6f; --navy2: #1f4a9c; --orange: #c8501e; --teal: #1d7a6c;
+  --ink: #1a1a1a; --muted: #555; --grey: #efefef; --peach: #fcefe7; --blue: #e8eef8;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+@page { size: 24in 24in; margin: 0; }
+html, body { width: 2304px; height: 2304px; background: #fff; }
+body { font-family: "Noto Sans", sans-serif; color: var(--ink); font-size: 23px; line-height: 1.32; overflow: hidden; }
+b { font-weight: 700; }
+.serif { font-family: "EB Garamond", serif; }
+
+/* header */
+header { background: var(--navy); color: #fff; height: 214px; padding: 30px 64px 0; display: flex; justify-content: space-between; border-bottom: 14px solid var(--navy2); }
+header h1 { font-family: "EB Garamond", serif; font-size: 88px; line-height: 1; font-weight: 700; letter-spacing: -0.5px; }
+header .sub { font-size: 31px; margin-top: 14px; color: #dfe6f5; }
+header .who { text-align: right; border-left: 3px solid #5b78b8; padding-left: 36px; margin-top: 4px; height: 150px; flex-shrink: 0; }
+header .who .name { font-family: "EB Garamond", serif; font-size: 58px; font-weight: 700; }
+header .who div { font-size: 22px; color: #dfe6f5; }
+
+/* grid */
+main { display: grid; grid-template-columns: 690px minmax(0,1fr) minmax(0,1fr); grid-template-rows: auto auto; column-gap: 44px; row-gap: 10px; padding: 18px 64px 0; }
+.col1 { grid-row: 1 / span 2; }
+.span23 { grid-column: 2 / span 2; }
+h2 { font-family: "EB Garamond", serif; font-size: 48px; color: var(--navy); font-weight: 700; border-bottom: 4px solid var(--navy); padding-bottom: 0; margin-bottom: 10px; line-height: 1.05; }
+h2 .n { color: var(--orange); margin-right: 12px; }
+h3 { font-size: 25px; color: var(--navy); font-weight: 700; margin: 12px 0 4px; }
+p + p { margin-top: 8px; }
+.box { background: var(--grey); padding: 12px 20px; margin-top: 12px; }
+.box.peach { background: var(--peach); border-left: 8px solid var(--orange); }
+.box.blue { background: var(--blue); border-left: 8px solid var(--navy); }
+.box h3 { margin-top: 0; }
+.cap { font-size: 21px; color: var(--muted); margin-top: 8px; line-height: 1.3; }
+.cap b { color: var(--ink); }
+ol { padding-left: 34px; } li { margin: 4px 0; }
+.small { font-size: 21px; color: var(--muted); }
+
+/* placeholders: dashed orange so they are impossible to miss before printing */
+.pending { border: 4px dashed var(--orange); background: repeating-linear-gradient(135deg, #fff, #fff 14px, #fff6f1 14px, #fff6f1 28px); color: var(--orange); font-weight: 700; text-align: center; }
+.tag { display: inline-block; font-size: 18px; font-weight: 700; color: #fff; background: var(--orange); padding: 2px 10px; border-radius: 6px; letter-spacing: .5px; vertical-align: middle; }
+
+/* hint vs answer figure */
+.chat { margin-top: 10px; }
+.bubble { border-radius: 18px; padding: 12px 18px; font-size: 23px; line-height: 1.3; }
+.kid { background: #fff; border: 2px solid #c9c9c9; margin-right: 70px; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
+.reply { border-radius: 14px; padding: 12px 16px; font-size: 22px; line-height: 1.3; background: #fff; }
+.reply.ans { border: 4px solid var(--orange); }
+.reply.hint { border: 4px solid var(--teal); }
+.reply .lab { font-weight: 700; font-size: 22px; margin-bottom: 4px; }
+.ans .lab { color: var(--orange); } .hint .lab { color: var(--teal); }
+.out { font-size: 21px; margin-top: 8px; font-weight: 600; }
+.ans .out { color: var(--orange); } .hint .out { color: var(--teal); }
+
+/* pipeline */
+.pipe { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin-top: 6px; }
+.phase { display: grid; grid-template-columns: 4fr 2fr; gap: 18px; font-weight: 700; font-size: 22px; margin-top: 4px; }
+.phase div { text-align: center; padding: 4px; border-radius: 6px; color: #fff; }
+.phase .a { background: var(--navy); } .phase .b { background: var(--teal); }
+.step { position: relative; background: #fff; border: 3px solid var(--navy); border-radius: 14px; margin: 12px 30px 0 0; padding: 10px 12px 12px; min-height: 0; }
+.step.t { border-color: var(--teal); }
+.step:not(:last-child)::after { content: ""; position: absolute; right: -30px; top: 50%; border: 15px solid transparent; border-left: 22px solid var(--navy); transform: translate(6px, -50%); }
+.step.t:not(:last-child)::after { border-left-color: var(--teal); }
+.step .num { font-family: "EB Garamond", serif; font-weight: 800; color: var(--orange); font-size: 34px; line-height: 1; }
+.step .ttl { font-weight: 700; font-size: 23px; color: var(--navy); line-height: 1.15; margin: 4px 0 6px; }
+.step.t .ttl { color: var(--teal); }
+.step .d { font-size: 19px; color: #333; line-height: 1.28; }
+.icon { height: 54px; float: right; margin: -4px -4px 0 6px; }
+
+/* same help, different student */
+.two { display: grid; grid-template-columns: 1.25fr 1fr; gap: 34px; margin-top: 12px; }
+.variants { display: grid; grid-template-columns: 1fr; gap: 7px; margin-top: 8px; }
+.v { display: grid; grid-template-columns: 210px 1fr 140px; align-items: center; gap: 14px; background: #fff; border: 2px solid #cfcfcf; border-radius: 12px; padding: 5px 12px; }
+.v .g { font-weight: 700; color: var(--navy); font-size: 22px; line-height: 1.15; }
+.v .t { font-size: 20px; line-height: 1.22; }
+.v .t mark { background: #ffe1cf; color: var(--ink); padding: 0 3px; border-radius: 4px; }
+.v .s { text-align: center; font-size: 19px; font-weight: 700; border-radius: 10px; padding: 6px 4px; }
+.v .s.real { background: var(--teal); color: #fff; }
+.v .s.pending { border-width: 3px; }
+.fixed { border: 4px solid var(--teal); border-radius: 14px; background: #fff; padding: 10px 16px; font-size: 22px; line-height: 1.3; margin-top: 10px; }
+.fixed .lab { font-weight: 700; color: var(--teal); }
+
+/* grader scale */
+.scale { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 10px; text-align: center; font-size: 21px; font-weight: 700; }
+.scale div { padding: 10px 4px; color: #fff; }
+.scale .m1 { background: var(--orange); border-radius: 10px 0 0 10px; }
+.scale .z { background: #9a9a9a; }
+.scale .p1 { background: var(--teal); border-radius: 0 10px 10px 0; }
+.scale span { display: block; font-size: 30px; font-family: "EB Garamond", serif; }
+
+/* results */
+.main-finding { display: grid; grid-template-columns: 170px 1fr; gap: 26px; background: var(--peach); border-left: 12px solid var(--orange); padding: 16px 22px; }
+.main-finding .big { text-align: center; padding: 18px 8px; font-family: "EB Garamond", serif; font-size: 72px; line-height: 1; }
+.main-finding .big small { display: block; font-family: "Noto Sans"; font-size: 19px; margin-top: 10px; }
+.main-finding h3 { font-family: "EB Garamond", serif; font-size: 36px; margin: 0 0 6px; }
+.bars { margin-top: 8px; }
+.brow { display: grid; grid-template-columns: 170px 1fr 70px; align-items: center; gap: 12px; margin: 6px 0; font-size: 22px; }
+.track { height: 30px; background: #e2e2e2; border-radius: 6px; overflow: hidden; display: flex; }
+.track i { display: block; height: 100%; }
+.legend { font-size: 19px; color: var(--muted); margin-top: 4px; }
+.legend i { display: inline-block; width: 18px; height: 18px; vertical-align: -3px; margin: 0 6px 0 14px; border-radius: 3px; }
+.forest { width: 100%; height: auto; display: block; }
+
+/* demo + QR */
+.qrs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px; }
+.qrbox { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 16px; align-items: center; }
+svg.qr { width: 150px; height: 150px; display: block; }
+.qrbox .k { font-weight: 700; color: var(--navy); font-size: 28px; line-height: 1.1; }
+.qrbox .k small { display: block; font-weight: 400; color: var(--muted); font-size: 17px; word-break: break-all; margin-top: 4px; }
+
+/* bottom band */
+.band { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 28px; padding: 18px 64px 0; }
+.xband .box { margin-top: 0; font-size: 21px; line-height: 1.3; }
+.xband .box h3 { font-size: 25px; }
+.refs { padding: 10px 64px 0; font-size: 16px; color: var(--muted); line-height: 1.3; }
+.refs b { color: var(--ink); }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <h1>Who Does the Tutor Learn From?</h1>
+    <div class="sub">An AI math tutor that gives hints instead of answers, and a check that it helps every student the same way</div>
+  </div>
+  <div class="who">
+    <div class="name">Anvita Suresh</div>
+    <div>Master in Interdisciplinary Data Science, Duke University</div>
+    <div>Explainable AI, Fall 2026 · anvita.suresh@duke.edu</div>
+  </div>
+</header>
+
+<main>
+  <!-- ============ COLUMN 1 ============ -->
+  <section class="col1">
+    <h2><span class="n">1</span>Motivation</h2>
+    <p>Kids already use AI for homework. If it just <b>hands over the answer</b>, the homework gets done but the kid <b>learns less</b>. My goal: <b>AI that makes kids better at math, not more dependent on it, for every kid.</b> <b>For:</b> teachers, schools writing AI rules (like NYC public schools), and teams building AI tutors.</p>
+
+    <div class="box">
+      <h3>Answer or hint? <span class="small" style="font-weight:400">(example written for this poster)</span></h3>
+      <div class="chat">
+        <div class="bubble kid"><b>Student:</b> Weng earns $12 an hour babysitting and worked 50 minutes. I have 12 ÷ 60 = 0.2. I can't figure out the next step.</div>
+        <div class="pair">
+          <div class="reply ans"><div class="lab">✗ Gives the answer</div>“0.2 × 50 = 10. She earned $10.”<div class="out">Done for you. Nothing learned.</div></div>
+          <div class="reply hint"><div class="lab">✓ Gives a hint</div>“Nice! $0.20 is what she earns each minute. She worked 50 minutes. What could you do with those two numbers?”<div class="out">Student takes the next step.</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="box blue">
+      <h3>The evidence</h3>
+      In a study of ~1,000 high-school students, an answer-giving AI raised practice scores by 48%, but on the exam <b>without AI</b> they did <b>17% worse</b> than students who never had it. A tutor-style AI that gave hints avoided that harm <span class="small">(Bastani et al., PNAS 2025)</span>.
+    </div>
+
+    <div class="box peach">
+      <h3>The hidden risk: who is the tutor learning from?</h3>
+      Tutors are trained with an <b>AI grader</b> that scores each reply (reinforcement learning). The tutor copies whatever the grader rewards. Language models are known to judge people differently by <b>how they write</b> <span class="small">(Hofmann et al., Nature 2024)</span>. If the grader does that, the tutor could learn to give some kids hints and <b>other kids just the answer</b>.
+    </div>
+
+    <h2 style="margin-top:20px"><span class="n">2</span>Research questions</h2>
+    <ol>
+      <li>Can an AI grader <b>tell a hint from an answer</b>, as a person would?</li>
+      <li>Does it give the <b>same help a different score</b> when only the student's dialect or name changes?</li>
+      <li><b>What</b> in the student's writing moves the score, and does the grader <b>admit it</b> in its own explanation?</li>
+      <li>Does that bias <b>carry over</b> into a tutor trained by the grader?</li>
+    </ol>
+    <div class="box blue" style="margin-top:18px">
+      <h3>Why it matters</h3>
+      AI tutors are coming to classrooms. A tutor that gives <b>some kids hints and others answers</b> would quietly widen gaps between students. This shows how to <b>check the grader before you train with it</b>.
+    </div>
+    <div class="box peach">
+      <h3>What this does not claim</h3>
+      It does not measure how real students write or how a real classroom tutor behaves. Dialect is not race or nationality: the test asks whether the grader reacts to <b>language features</b>, not whether it is “biased against” any group of people. All student messages are synthetic; no real students or minors.
+    </div>
+
+  </section>
+
+  <!-- ============ HOW IT WORKS (cols 2-3) ============ -->
+  <section class="span23">
+    <h2><span class="n">3</span>What I built</h2>
+    <div class="phase"><div class="a">Part A · Test the grader</div><div class="b">Part B · Train and test the tutor</div></div>
+    <div class="pipe">
+      <div class="step">
+        <div class="num">1</div><div class="ttl">A stuck student</div>
+        <div class="d">School math word problems (GSM8K) + “I'm stuck” messages.</div>
+      </div>
+      <div class="step">
+        <div class="num">2</div><div class="ttl">Tutor replies</div>
+        <div class="d">~1,500 fixed replies: hints, answers, in between.</div>
+      </div>
+      <div class="step">
+        <div class="num">3</div><div class="ttl">AI grader</div>
+        <div class="d">An LLM + my rubric scores each reply <b>−1</b> (answer) to <b>+1</b> (hint).</div>
+      </div>
+      <div class="step">
+        <div class="num">4</div><div class="ttl">Same help, different student</div>
+        <div class="d">Change only the student's dialect or name. Do scores move?</div>
+      </div>
+      <div class="step t">
+        <div class="num">5</div><div class="ttl">Train a tutor</div>
+        <div class="d">A small tutor learns from the grader's scores (RL, GRPO).</div>
+      </div>
+      <div class="step t">
+        <div class="num">6</div><div class="ttl">Check the tutor</div>
+        <div class="d">Hints? Cheating the grader? Fair to every student?</div>
+      </div>
+    </div>
+
+    <div class="two">
+      <div>
+        <h3>Same help, different student</h3>
+        <div class="small" style="margin-bottom:4px">Real test example. The tutor reply stays fixed; only the student's words change.</div>
+        <div class="variants">
+          <div class="v"><div class="g">Mainstream American English</div><div class="t">I already worked out that 10 x 15 is 150, but I am stuck on what <mark>comes</mark> after that.</div><div class="s real">+1.00</div></div>
+          <div class="v"><div class="g">African American English</div><div class="t">I already worked out that 10 x 15 is 150, but I am stuck on what <mark>come</mark> after that.</div><div class="s pending">score<br>pending</div></div>
+          <div class="v"><div class="g">Name only</div><div class="t"><mark>Hi, I'm Emily.</mark> / <mark>Hi, I'm Keisha.</mark> I already worked out that…</div><div class="s pending">score<br>pending</div></div>
+        </div>
+        <div class="fixed"><span class="lab">Same tutor reply every time:</span> “Great job calculating the total number of squares is 150! Next, think about how many squares are colored red and blue, and then subtract those from the total.”</div>
+        <div class="cap"><b>Fig. 1.</b> One of 22,600 messages; also Indian and learner English. +1.00 is the grader's real score.</div>
+      </div>
+      <div>
+        <h3>How the grader scores a reply</h3>
+        <div class="scale">
+          <div class="m1"><span>−1</span>gives the answer away</div>
+          <div class="z"><span>0</span>neither</div>
+          <div class="p1"><span>+1</span>a useful hint</div>
+        </div>
+        <div class="small" style="margin-top:6px">Plus 1–5 helpfulness, and a short written reason (checked in Q3).</div>
+
+        <div class="box" style="margin-top:16px">
+          <h3>Dialects, done carefully</h3>
+          To avoid stereotypes:
+          <ol style="margin-top:4px">
+            <li>Only grammar features linguists record as <b>common</b> in each dialect (eWAVE, Multi-VALUE). No slang.</li>
+            <li>Garbled sentences from tool bugs are <b>removed</b>.</li>
+            <li><b>Native speakers</b> rate samples; flagged features are dropped.</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ RESULTS (col 2) ============ -->
+  <section>
+    <h2><span class="n">4</span>Results</h2>
+    <div class="main-finding">
+      <div class="big pending">?<small>RESULT PENDING</small></div>
+      <div>
+        <h3>Main finding</h3>
+        <p class="pending" style="text-align:left;padding:8px 14px;font-size:21px">FILL IN (audit summary): “Same reply, only the dialect changed: the score moved by __ (95% CI __ to __), most for __.”</p>
+      </div>
+    </div>
+
+    <h3 style="margin-top:20px">Q1 · Can the grader tell a hint from an answer? <span style="color:var(--teal)">Yes, mostly.</span></h3>
+    <div class="bars">
+      <div class="brow"><div>I said <b>“answer”</b></div><div class="track"><i style="width:84.6%;background:var(--teal)"></i><i style="width:15.4%;background:var(--orange)"></i></div><div><b>11/13</b></div></div>
+      <div class="brow"><div>I said <b>“hint”</b></div><div class="track"><i style="width:81.5%;background:var(--teal)"></i><i style="width:14.8%;background:#9a9a9a"></i><i style="width:3.7%;background:var(--orange)"></i></div><div><b>22/27</b></div></div>
+    </div>
+    <div class="legend"><i style="background:var(--teal);margin-left:0"></i>grader agreed with me <i style="background:#9a9a9a"></i>said “neither” <i style="background:var(--orange)"></i>said the opposite</div>
+    <div class="cap"><b>Fig. 2.</b> I labeled 40 replies by hand; the grader matched me on 33 (82.5%; kappa 0.65, 95% CI 0.41–0.85). Good enough to use; only 40 checks.</div>
+
+    <h3 style="margin-top:12px">Q2 · Same help, different score?</h3>
+    <div class="pending" style="padding:6px 8px 4px">
+      <svg class="forest" viewBox="0 0 900 250" font-family="Noto Sans" font-size="20">
+        <text x="450" y="24" text-anchor="middle" fill="#c8501e" font-weight="700">PLACEHOLDER · replace with results/audit/forest_all.png</text>
+        <line x1="560" y1="40" x2="560" y2="226" stroke="#555" stroke-width="2" stroke-dasharray="6 5"/>
+        <text x="560" y="244" text-anchor="middle" fill="#333">no gap</text>
+        <text x="340" y="244" text-anchor="middle" fill="#333">← scored lower</text>
+        <text x="780" y="244" text-anchor="middle" fill="#333">scored higher →</text>
+        <g fill="#1a1a1a" font-weight="600">
+          <text x="10" y="66">Rewording only (control)</text>
+          <text x="10" y="104">African American English</text>
+          <text x="10" y="142">Indian English</text>
+          <text x="10" y="180">Learner English</text>
+          <text x="10" y="218">Name swap</text>
+        </g>
+        <g fill="#fff" stroke="#c8501e" stroke-width="3">
+          <circle cx="560" cy="59" r="9"/><circle cx="560" cy="97" r="9"/><circle cx="560" cy="135" r="9"/><circle cx="560" cy="173" r="9"/><circle cx="560" cy="211" r="9"/>
+        </g>
+      </svg>
+    </div>
+    <div class="cap"><b>Fig. 3.</b> Gap vs. Mainstream American English, same reply; my grader + 2 public reward models. “Rewording only” = control.</div>
+    <h3 style="margin-top:10px">Q3 · What moves the score?</h3>
+    <div class="pending" style="padding:10px 14px;font-size:21px;text-align:left">FILL IN (stage 3): top dialect features that move the score; the grader's reason mentions the student's language in __ of __ big gaps.</div>
+  </section>
+
+  <!-- ============ RESULTS cont + DEMO (col 3) ============ -->
+  <section>
+
+    <h3 style="margin-top:0">Q4 · Does the bias reach the trained tutor?</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:21px;margin-top:4px">
+      <tr style="color:var(--navy);font-weight:700;border-bottom:3px solid var(--navy)"><td style="padding:4px 4px">On new problems</td><td style="text-align:center">Before training</td><td style="text-align:center">Tutor A (after)</td></tr>
+      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives a hint</td><td class="pending">__%</td><td class="pending">__%</td></tr>
+      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives the answer away</td><td class="pending">__%</td><td class="pending">__%</td></tr>
+      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gap between groups</td><td class="pending">__</td><td class="pending">__</td></tr>
+      <tr><td style="padding:4px 4px">Gamed the grader?</td><td class="pending" colspan="2">__ (second reward model)</td></tr>
+    </table>
+    <div class="cap"><b>Fig. 4.</b> Key row: does training widen the gap between groups?</div>
+
+    <h2 style="margin-top:14px"><span class="n">5</span>Try it yourself</h2>
+    <p>On your phone: guess <b>hint or answer</b>, then <b>flip the student's dialect or name</b> and watch the score.</p>
+    <div class="qrs">
+      <div class="qrbox"><svg class="qr" width="330" height="330" class="segno"><g transform="scale(10)"><path fill="#fff" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#0b2a6f" d="M2 2.5h7m3 0h2m3 0h1m1 0h3m2 0h7m-29 1h1m5 0h1m1 0h3m4 0h1m1 0h1m1 0h2m1 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m4 0h2m1 0h1m1 0h1m2 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m2 0h4m1 0h3m1 0h2m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m1 0h1m2 0h3m3 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m2 0h2m3 0h6m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-18 1h4m1 0h2m2 0h1m-21 1h1m1 0h1m1 0h1m1 0h1m2 0h5m1 0h1m1 0h1m1 0h2m3 0h1m2 0h1m-27 1h1m2 0h1m2 0h1m1 0h2m1 0h1m2 0h2m5 0h1m2 0h1m2 0h1m-29 1h1m1 0h2m2 0h4m3 0h2m3 0h1m1 0h5m1 0h3m-29 1h2m2 0h1m3 0h4m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h2m2 0h1m-28 1h1m1 0h1m3 0h1m1 0h1m1 0h2m1 0h5m1 0h4m2 0h1m1 0h2m-28 1h2m1 0h1m3 0h1m3 0h3m1 0h3m1 0h3m2 0h1m2 0h1m-27 1h1m2 0h3m1 0h1m2 0h3m7 0h1m2 0h1m1 0h2m-28 1h2m2 0h1m1 0h5m1 0h1m1 0h1m1 0h2m6 0h1m1 0h1m-22 1h2m1 0h1m1 0h1m1 0h2m1 0h2m3 0h3m1 0h1m1 0h2m-28 1h1m1 0h1m1 0h1m2 0h5m3 0h2m2 0h1m1 0h1m2 0h2m1 0h1m-29 1h1m1 0h1m1 0h1m1 0h1m6 0h1m2 0h3m3 0h1m4 0h2m-28 1h4m2 0h1m1 0h2m1 0h4m1 0h1m1 0h2m1 0h1m1 0h2m1 0h1m-28 1h1m1 0h1m3 0h2m1 0h1m1 0h1m2 0h2m1 0h2m1 0h5m-17 1h1m1 0h2m1 0h1m2 0h1m2 0h2m3 0h1m1 0h3m-29 1h7m3 0h1m3 0h1m2 0h1m1 0h2m1 0h1m1 0h2m1 0h2m-29 1h1m5 0h1m2 0h5m2 0h2m2 0h1m3 0h2m-26 1h1m1 0h3m1 0h1m1 0h1m3 0h1m1 0h4m2 0h5m-25 1h1m1 0h3m1 0h1m2 0h4m6 0h2m2 0h2m1 0h3m-29 1h1m1 0h3m1 0h1m1 0h2m3 0h1m4 0h1m1 0h2m1 0h3m2 0h1m-29 1h1m5 0h1m2 0h2m1 0h3m1 0h3m1 0h1m6 0h1m-28 1h7m1 0h1m1 0h3m2 0h3m1 0h4m1 0h1m2 0h2"/></g></svg><div class="k">Live demo<small>anvitasuresh.github.io/xai_proj2</small></div></div>
+      <div class="qrbox"><svg class="qr" width="330" height="330" class="segno"><g transform="scale(10)"><path fill="#fff" d="M0 0h33v33h-33z"/><path class="qrline" stroke="#0b2a6f" d="M2 2.5h7m4 0h1m3 0h1m1 0h3m2 0h7m-29 1h1m5 0h1m1 0h1m2 0h1m1 0h1m1 0h3m1 0h1m2 0h1m5 0h1m-29 1h1m1 0h3m1 0h1m2 0h2m1 0h1m1 0h2m3 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m3 0h3m1 0h1m1 0h1m1 0h3m1 0h1m1 0h3m1 0h1m-29 1h1m1 0h3m1 0h1m1 0h1m2 0h2m6 0h1m2 0h1m1 0h3m1 0h1m-29 1h1m5 0h1m4 0h1m3 0h5m2 0h1m5 0h1m-29 1h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7m-20 1h5m1 0h1m1 0h1m2 0h1m-21 1h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1m1 0h3m1 0h2m3 0h1m2 0h1m-27 1h1m6 0h2m6 0h2m2 0h1m1 0h1m2 0h1m2 0h1m-29 1h4m2 0h3m1 0h4m4 0h1m2 0h2m1 0h1m1 0h3m-28 1h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h4m1 0h3m3 0h2m2 0h1m-27 1h2m1 0h1m1 0h2m1 0h1m1 0h1m1 0h1m2 0h2m2 0h3m2 0h1m1 0h2m-27 1h2m4 0h1m2 0h2m3 0h3m1 0h3m2 0h1m2 0h1m-26 1h1m2 0h1m2 0h2m1 0h3m1 0h3m3 0h1m1 0h2m1 0h2m-29 1h1m3 0h2m1 0h2m1 0h1m1 0h2m1 0h1m1 0h2m1 0h3m2 0h1m1 0h1m-28 1h2m4 0h5m1 0h4m1 0h1m1 0h2m1 0h2m1 0h1m1 0h2m-27 1h2m1 0h1m1 0h1m5 0h2m1 0h3m2 0h2m2 0h2m1 0h1m-29 1h1m2 0h1m1 0h2m3 0h1m2 0h2m6 0h1m1 0h2m2 0h2m-28 1h1m1 0h1m1 0h1m3 0h1m1 0h3m2 0h10m1 0h1m-28 1h1m1 0h1m1 0h1m1 0h7m1 0h4m1 0h6m-17 1h1m4 0h1m3 0h4m3 0h1m1 0h3m-29 1h7m7 0h1m1 0h5m1 0h1m1 0h2m1 0h2m-29 1h1m5 0h1m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m3 0h2m-26 1h1m1 0h3m1 0h1m1 0h5m1 0h4m2 0h5m-25 1h1m1 0h3m1 0h1m2 0h1m2 0h1m3 0h2m2 0h1m2 0h2m1 0h3m-29 1h1m1 0h3m1 0h1m1 0h3m8 0h1m3 0h3m2 0h1m-29 1h1m5 0h1m2 0h1m2 0h1m1 0h1m2 0h5m2 0h1m2 0h1m-28 1h7m1 0h2m2 0h1m1 0h1m2 0h1m1 0h3m1 0h2m2 0h2"/></g></svg><div class="k">Code &amp; write-up<small>github.com/anvitasuresh/xai_proj2</small></div></div>
+    </div>
+    <div class="box" style="margin-top:12px">
+      <h3>Limitations</h3>
+      Dialects are rule-based rewrites, cleaner than real speech. Small models, free GPUs, one short training run: a demonstration, not a verdict on real products. Grader checked on only 40 labels by one person. Math only, one turn. “Same help = fair” assumes every kid needs the same help.
+    </div>
+    <div class="box blue">
+      <h3>Future work</h3>
+      <b>Tutor B:</b> a grader that only sees the student's message in Mainstream American English, so it cannot react to dialect. Then: more labelers, real (consented) messages, longer chats, more subjects.
+    </div>
+  </section>
+</main>
+
+
+<div class="refs"><b>References.</b> Bastani et al. 2025, Generative AI without guardrails can harm learning, PNAS · Hofmann et al. 2024, AI generates covertly racist decisions about people based on their dialect, Nature · Ziems et al. 2023, Multi-VALUE, ACL · Kortmann et al., eWAVE · Cobbe et al. 2021, GSM8K · Shao et al. 2024, DeepSeekMath (GRPO) · Lambert et al. 2024, RewardBench · Liu et al. 2023, G-Eval · Zheng et al. 2023, LLM-as-a-judge · Turpin et al. 2023, Language models don't always say what they think · Gao et al. 2022, Reward model overoptimization · Bertrand &amp; Mullainathan 2004, AER. Every number and source: the repository write-up.</div>
+
+</body>
+</html>
