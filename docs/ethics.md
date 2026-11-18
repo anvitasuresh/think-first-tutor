@@ -28,6 +28,25 @@ This project changes how a synthetic student writes and checks whether AI grader
 6. **Meaning and numbers are preserved.** A variant that changes any number is excluded from the audit.
 7. **Native-speaker validation** before the variants are used for any reported result: see [dialect_validation.md](dialect_validation.md). Features that raters flag as unnatural or stereotyped are dropped by a rule fixed in advance, and the variants are rebuilt.
 
+## Problems found in the built variants (Nov 18)
+
+- **Garbled AAE text is filtered out.** Two Multi-VALUE features misfire. `aint_before_main` turns a positive "do/did" into a bare "ai" ("what I ai wrong", about 20% of AAE variants), and `past_for_past_participle` turns adjectival "done" into "did" after a form of *be* ("I am did with it", about 7%). No AAE speaker writes either, so a score gap on them would measure a reaction to broken text, not to the dialect. `tutorbias.textutil.garbled_reason` detects both, and the audit pairs, the analysis, GRPO prompts, eval prompts and the demo all drop matching variants and report how many.
+- **Possible caricature in Indian English.** "amn't" and wh-word reduplication ("what-what") are attested in eWAVE but show up in a large share of Indian English variants, and at that rate may read as exaggerated. They are kept for now, flagged for the native-speaker check, and reported separately in the per-feature analysis (E3). If raters flag them, the pre-registered drop rule removes them. No dialect result is reported as final before that check.
+
+## Data and people
+
+- No real student data and no minors. Every student message is synthetic (templated stuck messages, then rule-based rewrites). Tutor replies are model-generated.
+- The only human labels are the project author's own 40 spot-check ratings. Native-speaker raters are adult volunteers rating sentence naturalness; they are not research subjects and no data about them is stored beyond their ratings.
+
+## Stakeholders
+
+| Who | What is at stake |
+|---|---|
+| Students who use AAE, Indian English, or are learning English | Could receive answer-giving help that teaches less, from a tutor trained on a biased grader |
+| Teachers, schools and districts | Decide which AI tutors to allow; need evidence about equal treatment |
+| Builders of AI tutors and reward models | Their graders can pass bias into every model trained on them |
+| Speakers of these varieties generally | Could be caricatured by carelessly generated dialect text |
+
 ## Remaining limitations (reported on the poster and in the README)
 
 - Even pervasive features are not used by every speaker, and written messages to a tutor are a more formal register in which speakers may use fewer of them.
@@ -38,6 +57,8 @@ This project changes how a synthetic student writes and checks whether AI grader
 ## Misuse
 
 The variants and audit could be used to tune a grader until it "passes" this test without being fair in general (fairness washing). We publish per-feature results and the full variant set (marked synthetic), not only a pass/fail number.
+
+The variant generator could also be used to produce mocking dialect text. It is limited to documented features, broken output is filtered, and every variant is marked synthetic. Finally, a gap in this synthetic setting is a warning sign, not proof that a deployed tutor harms real students; results should not be cited as that.
 
 ## References
 

@@ -1,156 +1,258 @@
 # Who Does the Tutor Learn From?
 
-**Auditing reward-model dialect bias, and whether it carries into an RL-trained AI tutor.**
+**An AI math tutor that gives hints instead of answers, and a fairness check that makes sure it helps every student the same way.**
 
-An AI tutor trained with reinforcement learning learns whatever its reward model rewards. If the reward model scores the *same* tutoring help differently depending on whether the student writes in Mainstream American English, African American English, Indian English, or learner English, or on the student's name, the tutor can learn to give some students real guidance and hand others the answer. Bastani et al. (PNAS, 2025) found that answer-giving help improves practice scores but hurts learning, so that gap would fall on exactly the students AI-in-schools policies aim to protect.
-
-This repo builds the whole pipeline:
-
-1. **Scaffolding judge.** An LLM judge (Qwen2.5-7B-Instruct + rubric) scores tutor replies from -1 (gives the answer) to +1 (useful hint), plus 1-5 helpfulness, checked against human labels on a held-out 40-reply sample (see Limitations).
-2. **Counterfactual reward-model audit.** Identical replies, with only the student's dialect or name changed. Any score gap is bias by construction.
-3. **Explanation.** Which dialect features drive the gaps; whether the judge's stated reasons match them; linear probes on activations.
-4. **GRPO tutor.** Qwen2.5-1.5B + LoRA trained with the judge as reward (Tutor A). Stretch: the same with a debiased judge (Tutor B).
-5. **Evaluation.** Scaffolding, helpfulness, reward hacking, and per-group gaps before and after RL.
-
-> Status: **all five stages are implemented** and run on Kaggle's free 2x T4 GPUs ([docs/kaggle.md](docs/kaggle.md)). Results come in as the runs finish; see [docs/timeline.md](docs/timeline.md).
-
-Everything is synthetic or public. No real students and no minors are involved.
-
-## Try the demo
-
-**[anvitasuresh.github.io/xai_proj2](https://anvitasuresh.github.io/xai_proj2/)** (or open `demo/site/index.html`). Guess whether a real tutor reply is a hint or an answer and compare with a human grader and the AI judge, then flip one student message between dialects and names while the tutor's reply stays fixed. It runs in any browser with no GPU; see [demo/README.md](demo/README.md).
+**[Try the live demo](https://anvitasuresh.github.io/xai_proj2/)** · Anvita Suresh · Duke MIDS · Explainable AI, Fall 2026
 
 ---
+
+## 1. Why this project
+
+Many people worry that AI makes students "dumber": a student gets stuck, asks a chatbot, and gets the full answer. The homework gets done, but nothing is learned. A large study in high schools found exactly this: students with an answer-giving AI did better on practice problems and *worse* on the test once the AI was taken away (Bastani et al., PNAS 2025).
+
+It doesn't have to work that way. A good human tutor does not give the answer. They give a hint, ask a question, and let the student do the thinking. **The goal of this project is a tool that uses AI to help kids learn better, not to think less.**
+
+To build that tutor, we train a small AI model with reinforcement learning (RL). It practices on thousands of "I'm stuck" messages, and a grader model scores each reply: a good hint scores high, giving away the answer scores low. The tutor learns whatever the grader rewards.
+
+That creates a fairness risk. **If the grader scores the same help differently depending on how a student writes**, for example in African American English or Indian English instead of Mainstream American English, then the tutor can learn to coach some students and just hand others the answer. The students who most need real teaching would get the version that teaches the least.
+
+```mermaid
+flowchart LR
+    S["Student:<br/>I'm stuck on this problem"] --> T["AI tutor"]
+    T --> R["Tutor reply"]
+    R --> G["Grader model<br/>scores the reply"]
+    G -- "reward" --> T
+    G -. "Does the score change<br/>with how the student writes?" .-> Q(("?"))
+```
+
+**Who this is for:** schools and districts deciding which AI tutors to allow (for example, NYC's AI-in-schools policy), teams that build AI tutors, and researchers who use AI graders to train models.
+
+## 2. Research questions
+
+1. Can a grader model tell a **hint** from an **answer**, as well as a person can?
+2. Do grader models give **different scores to the exact same tutor reply** when only the student's dialect or name changes?
+3. **Why?** Which words or grammar features cause the gap, and does the grader's own explanation admit it?
+4. When a tutor is trained with that grader, does it **learn to give hints**, and does any **unfair gap carry over** into how it treats students?
+
+## 3. How it works
+
+### The fairness test: same help, different student
+
+We keep the tutor's reply exactly the same and change only how the student's message is written. If the score moves, the only thing that could have caused it is the student's writing. This is called a **counterfactual** test.
+
+```mermaid
+flowchart TB
+    Q["One math problem + one fixed tutor reply"]
+    Q --> A["MAE:<br/>I started by doing 50 + 30 and I got 80.<br/>Now I don't know what I am supposed to do next."]
+    Q --> B["AAE:<br/>... Now I ain't know what<br/>I am supposed to do next."]
+    Q --> C["Indian English:<br/>Started by doing 50 + 30 and got 80.<br/>Now amn't knowing what-what am supposed to do next."]
+    Q --> D["Learner English:<br/>I start by doing 50 + 30 and I get 80. ..."]
+    Q --> P["Reworded MAE (control):<br/>So far I have 50 + 30 = 80.<br/>I can't figure out the next step."]
+    Q --> N["Same message, different name:<br/>Emily / Lakisha / Maria / Priya ..."]
+    A & B & C & D & P & N --> J["Each grader scores every version"]
+    J --> GAP["Score gap vs MAE, beyond the reworded control<br/>= the grader reacting to how the student writes"]
+```
+
+*These are real variants made by Multi-VALUE from the same message. The Indian English one shows the "amn't" and "what-what" features that are still waiting on the native-speaker check (see [Ethics](#8-ethics-and-limitations)). More examples in the [demo](https://anvitasuresh.github.io/xai_proj2/).*
+
+### The full pipeline
+
+```mermaid
+flowchart LR
+    D["1. Data<br/>GSM8K math problems,<br/>stuck messages,<br/>dialect + name versions"] --> J["2. Grader check<br/>Does it agree<br/>with a human?"]
+    J --> A["3. Fairness audit<br/>3 grader models,<br/>same reply,<br/>different student"]
+    A --> X["4. Explain<br/>Which features<br/>cause the gap?"]
+    J --> T["5. Train tutor<br/>RL (GRPO) with<br/>the grader as reward"]
+    T --> E["6. Evaluate<br/>Hints or answers?<br/>Gap by group?"]
+```
+
+| Step | What happens | Models |
+|---|---|---|
+| 1. Data | 2,600 GSM8K math problems split into train / audit / test. Templated "I'm stuck" student messages, each rewritten into AAE, Indian English, learner (L2) English, a reworded MAE control, and with different first names. About 1,500 fixed tutor replies in 8 styles, from pure hints to the full answer. | Multi-VALUE (rule-based, no AI) |
+| 2. Grader check (E1) | Our grader rates each reply from -1 (gives the answer) to +1 (good hint), plus 1-5 helpfulness. Compared with 40 replies Anvita labeled by hand. | Qwen2.5-7B-Instruct |
+| 3. Fairness audit (E2) | Every reply is scored with every version of its student's message, by three graders. | our grader, Skywork-Reward-V2, Tulu-3-8B-RM |
+| 4. Explain (E3, E4) | Which single grammar features move the score; whether the grader's written reasons mention the student's language; probes inside the model. | our grader |
+| 5. Train tutor | A small model learns to tutor by trial and error, rewarded by our grader. | Qwen2.5-1.5B-Instruct + LoRA |
+| 6. Evaluate (E5-E7) | On new problems: does the trained tutor give hints instead of answers? Did it learn to game the grader? Is there a gap between student groups? | all of the above |
+
+## 4. Results
+
+> Results are filled in as each Kaggle run finishes. Numbers marked **[pending]** are not available yet.
+
+| Question | Result |
+|---|---|
+| E1. Does the grader agree with a human? | **Yes, moderately.** Cohen's kappa 0.65 (95% CI 0.41 to 0.85) on hint vs answer; Spearman 0.56 on helpfulness. 40 human labels. |
+| E2. Same reply, different dialect: does the score change? | **[pending]** Gap vs MAE for AAE / Indian English / learner English, per grader, in SD units with 95% CI. |
+| E2. Same reply, different name: does the score change? | **[pending]** |
+| E2. Does the gap flip which reply wins? | **[pending]** Preference flip rate. |
+| E3. Which features drive the gap? | **[pending]** Top features by effect size. |
+| E4. Do the grader's explanations admit it? | **[pending]** Share of large-gap cases whose reason mentions the student's language. |
+| E5. Did training teach the tutor to give hints? | **[pending]** Hint rate and answer-leak rate, base model vs trained tutor. |
+| E6. Did the tutor learn to game the grader? | **[pending]** Generic-question rate, length drift, score from a second grader it never trained on. |
+| E7. Does the unfair gap carry into the tutor? | **[pending]** Gap between groups before vs after training. |
+
+Full tables: `results/audit/summary.md`, `results/eval/` (created by the runs).
+
+## 5. Try the demo
+
+**[anvitasuresh.github.io/xai_proj2](https://anvitasuresh.github.io/xai_proj2/)** works in any browser, no setup:
+
+1. **Hint or answer?** Guess whether a tutor reply teaches or gives it away, then compare with a human and the AI grader.
+2. **Same help, different student.** Flip one student message between dialects and names, and watch the grader scores.
+3. **What the tutor learned.** The base model vs the trained tutor on the same question.
+
+The page is built from saved results by `python demo/build.py` ([demo/README.md](demo/README.md)).
+
+## 6. How to run it
+
+Everything runs for free: CPU steps on a laptop, GPU steps on **Kaggle's free 2x T4 GPUs** (about 30 GPU-hours a week; the whole project needs about 14). Step-by-step Kaggle instructions: [docs/kaggle.md](docs/kaggle.md).
+
+### Install
+
+```bash
+git clone https://github.com/anvitasuresh/xai_proj2 && cd xai_proj2
+bash scripts/setup_local.sh data   # laptop: dialect variants, labeling, calibration (Python 3.10)
+bash scripts/setup_local.sh gpu    # GPU machine only; the Kaggle notebooks do this for you (Python 3.11)
+```
+
+There are two environments because Multi-VALUE needs old versions of spaCy and stanza that clash with vLLM. Both are made with [uv](https://docs.astral.sh/uv/). Dependencies are listed in [pyproject.toml](pyproject.toml).
+
+### Run order
+
+| # | Where | What to run | Time |
+|---|---|---|---|
+| 0 | Laptop | `bash scripts/run_stage.sh items` then `bash scripts/run_stage.sh variants`. Upload `data/processed/` as a private Kaggle dataset named `tutorbias-data`. | 1-3 h CPU |
+| 1 | Kaggle | [`kaggle/01_replies_judge.ipynb`](kaggle/01_replies_judge.ipynb): tutor replies, label set, grader scores | ~1.5 h |
+| 1b | Laptop | `python -m tutorbias.labeling.calibrate --split all`: grader vs human labels (E1) | minutes |
+| 2 | Kaggle | [`kaggle/02_audit.ipynb`](kaggle/02_audit.ipynb): fairness audit with 3 graders (E2) | ~4-5 h |
+| 3 | Kaggle | [`kaggle/03_grpo_tutor_a.ipynb`](kaggle/03_grpo_tutor_a.ipynb): train the tutor with RL | ~3-4 h |
+| 4 | Kaggle | [`kaggle/04_explain.ipynb`](kaggle/04_explain.ipynb): feature effects, explanation check, probes (E3-E4) | ~1-1.5 h |
+| 5 | Kaggle | [`kaggle/05_eval.ipynb`](kaggle/05_eval.ipynb): base model vs trained tutor (E5-E7) | ~1.5 h |
+
+In each Kaggle notebook: set **Accelerator = GPU T4 x2** and **Internet = on**, add the Inputs listed at the top, then **Save Version > Save & Run All**. Every step saves progress, so if Kaggle times out, run the same notebook again and it continues. Each notebook just runs `bash scripts/run_stage.sh <stage>`, so the same commands work on any 24 GB+ GPU (`PROFILE=none`).
+
+Tests (CPU only, also run in CI): `pip install -e ".[dev]" && pytest`.
+
+### Data and models
+
+| What | Link | License |
+|---|---|---|
+| Math problems | [GSM8K](https://huggingface.co/datasets/openai/gsm8k) | MIT |
+| Dialect rewriting | [Multi-VALUE](https://github.com/SALT-NLP/multi-value), features from [eWAVE](https://ewave-atlas.org) | Apache 2.0 |
+| Tutor | [Qwen/Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (fallback: [0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)) | Apache 2.0 |
+| Our grader | [Qwen/Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) + our rubric ([src/tutorbias/judge/prompts/](src/tutorbias/judge/prompts/)) | Apache 2.0 |
+| Audited reward model | [Skywork/Skywork-Reward-V2-Llama-3.1-8B](https://huggingface.co/Skywork/Skywork-Reward-V2-Llama-3.1-8B) | Skywork license |
+| Audited reward model | [allenai/Llama-3.1-Tulu-3-8B-RM](https://huggingface.co/allenai/Llama-3.1-Tulu-3-8B-RM) | Llama 3.1 license |
+| Human labels | [data/labels/](data/labels/) (40 replies, labeled by Anvita) | MIT |
+
+Generated data is not committed (it is rebuilt by step 0). What is in it: [data/DATASHEET.md](data/DATASHEET.md).
+
+## 7. Design decisions
+
+The main choices, in plain words. Full reasoning: [docs/design_decisions.md](docs/design_decisions.md).
+
+- **Counterfactual pairs instead of real student data.** Changing only the student's writing, and nothing else, means any score gap has one cause. It also means no real children are involved.
+- **Hints vs answers as the target.** This is what separates AI that helps learning from AI that replaces it, and it can be scored on a simple -1 to +1 scale.
+- **The grader reads its own probabilities instead of writing a number.** The score is the expected value over the labels -1, 0, +1 (as in G-Eval), which gives a smooth score and fewer formatting failures. Its written reason comes *after* the score, so we can check whether the reason matches what really drove the score.
+- **Checked against a human before use.** The grader had to pass an agreement check (E1) before any fairness result counts. Rubric v1 was kept; later rubric versions moved the grader away from the human labels, so they were dropped.
+- **Three graders, not one.** Our own grader plus two public reward models, to see if the problem is general. ArmoRM was planned but replaced by **Tulu-3-8B-RM**, because ArmoRM's code no longer loads with current libraries.
+- **GRPO with LoRA on a small model.** It fits on free T4 GPUs and needs no separate value model.
+- **Free compute only.** Everything is built to run on Kaggle's free tier, with saved progress at every step.
+
+## 8. Ethics and limitations
+
+This project changes how a student writes to test for unfairness. Done carelessly, that could repeat the very stereotypes it is trying to catch. These are the rules it follows. More detail: [docs/ethics.md](docs/ethics.md).
+
+### What this project does and does not claim
+
+- **A dialect is not a race.** African American English (AAE) is a rule-based variety of English used by many, but not all, Black Americans, and by some people who are not Black. Indian English is used by people of many backgrounds. Our groups are defined by **grammar features**, so results say "the grader reacts to these features", never "the grader is biased against Black or Indian students".
+- **Learner (L2) English is not a dialect.** It describes a stage of learning a language, not a group of people.
+- **Names are signals, not people.** A name tells a model something about perceived race, ethnicity or gender. We measure the model's reaction to that signal only.
+- **Synthetic text is not real speech.** Results show the grader's sensitivity to dialect features. They do not measure how much real students are harmed.
+- **We say "Mainstream American English (MAE)"**, not "standard" or "correct" English, and never call other varieties "broken" or "nonstandard".
+
+### Grounded in research, not guesses
+
+- No AI model is asked to "write like" a group. Every dialect change comes from **Multi-VALUE** (Ziems et al., 2023), which implements grammar features documented in **eWAVE**, the World Atlas of Varieties of English (Kortmann et al., 2020).
+- We use only features that eWAVE rates **pervasive or obligatory** in that variety. Each is applied with 50% chance, so messages don't pile up every feature and read as exaggerated. The full list is in [docs/dialect_features.md](docs/dialect_features.md).
+- Some features are blocked on purpose, with reasons (for example, "y'all" because the student talks to one tutor). Multi-VALUE's slang add-ons ("I'ma", "gotta", "tryna") are switched off.
+- This matters because AI models are known to judge people by dialect: Hofmann et al. (Nature, 2024) found language models made more negative judgments about speakers of AAE, even when race was never mentioned.
+
+### Problems we found and how we handled them
+
+- **Broken AAE variants are removed.** Reading the variants showed two Multi-VALUE bugs. `aint_before_main` sometimes turns a positive "do/did" into a bare "ai" ("what I ai wrong"), and `past_for_past_participle` can produce "I am did with it". No speaker writes like this, so a score gap on them would measure a reaction to broken text, not to a dialect. These variants (about 1 in 4 AAE messages) are filtered out everywhere: the audit, the explanations, training and evaluation.
+- **Possible caricature in Indian English, still being checked.** Two features appear often: "amn't" and repeated question words ("what-what"). Both are documented in eWAVE, but used this often they could read like a caricature. They are kept for now and flagged for the **native-speaker check**, and the feature analysis (E3) reports them separately. If raters flag them, they are dropped by a rule written down in advance ([docs/dialect_validation.md](docs/dialect_validation.md)). **Dialect results are not final until that check is done.**
+
+### Data and people
+
+- **No real student data. No minors.** Every student message is synthetic, made from templates. Tutor replies are generated by models. The only human labels are Anvita's own 40 ratings.
+- Native-speaker raters are adult volunteers who rate how natural each sentence sounds; they are not studied themselves.
+
+### Who is affected (stakeholders)
+
+| Who | What is at stake |
+|---|---|
+| Students who speak AAE, Indian English, or are learning English | Could get answer-giving help that teaches less, from a tutor trained on an unfair grader |
+| Teachers and schools | Choose AI tutors and need to know whether they treat all students the same |
+| Companies that build AI tutors or reward models | Their graders could quietly pass bias into every model they train |
+| Speakers of these dialects in general | Could be shown as caricatures if dialect text is made carelessly |
+
+### How this could be misused
+
+- **"Fairness washing."** Someone could tune a grader until it passes *this* test and then call it fair. Passing one synthetic test does not make a system fair. We publish per-feature results and the full variant set, not just a pass/fail number.
+- **Making dialect text to stereotype people.** The variant generator could be used to produce mocking text. It only uses documented features, removes broken output, and every variant is marked as synthetic.
+- **Overclaiming.** A gap here is not proof that a deployed tutor harms real students. It is a warning sign worth testing in real settings.
+
+### Limitations
+
+- **Small human check.** The grader was compared with 40 human labels from one person. The agreement interval is wide (kappa 0.41 to 0.85). "Good tutoring" here means one rubric and one person's judgment.
+- **Small models on free GPUs.** A 1.5B tutor, a 7B grader, and one short RL run. This shows the mechanism; it does not describe large commercial tutors. The training grader runs in 4-bit to fit on the GPU, and the audit reports how closely it matches the full grader.
+- **Math only, one message only.** Real tutoring is a long conversation about many subjects.
+- **Rule-based dialects.** Not every speaker uses every feature, and people may write more formally to a tutor. AAE and learner English share some features, so these groups overlap. The native-speaker check uses a small group of volunteers.
+- **Some name lists are placeholders** (Hispanic and South Asian names) until a published source replaces them. They are marked in `data/names/names.yaml`.
+- **"Same help, same score" might not always be right.** Some students may truly need more direct help. Counterfactual fairness assumes everyone should get the same kind of help for the same message.
+
+## 9. Future work
+
+- Finish the native-speaker check and rebuild the variants with any flagged features removed.
+- **Tutor B:** train a second tutor with a debiased grader (the grader sees the MAE version of every message) and compare it with Tutor A.
+- More human labelers, so "good hint" is not one person's view.
+- Multi-turn tutoring conversations, and subjects beyond math.
+- A fairness check that runs automatically in CI whenever the grader or rubric changes.
 
 ## Repo layout
 
 ```
-configs/                 one YAML per stage (data, replies, judge, calibration)
 src/tutorbias/
-  data/                  GSM8K items, stuck-student templates, Multi-VALUE dialects, name swaps
-  models/backends.py     vLLM / transformers / OpenAI-compatible / fake backends, one interface
-  replies/               fixed tutor-reply pool for the audit
-  judge/                 scaffolding judge + versioned rubric prompts + scoring CLI
-  labeling/              blinded label set, Streamlit labeling app, calibration (E1)
-  audit/                 counterfactual pairs, RewardBench RM scoring, gap/flip analysis (E2)
-  explain/               feature effects + probes (E3), rationale faithfulness (E4)
-  tutor/                 GRPO prompts, judge reward, training (stage 4); evaluation E5-E7 (stage 5)
-  kaggle.py              restore inputs between Kaggle sessions, GPU check
-  textutil.py            number extraction, answer-leak detection
-  tracking.py            optional Weights & Biases logging
-scripts/                 setup_local.sh (envs) and run_stage.sh (one command per stage)
-kaggle/                  one notebook per GPU stage (generated by make_notebooks.py)
-legacy/slurm/            old Duke DCC job scripts (unmaintained)
-data/                    names list, labels, DATASHEET.md (generated data is gitignored)
-docs/                    labeling guide, design decisions, timeline
-demo/                    interactive web demo: build.py bakes saved results into site/index.html
-tests/                   pytest suite (CPU only, runs in CI)
+  data/        math problems, stuck messages, dialect and name versions
+  judge/       our grader and its rubric
+  labeling/    labeling app and grader-vs-human check (E1)
+  audit/       fairness audit (E2)
+  explain/     feature effects, probes, explanation check (E3, E4)
+  tutor/       RL training and evaluation (E5-E7)
+configs/       one settings file per step
+scripts/       setup_local.sh and run_stage.sh
+kaggle/        one notebook per GPU step
+demo/          the interactive web page
+data/          names, human labels, datasheet
+docs/          ethics, design decisions, Kaggle guide, dialect features, labeling guide
+tests/         CPU tests (run in CI)
 ```
-
-## Setup
-
-Two Python environments, because Multi-VALUE pins old spaCy/nltk/stanza versions that conflict with vLLM. One script creates both with [uv](https://docs.astral.sh/uv/) (no conda needed):
-
-| Env | Python | Used for | Hardware |
-|---|---|---|---|
-| `.venv-data` | 3.10 | dialect variants, labeling app, calibration | any laptop |
-| `.venv-gpu` | 3.11 | reply generation, judge scoring, RM audit, GRPO, evaluation | Kaggle 2x T4 (free), or one 24 GB+ GPU |
-
-```bash
-git clone https://github.com/anvitasuresh/xai_proj2 && cd xai_proj2
-bash scripts/setup_local.sh data   # laptop: CPU steps only
-bash scripts/setup_local.sh gpu    # GPU machine (the Kaggle notebooks do this for you)
-```
-
-## Reproducing
-
-CPU steps run on a laptop; GPU steps run on **Kaggle's free 2x T4** (about 30 GPU-hours a week; the
-whole project needs ~14). Each GPU stage has a notebook in [kaggle/](kaggle/) that clones this repo,
-restores earlier outputs, installs the env, and runs one command. Setup, inputs, and resuming after a
-timeout: [docs/kaggle.md](docs/kaggle.md).
-
-```bash
-# laptop (CPU)
-bash scripts/run_stage.sh items      # GSM8K items + stuck messages
-bash scripts/run_stage.sh variants   # dialect + name variants (parallel shards; ~1-3 h)
-#   -> upload data/processed as the Kaggle dataset "tutorbias-data"
-
-# Kaggle notebook 01 (~1.5 h)
-bash scripts/run_stage.sh replies    # tutor reply pool + blinded label set
-bash scripts/run_stage.sh judge      # judge scores + rationales on the label set
-
-# laptop: label, then calibrate (E1)
-# reference labels for all 300 items are in data/labels/labels_model_ref.csv
-streamlit run src/tutorbias/labeling/app.py -- --labeler anvita --subset data/labels/spotcheck_ids.txt   # 40-item human spot check
-python -m tutorbias.labeling.calibrate --split all    # E1 as reported: judge (rubric v1) vs the 40 human labels
-
-# Kaggle notebooks 02-05
-bash scripts/run_stage.sh audit      # E2: judge + Skywork-Reward-V2 + Tulu-3-8B-RM + 4-bit reward judge (~4-5 h)
-bash scripts/run_stage.sh grpo-smoke # 10 GRPO steps: memory, speed, reward plumbing (~15 min)
-bash scripts/run_stage.sh grpo       # Tutor A (~3-4 h); RUN=tutor_b for the stretch run
-bash scripts/run_stage.sh explain    # E3 feature effects + probes, E4 rationale faithfulness (~1-1.5 h)
-bash scripts/run_stage.sh eval       # E5-E7: base vs tutors on held-out questions (~1.5 h)
-```
-
-All GPU steps are checkpointed (scores every batch, GRPO every 25 steps) and resumable: rerun the
-same command and it continues where it stopped. Kaggle T4s have no bfloat16, so all models run in
-float16 (`PROFILE=t4`, the default). On a single 24 GB+ Ampere GPU, `PROFILE=none` uses the bf16 base
-configs. Old Duke DCC SLURM scripts are in [legacy/slurm/](legacy/slurm/) (unmaintained).
-
-## Stage 2: reward-model audit (after the judge passes the E1 gate)
-
-```bash
-bash scripts/run_stage.sh audit   # pairs -> judge + Skywork-Reward-V2 + Tulu-3-8B-RM scores -> analysis
-# -> results/audit/summary.md, gaps.csv, flips.csv, gaps_by_style.csv, forest_all.png
-```
-
-Every reply in the pool is paired with every version of its student's message (~1500 replies x ~21 versions). Within a reply, only the student text changes, so a score gap is bias by construction. The analysis reports paired gaps in SD units with bootstrap CIs that resample *questions* (replies to one question share a message), Holm-corrected p-values, the gap net of the MAE paraphrase control, preference flip rates between replies, the judge's discrete label change rate, and gaps broken down by reply style. Everything is repeated on variants that actually differ from MAE (`changed_only`).
-
-## Stage 4: GRPO tutor (Kaggle 2x T4)
-
-```bash
-bash scripts/run_stage.sh grpo-smoke           # 10 steps; prints seconds per step and the reward
-RUN=tutor_a bash scripts/run_stage.sh grpo     # -> results/tutor/tutor_a/{adapter,merged,rewards.jsonl}
-```
-
-Qwen2.5-1.5B-Instruct with LoRA (r=16, all linear layers) in fp16 on GPU 0; GRPO with 4 samples per
-prompt, 4 prompts per step, 300 steps, KL 0.04 to the base model. The reward is the scaffolding judge
-(scaffolding + 0.5 x rescaled helpfulness), the same 7B model and rubric as the audited judge, in 4-bit
-on GPU 1. Training prompts give each question one student dialect (MAE, AAE, Indian English, L2),
-balanced, so any dialect bias in the judge reaches the policy. Every scored sample is logged with its
-group (`rewards.jsonl`), so reward curves per group show bias propagating during training. Fallback:
-`POLICY=Qwen/Qwen2.5-0.5B-Instruct`. Tutor B (stretch) changes one line: the judge sees the MAE
-version of the student message (`judge_sees: mae`), so its reward cannot depend on dialect.
-
-## How the judge scores a reply
-
-The judge sees the problem, its correct answer, the student's message, and the tutor reply. The assistant turn is pre-filled with `SCAFFOLDING: `, and we read the probabilities of the labels `0/1/2` (mapped to -1/0/+1). The score is the expected value, a continuous number in [-1, 1] (as in G-Eval). Helpfulness is read the same way, and an optional rationale is generated **after** the scores so it explains exactly those scores (needed for the faithfulness test, E4). Each score row records the judge model, rubric version, and a hash of the rubric text, plus how much probability fell on valid labels (a check that the prompt format is working). Details and trade-offs: [docs/design_decisions.md](docs/design_decisions.md).
-
-## Experiments
-
-| # | Question | Metric | Control | Status |
-|---|---|---|---|---|
-| E1 | Is the judge trustworthy? | Cohen's kappa (scaffolding), Spearman (helpfulness), bootstrap CIs, per-group agreement | A second, stricter label set (model annotator, 300 items) | code ready |
-| E2 | Are reward models biased by dialect or name? | Paired gap vs MAE (SD units) with clustered bootstrap CIs, Holm; preference flip rate; gap by reply style | MAE paraphrase (rewording, no dialect) | code ready |
-| E3 | What drives the gaps? | Per-feature effect on paired score gaps (randomized feature assignment); probe accuracy and dialect-vs-score direction by layer | Permutation null over features; shuffled-label probe | code ready |
-| E4 | Are the judge's explanations faithful? | Share of large-gap cases whose rationale mentions the student's language | Cases with no score gap | code ready |
-| E5 | Did RL teach scaffolding? | Scaffolding rate, helpfulness, answer-leak rate | Base model | code ready |
-| E6 | Did RL reward-hack? | Generic-question rate, answer leaks, length drift | Held-out RM (Skywork-Reward-V2) | code ready |
-| E7 | Does bias propagate? | Per-group gap, difference-in-differences vs the base model (Tutor B: stretch) | Base-model gap | code ready |
-
-## Limitations
-
-- **Synthetic dialects.** Rule-based transforms are cleaner than real speech. Gaps show sensitivity to dialect *features*, not real-world effect sizes, and a dialect is not a race or nationality. Variants use only eWAVE features rated pervasive for each variety and are checked by native speakers; see [docs/ethics.md](docs/ethics.md). Learner (L2) English is a feature list that overlaps with AAE.
-- **Small models, free GPUs.** 1.5B tutor, 7B judge, fp16 on T4s, one short GRPO run: a mechanism demonstration, not a claim about deployed tutors. The training reward uses the judge in 4-bit; the audit reports how closely it tracks the fp16 judge.
-- **Small human check.** For time reasons the judge was checked against 40 human labels (stratified; rubric v1 was never tuned on them): scaffolding kappa 0.65 (95% CI 0.41 to 0.85), helpfulness Spearman 0.56. The interval is wide. A model annotator also labeled all 300 replies, blind to style and judge score; it agrees with the human on "gives the answer away" 37 of 40 times but uses "neither" far more often, so it is reported as a second, stricter view (judge vs it on dev: kappa 0.43). Rubric revisions tuned toward that stricter view (v2, v3) are in the repo but not used. "Good scaffolding" reflects one rubric and one human.
-- **Single-turn, math only.**
-- **Fairness definition.** Counterfactual fairness (same help, same score) assumes every student should get the same kind of help, which may be wrong if some students need more direct help.
-- **Names** partly come from unvalidated placeholder lists (marked in `data/names/names.yaml`).
-
-## Data and licenses
-
-GSM8K (MIT). Multi-VALUE (Apache 2.0). Qwen2.5 models (Apache 2.0 / Qwen license). Code: MIT. See [data/DATASHEET.md](data/DATASHEET.md).
 
 ## References
 
-Bastani et al., *Generative AI without guardrails can harm learning*, PNAS 2025 · Hofmann et al., *AI generates covertly racist decisions about people based on their dialect*, Nature 2024 · Ziems et al., *Multi-VALUE*, ACL 2023 · Lambert et al., *RewardBench*, 2024 · Shao et al., *DeepSeekMath* (GRPO), 2024 · Liu et al., *G-Eval*, 2023 · Zheng et al., *Judging LLM-as-a-judge*, 2023 · Gao et al., *Scaling laws for reward model overoptimization*, 2022 · Turpin et al., *Language models don't always say what they think*, 2023 · Bertrand & Mullainathan, *Are Emily and Greg more employable than Lakisha and Jamal?*, AER 2004 · Cobbe et al., *GSM8K*, 2021.
+- Bastani, H., et al. (2025). Generative AI without guardrails can harm learning. *PNAS*.
+- Hofmann, V., Kalluri, P. R., Jurafsky, D., & King, S. (2024). AI generates covertly racist decisions about people based on their dialect. *Nature*, 633, 147-154.
+- Ziems, C., et al. (2023). Multi-VALUE: A framework for cross-dialectal English NLP. *ACL*.
+- Kortmann, B., Lunkenheimer, K., & Ehret, K. (2020). *eWAVE 3.0*. https://ewave-atlas.org
+- Blodgett, S. L., et al. (2020). Language (technology) is power: A critical survey of "bias" in NLP. *ACL*.
+- Bertrand, M., & Mullainathan, S. (2004). Are Emily and Greg more employable than Lakisha and Jamal? *AER*.
+- Lambert, N., et al. (2024). RewardBench: Evaluating reward models for language modeling.
+- Shao, Z., et al. (2024). DeepSeekMath (GRPO).
+- Liu, Y., et al. (2023). G-Eval: NLG evaluation using GPT-4 with better human alignment.
+- Zheng, L., et al. (2023). Judging LLM-as-a-judge with MT-Bench and Chatbot Arena.
+- Gao, L., Schulman, J., & Hilton, J. (2022). Scaling laws for reward model overoptimization.
+- Turpin, M., et al. (2023). Language models don't always say what they think.
+- Cobbe, K., et al. (2021). Training verifiers to solve math word problems (GSM8K).
+
+Code: MIT license. All student messages are synthetic.
