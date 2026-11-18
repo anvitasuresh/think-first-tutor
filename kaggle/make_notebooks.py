@@ -28,6 +28,7 @@ SECRETS = code('''
 # Secrets (sidebar: Add-ons > Secrets). HF_TOKEN is optional (the models are public, but a token avoids
 # download rate limits); WANDB_API_KEY is optional (without it, metrics are only written to files).
 import os
+
 try:
     from kaggle_secrets import UserSecretsClient
     s = UserSecretsClient()
