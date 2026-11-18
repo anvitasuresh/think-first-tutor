@@ -67,3 +67,22 @@ def answer_leaked(reply: str, answer: str) -> bool:
 def same_numbers(a: str, b: str) -> bool:
     """True if two texts contain exactly the same multiset of numbers (order-insensitive)."""
     return sorted(extract_numbers(a)) == sorted(extract_numbers(b))
+
+
+# Known Multi-VALUE breakages found by reading the built variants (Nov 18). These produce text no
+# speaker of the dialect would write, so a score gap on them measures a reaction to broken English,
+# not to the dialect. Variants that match are dropped from the audit, training prompts and eval.
+#   aint_before_main on a positive do/did:  "I don't see what I did wrong" -> "... what I ai wrong"
+#   past_for_past_participle after be:       "I am done with it" -> "I am did with it"
+GARBLED_PATTERNS = {
+    "bare_ai": re.compile(r"\bai\b(?!n)", re.IGNORECASE),
+    "be_did": re.compile(r"\b(?:am|is|are|was|were|be|been|being|i'm|it's)\s+did\b", re.IGNORECASE),
+}
+
+
+def garbled_reason(text: str) -> str | None:
+    """Name of the first known transform breakage found in `text`, or None if it looks fine."""
+    for name, pat in GARBLED_PATTERNS.items():
+        if pat.search(text or ""):
+            return name
+    return None

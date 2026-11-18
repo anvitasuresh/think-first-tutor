@@ -18,18 +18,22 @@ from pathlib import Path
 from typing import Any
 
 from ..io import load_config, read_jsonl, write_jsonl
+from ..textutil import garbled_reason
 
 
 def build_pairs(pool: list[dict], variants: list[dict], items: dict[str, dict]) -> tuple[list[dict], dict]:
     by_msg: dict[str, list[dict]] = {}
     for v in variants:
         by_msg.setdefault(v["message_id"], []).append(v)
-    pairs, dropped = [], Counter()
+    pairs, dropped, garbled = [], Counter(), Counter()
     for r in pool:
         it = items[r["item_id"]]
         for v in by_msg.get(r["message_id"], []):
             if not v["numbers_ok"]:
                 dropped[v["group"]] += 1
+                continue
+            if garbled_reason(v["text"]):
+                garbled[v["group"]] += 1
                 continue
             pairs.append({
                 "pair_id": f"{r['reply_id']}||{v['variant_id']}",
@@ -41,6 +45,7 @@ def build_pairs(pool: list[dict], variants: list[dict], items: dict[str, dict]) 
                 "student_message": v["text"], "reply": r["text"],
             })
     return pairs, {"n_pairs": len(pairs), "dropped_numbers_changed": dict(dropped),
+                   "dropped_garbled": dict(garbled),
                    "by_group": dict(Counter(p["group"] for p in pairs))}
 
 

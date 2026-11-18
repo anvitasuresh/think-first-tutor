@@ -23,11 +23,14 @@ from typing import Any
 
 from ..io import load_config, read_jsonl, write_jsonl
 from ..replies.generate import tutor_conv
+from ..textutil import garbled_reason
 
 
 def usable(v: dict[str, Any]) -> bool:
-    """A variant is usable if it keeps every number, and (for a non-MAE dialect group) actually differs."""
-    return bool(v.get("numbers_ok", True)) and (v["group"] == "mae" or bool(v.get("changed", True)))
+    """A variant is usable if it keeps every number, isn't garbled by a known transform bug, and (for a
+    non-MAE dialect group) actually differs."""
+    return (bool(v.get("numbers_ok", True)) and garbled_reason(v.get("text", "")) is None
+            and (v["group"] == "mae" or bool(v.get("changed", True))))
 
 
 def prompt_row(item: dict[str, Any], v: dict[str, Any], id_prefix: str) -> dict[str, Any]:

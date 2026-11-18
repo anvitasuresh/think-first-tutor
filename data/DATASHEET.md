@@ -23,3 +23,13 @@ No real students, no minors, no personal data. All student text is template-gene
 
 ## Uses to avoid
 Don't use the variants to "pass" a fairness check by tuning against them (fairness washing). Publish per-feature results with any summary number.
+
+## Known transform breakages (found Nov 18, filtered)
+Reading the built variants showed two Multi-VALUE bugs in the AAE set: `aint_before_main` turns a
+positive do/did into a bare "ai" ("what I ai wrong", ~20% of AAE variants), and
+`past_for_past_participle` produces "I am did with it" after a form of be (~7%). No speaker writes
+these, so a score gap on them would measure a reaction to broken text. `textutil.garbled_reason`
+detects both; the audit pairs, the analysis (also for pairs built earlier), GRPO prompts and eval
+prompts drop matching variants and report how many. The Indian English set uses "amn't" and wh-word
+reduplication ("what-what") often; those are kept but go to the native-speaker check, and the
+per-feature analysis (E3) shows whether they drive any gap.

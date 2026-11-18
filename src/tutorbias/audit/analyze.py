@@ -35,10 +35,21 @@ import pandas as pd
 from scipy.stats import norm
 
 from ..io import load_config, read_jsonl
+from ..textutil import garbled_reason
 from ..tracking import init_run
 
 
 # --------------------------------------------------------------------------------------------- loading
+def drop_garbled(pairs: pd.DataFrame) -> pd.DataFrame:
+    """Drop pairs whose student message hits a known transform breakage (textutil.GARBLED_PATTERNS).
+    Pairs built before the filter existed still contain them, so the analysis applies it too."""
+    bad = pairs["student_message"].map(garbled_reason)
+    if bad.notna().any():
+        print("[analyze] dropped garbled variants:", bad[bad.notna()].groupby(pairs["group"]).size().to_dict())
+    return pairs[bad.isna()].copy()
+
+
+
 def load_scores(cfg: dict[str, Any], pairs: pd.DataFrame) -> pd.DataFrame:
     """Join every available scorer's scores onto the pairs table (one column per scorer)."""
     sdir = Path(cfg["paths"]["scores_dir"])
@@ -260,6 +271,7 @@ def main(argv: list[str] | None = None) -> None:
     cfg = load_config(a.config)
     acfg, seed = cfg["analysis"], cfg["seed"]
     pairs = pd.DataFrame(read_jsonl(cfg["paths"]["pairs"]))
+    pairs = drop_garbled(pairs)
     df = load_scores(cfg, pairs)
     scorers = [s for s in acfg["scorers"] if s in df]
     out = Path(cfg["paths"]["results_dir"])

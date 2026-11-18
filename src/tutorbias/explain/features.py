@@ -30,7 +30,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 
-from ..audit.analyze import load_scores
+from ..audit.analyze import drop_garbled, load_scores
 from ..io import load_config, read_jsonl
 
 
@@ -130,6 +130,7 @@ def main(argv: list[str] | None = None) -> None:
     acfg = load_config(cfg["audit_config"])
     fcfg = cfg["features"]
     pairs = pd.DataFrame(read_jsonl(acfg["paths"]["pairs"]))
+    pairs = drop_garbled(pairs)
     df = load_scores(acfg, pairs)
     out = Path(cfg["paths"]["results_dir"])
     out.mkdir(parents=True, exist_ok=True)

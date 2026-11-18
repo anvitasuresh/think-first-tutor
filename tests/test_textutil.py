@@ -42,3 +42,12 @@ def test_t4_profiles_keep_models_and_rubric():
     assert t4["judges"]["primary"]["model"]["model"] == base["judges"]["primary"]["model"]["model"]
     assert t4["judges"]["primary"]["rubric"] == base["judges"]["primary"]["rubric"]
     assert t4["judges"]["primary"]["model"]["dtype"] == "float16"
+
+
+def test_garbled_reason_flags_known_multivalue_breakages():
+    from tutorbias.textutil import garbled_reason
+
+    assert garbled_reason("I don't see what I ai wrong.") == "bare_ai"
+    assert garbled_reason("I have tried this for a while and I am did with it.") == "be_did"
+    assert garbled_reason("I ain't know what to do next.") is None
+    assert garbled_reason("I did 48 / 2 and got 24.") is None
