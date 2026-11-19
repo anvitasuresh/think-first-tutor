@@ -30,6 +30,8 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 STAGE="${1:---help}"
 export PYTHONUNBUFFERED=1 TOKENIZERS_PARALLELISM=false
+# Kaggle sets MPLBACKEND to its notebook-inline backend, which the venv's matplotlib rejects on import.
+export MPLBACKEND=Agg
 mkdir -p logs
 DATA_CFG="${DATA_CONFIG:-configs/data.yaml}"
 PROFILE="${PROFILE:-t4}"
