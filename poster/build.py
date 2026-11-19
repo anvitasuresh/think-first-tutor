@@ -4,9 +4,8 @@ Usage:  pip install segno playwright && python poster/build.py
 Edit poster/template.html for text; boxes marked class="pending" are results still to fill in.
 """
 
-from pathlib import Path
-
 import os
+from pathlib import Path
 
 import segno
 from playwright.sync_api import sync_playwright

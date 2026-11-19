@@ -55,6 +55,7 @@ nvidia-smi --query-gpu=name,memory.total --format=csv
 PYTHONPATH=src python3 -m tutorbias.kaggle restore --repo .
 PYTHONPATH=src python3 -m tutorbias.kaggle check
 bash scripts/setup_local.sh gpu > /tmp/setup.log 2>&1 || (tail -30 /tmp/setup.log; exit 1)
+.venv-gpu/bin/python -c "import torch, transformers; print('torch', torch.__version__, '| transformers', transformers.__version__)" || true
 echo "GPU env ready"
 ''')
 
@@ -78,11 +79,38 @@ def settings(title: str, minutes: str, inputs: list[str], body: str) -> dict:
 {ins}
 
 Run with **Save Version > Save & Run All (Commit)** so it survives closing the tab. Expected GPU time: **{minutes}**.
-Every step is resumable: if the run stops early, attach this notebook's own output as an extra Input
-and run it again; `restore` picks up the partial files and each step continues where it stopped.
+Every step is resumable. Kaggle can't attach a notebook's own output, so if a run stops early, download
+the partial files from its Output tab, add them as a small dataset, attach that, and run again (`restore`
+puts them back and each step continues where it stopped). GRPO has its own resume notebook (03r).
 
 {body}
 ''')
+
+
+# GRPO smoke test with an automatic fallback: 1.5B first, then 0.5B. The chosen run name is saved under
+# results/ so the training cell (and the resume notebook, via restore) use the same one.
+SMOKE = """set -o pipefail
+mkdir -p results/tutor
+if [ -f results/tutor/RUN_NAME ]; then echo "Smoke test already passed: $(cat results/tutor/RUN_NAME)"; exit 0; fi
+rm -rf results/tutor/smoke
+if bash scripts/run_stage.sh grpo-smoke > /tmp/smoke15.log 2>&1; then
+  echo tutor_a > results/tutor/RUN_NAME; echo "SMOKE OK with 1.5B"; grep -o "'step_time': '[0-9.]*'" /tmp/smoke15.log | tail -3
+else
+  tail -25 /tmp/smoke15.log; echo "1.5B smoke test failed (above). Trying the 0.5B policy..."
+  rm -rf results/tutor/smoke
+  if POLICY=Qwen/Qwen2.5-0.5B-Instruct bash scripts/run_stage.sh grpo-smoke > /tmp/smoke05.log 2>&1; then
+    echo tutor_a_0.5b > results/tutor/RUN_NAME; echo "SMOKE OK with 0.5B"
+  else
+    tail -40 /tmp/smoke05.log; echo "Both smoke tests failed: send the log above."; exit 1
+  fi
+fi
+rm -rf results/tutor/smoke   # smoke weights aren't needed"""
+
+TRAIN = """set -o pipefail
+R=$(cat results/tutor/RUN_NAME)
+echo "Training run: $R"
+RUN=$R bash scripts/run_stage.sh grpo 2>&1 | grep -v "Warning" | tail -80
+ls results/tutor/$R && cat results/tutor/$R/run_info.json"""
 
 
 def stage(cmd: str) -> dict:
@@ -121,17 +149,26 @@ NOTEBOOKS = {
         TIDY,
     ],
     "03_grpo_tutor_a.ipynb": [
-        settings("3. GRPO Tutor A (stage 4)", "~15 min smoke + ~3-4 h training",
-                 ["**tutorbias-data**", "(when resuming) this notebook's own previous Output"],
+        settings("3. GRPO Tutor A (stage 4)", "~20 min smoke test + ~3-4 h training",
+                 ["**tutorbias-data**"],
                  "Policy: Qwen2.5-1.5B-Instruct + LoRA in fp16 on GPU 0. Reward: the 7B judge in 4-bit on GPU 1. "
-                 "The smoke test prints seconds per step; if it runs out of memory or is slower than ~60 s/step, "
-                 "set `POLICY=Qwen/Qwen2.5-0.5B-Instruct` in the training cell. Checkpoints every 25 steps; "
-                 "training stops itself at 11 h."),
+                 "Cell 4 is a 10-step smoke test. If 1.5B fails (e.g. out of memory) it retries with the 0.5B "
+                 "policy and the real run uses that; if both fail, the notebook stops after ~20 min instead of "
+                 "wasting hours. Checkpoints every 25 steps; training stops itself at 11 h. If the session dies, "
+                 "run **03r_grpo_resume** with this notebook's Output attached."),
         SECRETS, SETUP,
         stage("bash scripts/run_stage.sh grpo-data"),
-        stage("bash scripts/run_stage.sh grpo-smoke 2>&1 | tail -60\nrm -rf results/tutor/smoke/merged   # smoke weights aren't needed"),
-        stage("RUN=tutor_a bash scripts/run_stage.sh grpo   # add POLICY=Qwen/Qwen2.5-0.5B-Instruct if needed"),
-        stage("ls results/tutor/tutor_a && cat results/tutor/tutor_a/run_info.json"),
+        stage(SMOKE),
+        stage(TRAIN),
+        TIDY,
+    ],
+    "03r_grpo_resume.ipynb": [
+        settings("3r. Resume GRPO Tutor A", "whatever is left of ~3-4 h",
+                 ["**tutorbias-data**", "the Output of notebook **03_grpo_tutor_a** (or of the last 03r run)"],
+                 "Only if 03_grpo_tutor_a stopped before `[grpo] merged tutor saved`. Picks up the run name the "
+                 "smoke test chose and the newest complete checkpoint, then trains to the end and merges."),
+        SECRETS, SETUP,
+        stage(TRAIN),
         TIDY,
     ],
     "04_explain.ipynb": [

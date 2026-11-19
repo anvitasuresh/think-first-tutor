@@ -10,6 +10,7 @@ each, no bfloat16), sessions up to 12 hours. The whole project needs roughly 14 
 | `01b_rescore_judge.ipynb` | E1 iteration: re-score the label set with rubric v2 (only if the gate was missed on dev) | your data dataset | ~15 min |
 | `02_audit.ipynb` | 2: reward-model audit (E2) | data + output of 01 | ~4-5 h |
 | `03_grpo_tutor_a.ipynb` | 4: GRPO smoke test, then Tutor A | data | ~0.25 + 3-4 h |
+| `03r_grpo_resume.ipynb` | 4: resume Tutor A if 03 stopped early | data + output of 03 | what's left |
 | `04_explain.ipynb` | 3: feature effects, rationale faithfulness, probes (E3-E4) | data + output of 02 | ~1-1.5 h |
 | `05_eval.ipynb` | 5: base vs tutors on held-out questions (E5-E7) | data + output of 03 | ~1.5 h |
 
