@@ -158,8 +158,10 @@ case "$STAGE" in
     done
     $P -m tutorbias.judge.score --config "$(cfg judge)" --judge primary \
       --input results/eval/replies.jsonl --output results/eval/scores/judge.jsonl --id-field eval_id
+    # The held-out RM is a secondary check (E6): if it fails, still write the main analysis.
     $P -m tutorbias.audit.reward_models --config "$(cfg audit)" --rm skywork_v2 \
-      --input results/eval/replies.jsonl --output results/eval/scores/skywork_v2.jsonl --id-field eval_id
+      --input results/eval/replies.jsonl --output results/eval/scores/skywork_v2.jsonl --id-field eval_id \
+      || echo "!!! held-out RM failed; continuing without it (rerun later; scores resume)"
     $P -m tutorbias.tutor.analyze --config configs/eval.yaml
     ;;
   restore)
