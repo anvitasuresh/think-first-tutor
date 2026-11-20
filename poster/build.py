@@ -27,6 +27,11 @@ def main() -> None:
     html = (HERE / "template.html").read_text()
     for key, url in QR.items():
         html = html.replace("{{" + key + "}}", qr_svg(url))
+    # Fig. 3 is inlined (an <img> SVG cannot use the page's web fonts). Made by poster/make_figs.py.
+    fig = HERE / "fig_gaps.svg"
+    if fig.exists():
+        svg = fig.read_text()
+        html = html.replace("{{FIG_GAPS}}", svg[svg.index("<svg"):].replace("<svg ", '<svg style="width:100%;height:auto" ', 1))
     out = HERE / "poster.html"
     out.write_text(html)
 

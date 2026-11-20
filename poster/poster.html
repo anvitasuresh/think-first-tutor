@@ -219,11 +219,11 @@ svg.qr { width: 150px; height: 150px; display: block; }
         <div class="small" style="margin-bottom:4px">Real test example. The tutor reply stays fixed; only the student's words change.</div>
         <div class="variants">
           <div class="v"><div class="g">Mainstream American English</div><div class="t">I already worked out that 10 x 15 is 150, but I am stuck on what <mark>comes</mark> after that.</div><div class="s real">+1.00</div></div>
-          <div class="v"><div class="g">African American English</div><div class="t">I already worked out that 10 x 15 is 150, but I am stuck on what <mark>come</mark> after that.</div><div class="s pending">score<br>pending</div></div>
-          <div class="v"><div class="g">Name only</div><div class="t"><mark>Hi, I'm Emily.</mark> / <mark>Hi, I'm Keisha.</mark> I already worked out that…</div><div class="s pending">score<br>pending</div></div>
+          <div class="v"><div class="g">African American English</div><div class="t">I already worked out that 10 x 15 is 150, but I am stuck on what <mark>come</mark> after that.</div><div class="s real">+1.00</div></div>
+          <div class="v"><div class="g">Name only</div><div class="t"><mark>Hi, I'm Kristen.</mark> / <mark>Hi, I'm Keisha.</mark> I already worked out that…</div><div class="s real">+1.00</div></div>
         </div>
         <div class="fixed"><span class="lab">Same tutor reply every time:</span> “Great job calculating the total number of squares is 150! Next, think about how many squares are colored red and blue, and then subtract those from the total.”</div>
-        <div class="cap"><b>Fig. 1.</b> One of 22,600 messages; also Indian and learner English. +1.00 is the grader's real score.</div>
+        <div class="cap"><b>Fig. 1.</b> One of 22,600 messages; also Indian and learner English. All scores are my grader's real scores: same help, same score.</div>
       </div>
       <div>
         <h3>How the grader scores a reply</h3>
@@ -240,7 +240,7 @@ svg.qr { width: 150px; height: 150px; display: block; }
           <ol style="margin-top:4px">
             <li>Only grammar features linguists record as <b>common</b> in each dialect (eWAVE, Multi-VALUE). No slang.</li>
             <li>Garbled sentences from tool bugs are <b>removed</b>.</li>
-            <li><b>Native speakers</b> rate samples; flagged features are dropped.</li>
+            <li><b>Native-speaker</b> rating sheets are ready; until they are done, dialect results are <b>preliminary</b>.</li>
           </ol>
         </div>
       </div>
@@ -251,44 +251,486 @@ svg.qr { width: 150px; height: 150px; display: block; }
   <section>
     <h2><span class="n">4</span>Results</h2>
     <div class="main-finding">
-      <div class="big pending">?<small>RESULT PENDING</small></div>
+      <div class="big" style="color:var(--orange)">86%<small style="display:block;font-family:'Noto Sans';font-size:19px;color:var(--ink);margin-top:8px">of replies are hints after training (was 34%)</small></div>
       <div>
         <h3>Main finding</h3>
-        <p class="pending" style="text-align:left;padding:8px 14px;font-size:21px">FILL IN (audit summary): “Same reply, only the dialect changed: the score moved by __ (95% CI __ to __), most for __.”</p>
+        <p style="font-size:22px">The trained tutor <b>teaches instead of telling</b>, <b>equally for every student</b>. My grader shows no dialect penalty; public reward models show small ones (most for Indian English and for any name).</p>
       </div>
     </div>
 
-    <h3 style="margin-top:20px">Q1 · Can the grader tell a hint from an answer? <span style="color:var(--teal)">Yes, mostly.</span></h3>
+    <h3 style="margin-top:16px">Q1 · Can the grader tell a hint from an answer? <span style="color:var(--teal)">Mostly.</span></h3>
     <div class="bars">
       <div class="brow"><div>I said <b>“answer”</b></div><div class="track"><i style="width:84.6%;background:var(--teal)"></i><i style="width:15.4%;background:var(--orange)"></i></div><div><b>11/13</b></div></div>
       <div class="brow"><div>I said <b>“hint”</b></div><div class="track"><i style="width:81.5%;background:var(--teal)"></i><i style="width:14.8%;background:#9a9a9a"></i><i style="width:3.7%;background:var(--orange)"></i></div><div><b>22/27</b></div></div>
     </div>
     <div class="legend"><i style="background:var(--teal);margin-left:0"></i>grader agreed with me <i style="background:#9a9a9a"></i>said “neither” <i style="background:var(--orange)"></i>said the opposite</div>
-    <div class="cap"><b>Fig. 2.</b> I labeled 40 replies by hand; the grader matched me on 33 (82.5%; kappa 0.65, 95% CI 0.41–0.85). Good enough to use; only 40 checks.</div>
+    <div class="cap"><b>Fig. 2.</b> I labeled 40 replies; the grader matched me on 33 (kappa 0.65, 95% CI 0.41–0.85).</div>
 
     <h3 style="margin-top:12px">Q2 · Same help, different score?</h3>
-    <div class="pending" style="padding:6px 8px 4px">
-      <svg class="forest" viewBox="0 0 900 250" font-family="Noto Sans" font-size="20">
-        <text x="450" y="24" text-anchor="middle" fill="#c8501e" font-weight="700">PLACEHOLDER · replace with results/audit/forest_all.png</text>
-        <line x1="560" y1="40" x2="560" y2="226" stroke="#555" stroke-width="2" stroke-dasharray="6 5"/>
-        <text x="560" y="244" text-anchor="middle" fill="#333">no gap</text>
-        <text x="340" y="244" text-anchor="middle" fill="#333">← scored lower</text>
-        <text x="780" y="244" text-anchor="middle" fill="#333">scored higher →</text>
-        <g fill="#1a1a1a" font-weight="600">
-          <text x="10" y="66">Rewording only (control)</text>
-          <text x="10" y="104">African American English</text>
-          <text x="10" y="142">Indian English</text>
-          <text x="10" y="180">Learner English</text>
-          <text x="10" y="218">Name swap</text>
-        </g>
-        <g fill="#fff" stroke="#c8501e" stroke-width="3">
-          <circle cx="560" cy="59" r="9"/><circle cx="560" cy="97" r="9"/><circle cx="560" cy="135" r="9"/><circle cx="560" cy="173" r="9"/><circle cx="560" cy="211" r="9"/>
-        </g>
-      </svg>
-    </div>
-    <div class="cap"><b>Fig. 3.</b> Gap vs. Mainstream American English, same reply; my grader + 2 public reward models. “Rewording only” = control.</div>
+    <div class="forest"><svg style="width:100%;height:auto" xmlns:xlink="http://www.w3.org/1999/xlink" width="655.976406pt" height="192.239609pt" viewBox="0 0 655.976406 192.239609" xmlns="http://www.w3.org/2000/svg" version="1.1">
+ <metadata>
+  <rdf:RDF xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:cc="http://creativecommons.org/ns#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+   <cc:Work>
+    <dc:type rdf:resource="http://purl.org/dc/dcmitype/StillImage"/>
+    <dc:date>2026-11-20T17:24:19.566876</dc:date>
+    <dc:format>image/svg+xml</dc:format>
+    <dc:creator>
+     <cc:Agent>
+      <dc:title>Matplotlib v3.11.2, https://matplotlib.org/</dc:title>
+     </cc:Agent>
+    </dc:creator>
+   </cc:Work>
+  </rdf:RDF>
+ </metadata>
+ <defs>
+  <style type="text/css">*{stroke-linejoin: round; stroke-linecap: butt}</style>
+ </defs>
+ <g id="figure_1">
+  <g id="patch_1">
+   <path d="M 0 192.239609 
+L 655.976406 192.239609 
+L 655.976406 0 
+L 0 0 
+L 0 192.239609 
+z
+" style="fill: none"/>
+  </g>
+  <g id="axes_1">
+   <g id="patch_2">
+    <path d="M 189.394375 141.798125 
+L 318.666458 141.798125 
+L 318.666458 22.636875 
+L 189.394375 22.636875 
+L 189.394375 141.798125 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_1">
+    <g id="xtick_1">
+     <g id="line2d_1">
+      <path d="M 220.173442 141.798125 
+L 220.173442 22.636875 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #e5e5e5; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_2">
+      <defs>
+       <path id="m670849c5fa" d="M 0 0 
+L 0 3.5 
+" style="stroke: #555555; stroke-width: 0.8"/>
+      </defs>
+      <g>
+       <use xlink:href="#m670849c5fa" x="220.173442" y="141.798125" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_1">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="220.173442" y="163.233672" transform="rotate(-0 220.173442 163.233672)">-0.1</text>
+     </g>
+    </g>
+    <g id="xtick_2">
+     <g id="line2d_3">
+      <path d="M 281.731577 141.798125 
+L 281.731577 22.636875 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #e5e5e5; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_4">
+      <g>
+       <use xlink:href="#m670849c5fa" x="281.731577" y="141.798125" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_2">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="281.731577" y="163.233672" transform="rotate(-0 281.731577 163.233672)">0</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_2">
+    <g id="ytick_1">
+     <g id="line2d_5"/>
+     <g id="text_3">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: end" x="185.894375" y="35.271811" transform="rotate(-0 185.894375 35.271811)">Rewording only</text>
+     </g>
+    </g>
+    <g id="ytick_2">
+     <g id="line2d_6"/>
+     <g id="text_4">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: end" x="185.894375" y="62.353913" transform="rotate(-0 185.894375 62.353913)">African Am. English</text>
+     </g>
+    </g>
+    <g id="ytick_3">
+     <g id="line2d_7"/>
+     <g id="text_5">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: end" x="185.894375" y="89.436016" transform="rotate(-0 185.894375 89.436016)">Indian English</text>
+     </g>
+    </g>
+    <g id="ytick_4">
+     <g id="line2d_8"/>
+     <g id="text_6">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: end" x="185.894375" y="116.518118" transform="rotate(-0 185.894375 116.518118)">Learner English</text>
+     </g>
+    </g>
+    <g id="ytick_5">
+     <g id="line2d_9"/>
+     <g id="text_7">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: end" x="185.894375" y="143.60022" transform="rotate(-0 185.894375 143.60022)">Adds a name</text>
+     </g>
+    </g>
+   </g>
+   <g id="line2d_10">
+    <path d="M 268.031394 28.053295 
+L 293.702838 28.053295 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_11">
+    <path d="M 284.217995 55.135398 
+L 293.303317 55.135398 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_12">
+    <path d="M 289.596224 82.2175 
+L 301.787713 82.2175 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_13">
+    <path d="M 286.388443 109.299602 
+L 292.39466 109.299602 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_14">
+    <path d="M 271.392228 136.381705 
+L 282.179721 136.381705 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_15">
+    <path d="M 281.731577 141.798125 
+L 281.731577 22.636875 
+" clip-path="url(#pa8964aa30a)" style="fill: none; stroke-dasharray: 4.8,3.6; stroke-dashoffset: 0; stroke: #555555; stroke-width: 1.2"/>
+   </g>
+   <g id="patch_3">
+    <path d="M 189.394375 141.798125 
+L 318.666458 141.798125 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_1">
+    <defs>
+     <path id="me10fb6d2b2" d="M 0 3.708099 
+C 0.983399 3.708099 1.926654 3.317391 2.622022 2.622022 
+C 3.317391 1.926654 3.708099 0.983399 3.708099 0 
+C 3.708099 -0.983399 3.317391 -1.926654 2.622022 -2.622022 
+C 1.926654 -3.317391 0.983399 -3.708099 0 -3.708099 
+C -0.983399 -3.708099 -1.926654 -3.317391 -2.622022 -2.622022 
+C -3.317391 -1.926654 -3.708099 -0.983399 -3.708099 0 
+C -3.708099 0.983399 -3.317391 1.926654 -2.622022 2.622022 
+C -1.926654 3.317391 -0.983399 3.708099 0 3.708099 
+z
+" style="stroke: #ffffff; stroke-width: 1.5"/>
+    </defs>
+    <g clip-path="url(#pa8964aa30a)">
+     <use xlink:href="#me10fb6d2b2" x="280.919816" y="28.053295" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_2">
+    <g clip-path="url(#pa8964aa30a)">
+     <use xlink:href="#me10fb6d2b2" x="288.658982" y="55.135398" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_3">
+    <g clip-path="url(#pa8964aa30a)">
+     <use xlink:href="#me10fb6d2b2" x="295.653664" y="82.2175" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_4">
+    <g clip-path="url(#pa8964aa30a)">
+     <use xlink:href="#me10fb6d2b2" x="289.100587" y="109.299602" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_5">
+    <g clip-path="url(#pa8964aa30a)">
+     <use xlink:href="#me10fb6d2b2" x="276.660917" y="136.381705" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="text_8">
+    <text style="font-weight: 700; font-size: 20px; font-family: 'Noto Sans'; text-anchor: middle; fill: #0b2a6f" x="254.030417" y="16.636875" transform="rotate(-0 254.030417 16.636875)">My grader</text>
+   </g>
+  </g>
+  <g id="axes_2">
+   <g id="patch_4">
+    <path d="M 341.466458 141.798125 
+L 470.738542 141.798125 
+L 470.738542 22.636875 
+L 341.466458 22.636875 
+L 341.466458 141.798125 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_3">
+    <g id="xtick_3">
+     <g id="line2d_16">
+      <path d="M 372.245526 141.798125 
+L 372.245526 22.636875 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #e5e5e5; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_17">
+      <g>
+       <use xlink:href="#m670849c5fa" x="372.245526" y="141.798125" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_9">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="372.245526" y="163.233672" transform="rotate(-0 372.245526 163.233672)">-0.1</text>
+     </g>
+    </g>
+    <g id="xtick_4">
+     <g id="line2d_18">
+      <path d="M 433.803661 141.798125 
+L 433.803661 22.636875 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #e5e5e5; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_19">
+      <g>
+       <use xlink:href="#m670849c5fa" x="433.803661" y="141.798125" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_10">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="433.803661" y="163.233672" transform="rotate(-0 433.803661 163.233672)">0</text>
+     </g>
+    </g>
+    <g id="text_11">
+     <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="406.1025" y="186.235156" transform="rotate(-0 406.1025 186.235156)">score change vs. Mainstream American English (SD)</text>
+    </g>
+   </g>
+   <g id="matplotlib.axis_4">
+    <g id="ytick_6">
+     <g id="line2d_20"/>
+    </g>
+    <g id="ytick_7">
+     <g id="line2d_21"/>
+    </g>
+    <g id="ytick_8">
+     <g id="line2d_22"/>
+    </g>
+    <g id="ytick_9">
+     <g id="line2d_23"/>
+    </g>
+    <g id="ytick_10">
+     <g id="line2d_24"/>
+    </g>
+   </g>
+   <g id="line2d_25">
+    <path d="M 415.414594 28.053295 
+L 435.668561 28.053295 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_26">
+    <path d="M 415.664467 55.135398 
+L 421.080086 55.135398 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_27">
+    <path d="M 407.733922 82.2175 
+L 417.917491 82.2175 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #c8501e; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_28">
+    <path d="M 419.939259 109.299602 
+L 425.520443 109.299602 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_29">
+    <path d="M 363.822917 136.381705 
+L 379.118358 136.381705 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke: #c8501e; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_30">
+    <path d="M 433.803661 141.798125 
+L 433.803661 22.636875 
+" clip-path="url(#pdeeed498a7)" style="fill: none; stroke-dasharray: 4.8,3.6; stroke-dashoffset: 0; stroke: #555555; stroke-width: 1.2"/>
+   </g>
+   <g id="patch_5">
+    <path d="M 341.466458 141.798125 
+L 470.738542 141.798125 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_6">
+    <g clip-path="url(#pdeeed498a7)">
+     <use xlink:href="#me10fb6d2b2" x="425.71718" y="28.053295" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_7">
+    <g clip-path="url(#pdeeed498a7)">
+     <use xlink:href="#me10fb6d2b2" x="418.468339" y="55.135398" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_8">
+    <defs>
+     <path id="m47907e2ca6" d="M 0 3.708099 
+C 0.983399 3.708099 1.926654 3.317391 2.622022 2.622022 
+C 3.317391 1.926654 3.708099 0.983399 3.708099 0 
+C 3.708099 -0.983399 3.317391 -1.926654 2.622022 -2.622022 
+C 1.926654 -3.317391 0.983399 -3.708099 0 -3.708099 
+C -0.983399 -3.708099 -1.926654 -3.317391 -2.622022 -2.622022 
+C -3.317391 -1.926654 -3.708099 -0.983399 -3.708099 0 
+C -3.708099 0.983399 -3.317391 1.926654 -2.622022 2.622022 
+C -1.926654 3.317391 -0.983399 3.708099 0 3.708099 
+z
+" style="stroke: #ffffff; stroke-width: 1.5"/>
+    </defs>
+    <g clip-path="url(#pdeeed498a7)">
+     <use xlink:href="#m47907e2ca6" x="412.759303" y="82.2175" style="fill: #c8501e; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_9">
+    <g clip-path="url(#pdeeed498a7)">
+     <use xlink:href="#me10fb6d2b2" x="422.723835" y="109.299602" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_10">
+    <g clip-path="url(#pdeeed498a7)">
+     <use xlink:href="#m47907e2ca6" x="371.514772" y="136.381705" style="fill: #c8501e; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="text_12">
+    <text style="font-weight: 700; font-size: 20px; font-family: 'Noto Sans'; text-anchor: middle; fill: #0b2a6f" x="406.1025" y="16.636875" transform="rotate(-0 406.1025 16.636875)">Skywork RM</text>
+   </g>
+  </g>
+  <g id="axes_3">
+   <g id="patch_6">
+    <path d="M 493.538542 141.798125 
+L 622.810625 141.798125 
+L 622.810625 22.636875 
+L 493.538542 22.636875 
+L 493.538542 141.798125 
+z
+" style="fill: none"/>
+   </g>
+   <g id="matplotlib.axis_5">
+    <g id="xtick_5">
+     <g id="line2d_31">
+      <path d="M 524.317609 141.798125 
+L 524.317609 22.636875 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #e5e5e5; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_32">
+      <g>
+       <use xlink:href="#m670849c5fa" x="524.317609" y="141.798125" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_13">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="524.317609" y="163.233672" transform="rotate(-0 524.317609 163.233672)">-0.1</text>
+     </g>
+    </g>
+    <g id="xtick_6">
+     <g id="line2d_33">
+      <path d="M 585.875744 141.798125 
+L 585.875744 22.636875 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #e5e5e5; stroke-width: 0.8; stroke-linecap: square"/>
+     </g>
+     <g id="line2d_34">
+      <g>
+       <use xlink:href="#m670849c5fa" x="585.875744" y="141.798125" style="fill: #555555; stroke: #555555; stroke-width: 0.8"/>
+      </g>
+     </g>
+     <g id="text_14">
+      <text style="font-size: 19px; font-family: 'Noto Sans'; text-anchor: middle; fill: #555555" x="585.875744" y="163.233672" transform="rotate(-0 585.875744 163.233672)">0</text>
+     </g>
+    </g>
+   </g>
+   <g id="matplotlib.axis_6">
+    <g id="ytick_11">
+     <g id="line2d_35"/>
+    </g>
+    <g id="ytick_12">
+     <g id="line2d_36"/>
+    </g>
+    <g id="ytick_13">
+     <g id="line2d_37"/>
+    </g>
+    <g id="ytick_14">
+     <g id="line2d_38"/>
+    </g>
+    <g id="ytick_15">
+     <g id="line2d_39"/>
+    </g>
+   </g>
+   <g id="line2d_40">
+    <path d="M 568.27904 28.053295 
+L 581.463438 28.053295 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_41">
+    <path d="M 571.724673 55.135398 
+L 576.078667 55.135398 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_42">
+    <path d="M 550.252296 82.2175 
+L 556.848542 82.2175 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #c8501e; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_43">
+    <path d="M 574.398946 109.299602 
+L 577.479311 109.299602 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #0b2a6f; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_44">
+    <path d="M 532.019946 136.381705 
+L 541.835356 136.381705 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke: #c8501e; stroke-width: 2.5; stroke-linecap: round"/>
+   </g>
+   <g id="line2d_45">
+    <path d="M 585.875744 141.798125 
+L 585.875744 22.636875 
+" clip-path="url(#p4abcd48f4c)" style="fill: none; stroke-dasharray: 4.8,3.6; stroke-dashoffset: 0; stroke: #555555; stroke-width: 1.2"/>
+   </g>
+   <g id="patch_7">
+    <path d="M 493.538542 141.798125 
+L 622.810625 141.798125 
+" style="fill: none; stroke: #000000; stroke-width: 0.8; stroke-linejoin: miter; stroke-linecap: square"/>
+   </g>
+   <g id="PathCollection_11">
+    <g clip-path="url(#p4abcd48f4c)">
+     <use xlink:href="#me10fb6d2b2" x="574.580281" y="28.053295" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_12">
+    <g clip-path="url(#p4abcd48f4c)">
+     <use xlink:href="#me10fb6d2b2" x="573.867797" y="55.135398" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_13">
+    <g clip-path="url(#p4abcd48f4c)">
+     <use xlink:href="#m47907e2ca6" x="553.471156" y="82.2175" style="fill: #c8501e; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_14">
+    <g clip-path="url(#p4abcd48f4c)">
+     <use xlink:href="#me10fb6d2b2" x="575.972894" y="109.299602" style="fill: #0b2a6f; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="PathCollection_15">
+    <g clip-path="url(#p4abcd48f4c)">
+     <use xlink:href="#m47907e2ca6" x="537.014872" y="136.381705" style="fill: #c8501e; stroke: #ffffff; stroke-width: 1.5"/>
+    </g>
+   </g>
+   <g id="text_15">
+    <text style="font-weight: 700; font-size: 20px; font-family: 'Noto Sans'; text-anchor: middle; fill: #0b2a6f" x="558.174583" y="16.636875" transform="rotate(-0 558.174583 16.636875)">Tulu-3 RM</text>
+   </g>
+  </g>
+ </g>
+ <defs>
+  <clipPath id="pa8964aa30a">
+   <rect x="189.394375" y="22.636875" width="129.272083" height="119.16125"/>
+  </clipPath>
+  <clipPath id="pdeeed498a7">
+   <rect x="341.466458" y="22.636875" width="129.272083" height="119.16125"/>
+  </clipPath>
+  <clipPath id="p4abcd48f4c">
+   <rect x="493.538542" y="22.636875" width="129.272083" height="119.16125"/>
+  </clipPath>
+ </defs>
+</svg>
+</div>
+    <div class="cap"><b>Fig. 3.</b> Score change, 95% CI. <b style="color:var(--orange)">Orange</b> = penalty beyond rewording alone. All tiny: 0.2 SD counts as “small”.</div>
     <h3 style="margin-top:10px">Q3 · What moves the score?</h3>
-    <div class="pending" style="padding:10px 14px;font-size:21px;text-align:left">FILL IN (stage 3): top dialect features that move the score; the grader's reason mentions the student's language in __ of __ big gaps.</div>
+    <p style="font-size:22px">No single grammar feature beats chance; the Indian English penalty is spread over several.</p>
+    <div class="pending" style="padding:6px 14px;font-size:21px;text-align:left">FILL IN (04): the grader's reason mentions the student's language in __ of __ big gaps.</div>
   </section>
 
   <!-- ============ RESULTS cont + DEMO (col 3) ============ -->
@@ -297,12 +739,12 @@ svg.qr { width: 150px; height: 150px; display: block; }
     <h3 style="margin-top:0">Q4 · Does the bias reach the trained tutor?</h3>
     <table style="width:100%;border-collapse:collapse;font-size:21px;margin-top:4px">
       <tr style="color:var(--navy);font-weight:700;border-bottom:3px solid var(--navy)"><td style="padding:4px 4px">On new problems</td><td style="text-align:center">Before training</td><td style="text-align:center">Tutor A (after)</td></tr>
-      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives a hint</td><td class="pending">__%</td><td class="pending">__%</td></tr>
-      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives the answer away</td><td class="pending">__%</td><td class="pending">__%</td></tr>
-      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gap between groups</td><td class="pending">__</td><td class="pending">__</td></tr>
-      <tr><td style="padding:4px 4px">Gamed the grader?</td><td class="pending" colspan="2">__ (second reward model)</td></tr>
+      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives a hint</td><td style="text-align:center">34%</td><td style="text-align:center;font-weight:700;color:var(--teal)">86%</td></tr>
+      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives the answer</td><td style="text-align:center">52%</td><td style="text-align:center;font-weight:700;color:var(--teal)">18%</td></tr>
+      <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gap between groups</td><td style="text-align:center">none</td><td style="text-align:center;font-weight:700;color:var(--teal)">none (did not grow)</td></tr>
+      <tr><td style="padding:4px 4px">Gamed the grader?</td><td colspan="2" style="text-align:center">A little: praises wrong answers more</td></tr>
     </table>
-    <div class="cap"><b>Fig. 4.</b> Key row: does training widen the gap between groups?</div>
+    <div class="cap"><b>Fig. 4.</b> 6,065 new test messages per model. “None” = no group differs beyond chance. “Great start!” on wrong answers: 20% → 48%.</div>
 
     <h2 style="margin-top:14px"><span class="n">5</span>Try it yourself</h2>
     <p>On your phone: guess <b>hint or answer</b>, then <b>flip the student's dialect or name</b> and watch the score.</p>
@@ -312,7 +754,7 @@ svg.qr { width: 150px; height: 150px; display: block; }
     </div>
     <div class="box" style="margin-top:12px">
       <h3>Limitations</h3>
-      Dialects are rule-based rewrites, cleaner than real speech. Small models, free GPUs, one short training run: a demonstration, not a verdict on real products. Grader checked on only 40 labels by one person. Math only, one turn. “Same help = fair” assumes every kid needs the same help.
+      Dialects are rule-based rewrites, cleaner than real speech. Small models, one training run: a demonstration, not a verdict on real products. Grader checked on only 40 labels by one person, and it checks <i>how</i> the tutor teaches, not whether its math is right. Math only, one turn. “Same help = fair” assumes every kid needs the same help.
     </div>
     <div class="box blue">
       <h3>Future work</h3>
