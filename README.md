@@ -133,6 +133,11 @@ In each Kaggle notebook: set **Accelerator = GPU T4 x2** and **Internet = on**, 
 
 Tests (CPU only, also run in CI): `pip install -e ".[dev]" && pytest`.
 
+Two checks run on the saved audit results, with no GPU:
+
+- **Power check:** `python -m tutorbias.audit.power` writes [results/audit/power.md](results/audit/power.md): the smallest gap the audit could have detected for each grader and group. A "no penalty" result only counts if the audit could have seen a small one.
+- **Bias regression gate:** `python -m tutorbias.audit.gate` fails if a grader that trains the tutor penalizes any student group by more than 0.05 SD (limit and groups in [configs/bias_gate.yaml](configs/bias_gate.yaml)). CI runs it on every push, so fairness is tested like any other bug.
+
 ### Data and models
 
 | What | Link | License |
@@ -157,6 +162,7 @@ The main choices, in plain words. Full reasoning: [docs/design_decisions.md](doc
 - **Checked against a human before use.** The grader had to pass an agreement check (E1) before any fairness result counts. Rubric v1 was kept; later rubric versions moved the grader away from the human labels, so they were dropped.
 - **Three graders, not one.** Our own grader plus two public reward models, to see if the problem is general. ArmoRM was planned but replaced by **Tulu-3-8B-RM**, because ArmoRM's code no longer loads with current libraries.
 - **GRPO with LoRA on a small model.** It fits on free T4 GPUs and needs no separate value model.
+- **Fairness as a test.** The bias limit lives in a config file and is checked in CI ([configs/bias_gate.yaml](configs/bias_gate.yaml)). The limit (0.05 SD) is about the smallest gap the audit can measure reliably, per the power check.
 - **Free compute only.** Everything is built to run on Kaggle's free tier, with saved progress at every step.
 
 ## 8. Ethics and limitations

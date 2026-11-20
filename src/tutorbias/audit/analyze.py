@@ -49,7 +49,6 @@ def drop_garbled(pairs: pd.DataFrame) -> pd.DataFrame:
     return pairs[bad.isna()].copy()
 
 
-
 def load_scores(cfg: dict[str, Any], pairs: pd.DataFrame) -> pd.DataFrame:
     """Join every available scorer's scores onto the pairs table (one column per scorer)."""
     sdir = Path(cfg["paths"]["scores_dir"])
@@ -288,6 +287,11 @@ def main(argv: list[str] | None = None) -> None:
     for subset in ("all", "changed_only"):
         forest_plot(gaps, out / f"forest_{subset}.png", subset)
     write_summary(gaps, flips, labels, out / "summary.md")
+    # How small a gap could this audit detect? (power.md; see audit/power.py)
+    from .power import power_table, write_report
+    pt = power_table(gaps, acfg["alpha"])
+    pt.to_csv(out / "power.csv", index=False)
+    write_report(pt, out / "power.md")
     print((out / "summary.md").read_text())
 
     run = init_run("audit-analyze", cfg)

@@ -76,3 +76,20 @@ ArmoRM's remote modeling code imports `LLAMA_INPUTS_DOCSTRING`, which current tr
 the GPU env can't pin an old transformers because vLLM needs a current one. The audit now uses AI2's
 `allenai/Llama-3.1-Tulu-3-8B-RM` (on RewardBench, a standard sequence classifier, different lab and
 training data from Skywork). We lose ArmoRM's per-objective breakdown, which the pipeline never used.
+
+## Power check and bias regression gate (Nov 20)
+
+**Power.** Many E2 results are "no penalty". A null result only means something if the audit could have
+found a small effect, so `tutorbias.audit.power` turns each cluster-bootstrap CI into a minimum
+detectable effect (80% power, Bonferroni over the whole test family, which is conservative for Holm).
+Raw gaps: MDE 0.005 to 0.047 SD (median about 0.02). Net of the paraphrase control: 0.024 to 0.053 SD,
+because subtracting the paraphrase adds its noise. So the audit can see gaps about ten times smaller than
+a conventional "small" effect (0.2 SD). We also report the largest penalty the 95% CI still allows, which
+is the honest form of "no penalty": for our grader, no dialect penalty larger than 0.026 SD net.
+
+**Gate.** `configs/bias_gate.yaml` sets a limit (0.05 SD) on the pessimistic end of the 95% CI, for the
+dialect groups vs MAE (raw and net of paraphrase) and for name groups vs a white name. Graders that train
+the tutor must pass; off-the-shelf RMs are report-only. The limit is the smallest one the audit can check
+reliably per the power check, and is a policy choice. On the committed results the training graders
+pass, and the gate flags one off-the-shelf result: Tulu-3-RM on Indian English (CI down to -0.058 SD).
+CI runs the gate, so a rerun or code change that makes the training grader biased breaks the build.

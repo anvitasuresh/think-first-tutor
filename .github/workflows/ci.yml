@@ -11,3 +11,5 @@ jobs:
       - run: ruff check .
       - run: pytest -q
         env: {WANDB_MODE: disabled}
+      - name: bias regression gate (training graders vs committed audit results)
+        run: python -m tutorbias.audit.gate

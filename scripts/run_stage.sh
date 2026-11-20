@@ -128,6 +128,7 @@ case "$STAGE" in
     done
     # Analysis runs on whatever scorers finished, so one broken model never costs the whole run.
     $P -m tutorbias.audit.analyze --config "$(cfg audit)"
+    $P -m tutorbias.audit.gate || echo "!!! Bias gate FAILED: a training grader penalizes a group (see above)"
     [ ${#failed[@]} -eq 0 ] || echo "!!! Finished WITHOUT: ${failed[*]}"
     ;;
   explain)
