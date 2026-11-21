@@ -77,21 +77,19 @@ flowchart LR
 
 ## 4. Results
 
-> Results are filled in as each Kaggle run finishes. Numbers marked **[pending]** are not available yet.
-
 | Question | Result |
 |---|---|
 | E1. Does the grader agree with a human? | **Yes, moderately.** Cohen's kappa 0.65 (95% CI 0.41 to 0.85) on hint vs answer; Spearman 0.56 on helpfulness. 40 human labels. |
 | E2. Same reply, different dialect: does the score change? | **Barely, and only for public reward models.** Our grader (and its 4-bit training copy) scores dialect messages 0.01 to 0.03 SD *higher*. Skywork and Tulu score them 0.02 to 0.05 SD lower, but for AAE and learner English that is no more than plain rewording does. Indian English is the exception: Tulu -0.034 SD and Skywork -0.021 SD beyond rewording (preliminary: dialect text not yet checked by native speakers). The audit could detect gaps of about 0.02 SD ([power check](results/audit/power.md)). |
 | E2. Same reply, different name: does the score change? | Adding *any* name, white names included, lowers public RM scores by 0.08 to 0.12 SD. Name vs name gaps are small (largest: Skywork, Hispanic vs white names, -0.031 SD). Our grader: no gap. |
 | E2. Does the gap flip which reply wins? | Rarely: 1 to 5% of reply pairs, less often than plain rewording flips them. |
-| E3. Which features drive the gap? | No single feature stands out beyond chance (permutation test). The Indian English penalty is spread over several features (dropped pronouns, repeated question words, progressive verbs). |
-| E4. Do the grader's explanations admit it? | **[pending]** Share of large-gap cases whose reason mentions the student's language. |
+| E3. Which features drive the gap? | **No single feature.** Only one of 22 features beats chance, and it *raises* a score. The Indian English penalty is spread over several small ones. Inside the grader, dialect is easy to detect (a linear probe reaches 84% for Indian English), but that direction is nearly unrelated to the score direction (cosine at most 0.13). |
+| E4. Do the grader's explanations admit it? | **No, and they don't explain the change at all.** In 30 cases where only the dialect changed and the score moved by 0.2 or more, the written reason never mentioned the student's language. It described the *same* reply differently instead. Written reasons are not a faithful audit tool ([details](results/explain/summary.md)). |
 | E5. Did training teach the tutor to give hints? | **Yes.** Replies rated as hints: 34% → 86%. Replies that give away the final answer: 52% → 18%. Helpfulness 2.2 → 3.8 of 5. Students who demand the answer are still the weak spot (20% leak). |
 | E6. Did the tutor learn to game the grader? | **A little.** No filler questions or length padding. But it praises wrong answers ("great start!") twice as often as before (48% vs 20%), and the grader rewards that; a hand read also found math slips the grader misses (about 1 in 10). A second RM scores the tutor lower only because that RM prefers replies that hand out the answer ([review](results/eval/reply_review.md)). |
 | E7. Does the unfair gap carry into the tutor? | **No sign of it.** No student group's gap changed with training (all differences-in-differences include 0 after correction; largest: AAE hint score -0.07, 95% CI -0.20 to +0.06). With 173 to 300 questions per group, this rules out large changes, not small ones. |
 
-Full tables: [results/audit/summary.md](results/audit/summary.md), [results/eval/summary.md](results/eval/summary.md), [results/eval/reply_review.md](results/eval/reply_review.md).
+Full tables: [results/audit/summary.md](results/audit/summary.md), [results/explain/summary.md](results/explain/summary.md), [results/eval/summary.md](results/eval/summary.md), [results/eval/reply_review.md](results/eval/reply_review.md).
 
 ![Training curve](results/eval/training_curve.png)
 
