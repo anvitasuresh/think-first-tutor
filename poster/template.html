@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Who Does the Tutor Learn From? (Expo poster)</title>
+<title>Hints, Not Answers (Expo poster)</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 /* 36 x 24 in landscape poster = 3456 x 2304 CSS px (96 px per inch). Boxes with class="pending" are results still to come. */
@@ -19,7 +19,7 @@ b { font-weight: 700; }
 
 /* header */
 header { background: var(--navy); color: #fff; height: 214px; padding: 30px 64px 0; display: flex; justify-content: space-between; border-bottom: 14px solid var(--navy2); }
-header h1 { font-family: "EB Garamond", serif; font-size: 88px; line-height: 1; font-weight: 700; letter-spacing: -0.5px; }
+header h1 { font-family: "EB Garamond", serif; font-size: 80px; line-height: 1; font-weight: 700; letter-spacing: -0.5px; }
 header .sub { font-size: 31px; margin-top: 14px; color: #dfe6f5; }
 header .who { text-align: right; border-left: 3px solid #5b78b8; padding-left: 36px; margin-top: 4px; height: 150px; flex-shrink: 0; }
 header .who .name { font-family: "EB Garamond", serif; font-size: 58px; font-weight: 700; }
@@ -64,6 +64,9 @@ ol { padding-left: 34px; } li { margin: 4px 0; }
 .phase .a { background: var(--navy); } .phase .b { background: var(--teal); }
 .step { position: relative; background: #fff; border: 3px solid var(--navy); border-radius: 14px; margin: 12px 30px 0 0; padding: 10px 12px 12px; min-height: 0; }
 .step.t { border-color: var(--teal); }
+.grpo { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 6px; }
+.grpo div { background: #fff; border: 3px solid var(--teal); border-radius: 12px; padding: 8px 12px; font-size: 21px; line-height: 1.25; }
+.grpo b { color: var(--teal); }
 .step:not(:last-child)::after { content: ""; position: absolute; right: -30px; top: 50%; border: 15px solid transparent; border-left: 22px solid var(--navy); transform: translate(6px, -50%); }
 .step.t:not(:last-child)::after { border-left-color: var(--teal); }
 .step .num { font-family: "EB Garamond", serif; font-weight: 800; color: var(--orange); font-size: 37px; line-height: 1; }
@@ -125,8 +128,8 @@ svg.qr { width: 150px; height: 150px; display: block; }
 
 <header>
   <div>
-    <h1>Who Does the Tutor Learn From?</h1>
-    <div class="sub">An AI math tutor that gives hints instead of answers, and a check that it helps every student the same way</div>
+    <h1>Hints, Not Answers: Teaching an AI Tutor to Make Kids Think</h1>
+    <div class="sub">A small AI math tutor trained to coach instead of tell, and a check that it helps every student the same way</div>
   </div>
   <div class="who">
     <div class="name">Anvita Suresh</div>
@@ -234,7 +237,14 @@ svg.qr { width: 150px; height: 150px; display: block; }
         </div>
       </div>
     </div>
-    <h3 style="margin-top:22px">Training the tutor: the reward went up, answer leaks went down</h3>
+    <h3 style="margin-top:12px">How the tutor learns: GRPO, in four steps (repeated 300 times)</h3>
+    <div class="grpo">
+      <div><b>1 · Try 4 times.</b> The tutor writes 4 different replies to one stuck student.</div>
+      <div><b>2 · Grade each.</b> The AI grader scores every reply (hint = high, answer = low).</div>
+      <div><b>3 · Beat your own average.</b> Replies above the group's average become more likely; below, less likely.</div>
+      <div><b>4 · Small steps.</b> A leash (KL penalty) keeps it close to the original model so it can't drift.</div>
+    </div>
+    <h3 style="margin-top:14px">Result: the reward went up, answer leaks went down</h3>
     <div class="forest">{{FIG_TRAIN}}</div>
     <div class="cap"><b>Fig. 2.</b> 300 GRPO steps (4.3 h on two free T4 GPUs), each point = 10 steps. The grader's score is the reward; the leak rate is a separate check.</div>
   </section>
@@ -286,16 +296,16 @@ svg.qr { width: 150px; height: 150px; display: block; }
     <div class="cap"><b>Fig. 6.</b> 6,065 new test messages per model. “None” = no group differs beyond chance.</div>
 
     <div class="box peach" style="margin-top:18px">
-      <h3>Did the tutor game the grader? A little.</h3>
+      <h3>It also learned two things I didn't want</h3>
       <ul style="padding-left:26px">
-        <li>Says <b>“great start!”</b> to wrong answers 48% of the time (was 20%), and the grader rewards it.</li>
-        <li>About <b>1 in 10</b> replies I read had a math slip the grader missed: it checks <i>how</i> the tutor teaches, not the math.</li>
-        <li>A second reward model scored the tutor lower only because it <b>rewards giving the answer</b>.</li>
+        <li><b>Flattery:</b> says “great start!” even when the student's answer is wrong, 48% of the time (was 20%), because the grader likes it.</li>
+        <li><b>Math slips:</b> about 1 in 10 replies I read had a math mistake. The grader checks <i>how</i> it teaches, not whether the math is right.</li>
       </ul>
+      <div style="margin-top:6px">A tutor learns <b>exactly what its grader rewards</b>, good and bad.</div>
     </div>
 
     <h2 style="margin-top:22px"><span class="n">5</span>Try it yourself</h2>
-    <p>On your phone: guess <b>hint or answer</b>, then <b>flip the student's dialect or name</b> and watch the score.</p>
+    <p>On your phone: <b>try to get the answer</b> out of the tutor, click through how it learned, and <b>flip the student's dialect</b> to watch the score.</p>
     <div class="qrs">
       <div class="qrbox">{{QR_DEMO}}<div class="k">Live demo<small>anvitasuresh.github.io/xai_proj2</small></div></div>
       <div class="qrbox">{{QR_REPO}}<div class="k">Code &amp; write-up<small>github.com/anvitasuresh/xai_proj2</small></div></div>

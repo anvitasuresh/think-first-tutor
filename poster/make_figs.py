@@ -43,7 +43,7 @@ def training() -> None:
     c = pd.read_csv("results/eval/training_curve.csv")
     panels = [("reward", "Reward (max 1.5)", 1), ("scaffolding", "Hint score (-1 to +1)", 1),
               ("answer_leaked", "Replies leaking the answer (%)", 100)]
-    fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.6))
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.05))
     for ax, (col, title, k) in zip(axes, panels):
         y = c[col] * k
         color = ORANGE if col == "answer_leaked" else NAVY

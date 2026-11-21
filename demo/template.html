@@ -1,5 +1,5 @@
-<title>Who Does the Tutor Learn From?</title>
-<meta name="description" content="An interactive demo: can you tell a hint from an answer, and does an AI reward model give every student the same credit for the same help?">
+<title>Hints, Not Answers</title>
+<meta name="description" content="Hints, Not Answers: Teaching an AI Tutor to Make Kids Think. Try to get the answer out of a tutor trained to give hints, see how it learned, and check whether it treats every student the same.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=JetBrains+Mono:wght@400;600&display=swap">
@@ -125,44 +125,99 @@ th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule
 .tablewrap { overflow-x: auto; }
 footer { display: grid; gap: 10px; font-size: var(--s-1); color: var(--graphite); border-top: 1px solid var(--rule); padding-top: 20px; }
 @media (prefers-reduced-motion: no-preference) { .reveal { animation: up 0.25s ease-out; } @keyframes up { from { transform: translateY(4px); opacity: 0.4; } } }
+
+/* chat */
+.phone { background: var(--paper); border: 1px solid var(--rule); border-radius: 14px; padding: 14px; display: grid; gap: 10px; min-height: 160px; max-height: 620px; overflow-y: auto; overscroll-behavior: contain; }
+.bubble.sys { justify-self: center; background: transparent; font-size: var(--s-1); color: var(--graphite); text-align: center; padding: 2px 8px; }
+.bubble.tutor.wide, .bubble.student.wide { max-width: 92%; }
+.bubble.tutor p, .bubble.tutor li { margin: 0 0 6px; }
+.bubble.tutor ol, .bubble.tutor ul { margin: 0 0 6px; padding-left: 20px; }
+.typing { display: inline-flex; gap: 4px; padding: 4px 2px; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--graphite); opacity: 0.4; }
+@media (prefers-reduced-motion: no-preference) { .typing i { animation: blink 1s infinite; } .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; } @keyframes blink { 50% { opacity: 1; } } }
+.moves { display: flex; flex-wrap: wrap; gap: 8px; }
+.move { border: 2px solid var(--pen); background: var(--sheet); color: var(--pen); border-radius: 999px; padding: 8px 14px; font-family: var(--font-display); font-weight: 700; }
+.move:hover { background: var(--pen-soft); }
+.move[disabled] { opacity: .5; cursor: default; }
+.badges { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-self: end; }
+.linkbtn { background: none; border: 0; color: var(--pen); text-decoration: underline; padding: 0; font-size: var(--s-1); }
+.scoreboard { display: flex; flex-wrap: wrap; gap: 8px 18px; justify-content: space-between; align-items: baseline; }
+.big { font-family: var(--font-display); font-weight: 800; font-size: var(--s2); }
+.base-box { border: 1px dashed var(--rule); border-radius: 10px; padding: 10px 12px; display: grid; gap: 6px; font-size: var(--s-1); justify-self: end; max-width: 92%; }
+/* GRPO stepper */
+.steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.cand { border: 2px solid var(--rule); border-radius: 10px; padding: 10px; display: grid; gap: 8px; align-content: start; font-size: var(--s-1); background: var(--sheet); transition: border-color .3s, transform .3s; min-width: 0; }
+.cand .score { font-family: var(--font-mono); font-weight: 600; }
+.cand.up { border-color: var(--guide); background: var(--guide-soft); }
+.cand.down { border-color: var(--away); background: var(--away-soft); }
+.cand .arrow { font-family: var(--font-display); font-weight: 800; }
+.stepper { display: flex; gap: 6px; flex-wrap: wrap; }
+.dot { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--rule); display: grid; place-items: center; font-family: var(--font-mono); font-size: var(--s-1); color: var(--graphite); }
+.dot.on { border-color: var(--pen); color: var(--sheet); background: var(--pen); }
+.explain { font-size: var(--s1); min-height: 3.2em; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.kpi { border: 1px solid var(--rule); border-radius: 10px; padding: 12px; display: grid; gap: 4px; }
+.kpi .from { color: var(--graphite); font-family: var(--font-mono); }
+.kpi .to { font-family: var(--font-display); font-weight: 800; font-size: var(--s3); line-height: 1; }
+/* findings */
+.finds { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); gap: 14px; }
+.find { background: var(--sheet); border: 1px solid var(--rule); border-top: 5px solid var(--pen); border-radius: 6px; padding: 16px; display: grid; gap: 8px; align-content: start; }
+.find.good { border-top-color: var(--guide); } .find.warn { border-top-color: var(--neither); } .find.bad { border-top-color: var(--away); }
+.find .tag { font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: .08em; color: var(--graphite); }
 </style>
 
 <div class="wrap">
   <header class="hero">
-    <span class="eyebrow">Responsible AI demo · Duke XAI Project 2</span>
-    <h1>An AI tutor should help you <em>think</em>, not think for you.</h1>
-    <p class="lede">Kids can use AI to learn better, without losing skills, if the AI gives hints instead of answers. These tutors are trained by another AI that scores their replies. This page lets you check that scorer: can it tell a hint from an answer, and does it give every student the same credit for the same help?</p>
+    <span class="eyebrow">Responsible AI project · Duke XAI</span>
+    <h1>Hints, Not Answers: Teaching an AI Tutor to Make Kids <em>Think</em></h1>
+    <p class="lede">Most AI helpers will just do your homework for you. That's fast, but you don't learn anything. I trained a small AI tutor to do the opposite: when a student is stuck on a math problem, it gives a hint and lets them do the thinking. Then I checked that it helps every student the same, whatever kind of English they write in.</p>
     <nav aria-label="Sections">
-      <a href="#game">1 · Hint or answer?</a>
-      <a href="#voices">2 · Same help, different student</a>
-      <a href="#tutor">3 · What the tutor learned</a>
+      <a href="#chat">1 · Try to get the answer</a>
+      <a href="#learn">2 · How it learned</a>
+      <a href="#game">3 · Hint or answer?</a>
+      <a href="#voices">4 · Is it fair?</a>
+      <a href="#found">5 · What I found</a>
     </nav>
   </header>
 
+  <section id="chat" aria-labelledby="chat-h">
+    <span class="eyebrow">Part 1 · Your turn</span>
+    <h2 id="chat-h">Can you get the answer out of it?</h2>
+    <p>You're a student stuck on a math problem. Pick what to say to the tutor and see how it responds. Try begging for the answer. See how often you win.</p>
+    <div class="sheet" id="chat-card"></div>
+  </section>
+
+  <section id="learn" aria-labelledby="learn-h">
+    <span class="eyebrow">Part 2 · The training method (GRPO)</span>
+    <h2 id="learn-h">How the tutor learned to give hints</h2>
+    <p>Nobody wrote the tutor's hints by hand. It started as a normal small AI model (Qwen2.5-1.5B) that mostly just solved the problem for you. It learned by trial and error, with a second AI as its grader. The method is called <b>GRPO</b> (Group Relative Policy Optimization). Click through one round of it:</p>
+    <div class="sheet" id="learn-card"></div>
+  </section>
+
   <section id="game" aria-labelledby="game-h">
-    <span class="eyebrow">Part 1 · You vs. the AI judge</span>
+    <span class="eyebrow">Part 3 · You vs. the AI grader</span>
     <h2 id="game-h">Hint or answer?</h2>
-    <p>A student is stuck on a math word problem. Read the tutor's reply and decide: does it guide the student, or give the work away? Then see what a human grader and the AI judge said.</p>
+    <p>The whole training depends on the grader telling good hints from give-aways. Can you? Read the tutor's reply, make your call, then see what a human grader and the AI grader said.</p>
     <div class="sheet" id="game-card" aria-live="polite"></div>
   </section>
 
   <section id="voices" aria-labelledby="voices-h">
-    <span class="eyebrow">Part 2 · The fairness check</span>
+    <span class="eyebrow">Part 4 · The fairness check</span>
     <h2 id="voices-h">Same help, different student</h2>
-    <p>The tutor's reply below never changes. Only the student's message does: the same words in a different variety of English, or with a name added. If a reward model scores the reply differently, that difference can only come from how the student writes or who they seem to be, and an AI tutor trained on that reward learns it.</p>
+    <p>Students don't all write the same way. If the grader gave less credit for the exact same hint when the student writes in African American English, Indian English, or as an English learner, the tutor would learn to help those students less. So I tested it: keep the tutor's reply fixed, change only how the student writes (or their name), and see if the grade moves.</p>
     <div class="sheet" id="voice-card"></div>
   </section>
 
-  <section id="tutor" aria-labelledby="tutor-h">
-    <span class="eyebrow">Part 3 · After training</span>
-    <h2 id="tutor-h">What the tutor learned</h2>
-    <p>A small open model (Qwen2.5-1.5B) is trained with reinforcement learning (GRPO), using the judge from Part 1 as its reward. This section compares its replies before and after training.</p>
-    <div class="sheet" id="tutor-card"></div>
+  <section id="found" aria-labelledby="found-h">
+    <span class="eyebrow">Part 5 · Takeaways</span>
+    <h2 id="found-h">What I found</h2>
+    <div class="finds" id="finds"></div>
+    <p class="small muted">Every number, test and chart is in the <a href="https://github.com/anvitasuresh/xai_proj2#results">project README</a>, including confidence intervals and the methods behind them.</p>
   </section>
 
   <footer>
     <p><b>About the data.</b> Every student message is synthetic. No real students and no minors took part. Math problems come from GSM8K. Dialect versions are made by rules from Multi-VALUE (Ziems et al., 2023) using only grammar features that the eWAVE atlas rates as common in that variety, so they are not written to sound like a stereotype. A dialect is not a race, and a name is only a cue: these tests measure how the AI reacts to that cue, nothing more.</p>
-    <p><b>Limits.</b> The human labels in Part 1 come from one grader on 40 replies, so agreement numbers have wide intervals. Rule-based dialect text is not the same as real speech, and some rules misfire; the demo skips messages with known glitches. Results are for these models and prompts only.</p>
+    <p><b>About the chat.</b> It replays real replies the trained tutor wrote during testing; it is not running live. The tutor answers one message at a time, so the chat is one turn deep.</p>
     <p>Code, data and full results: <a href="https://github.com/anvitasuresh/xai_proj2">github.com/anvitasuresh/xai_proj2</a></p>
   </footer>
 </div>
@@ -191,14 +246,154 @@ const tex = s => String(s ?? "").replace(/\\[()\[\]]/g, "").replace(/\\frac\{([^
 const gauge = v => `<div class="gauge" role="img" aria-label="score ${v.toFixed(2)} on a scale from -1 to +1"><i style="left:${((v + 1) / 2 * 100).toFixed(1)}%"></i></div><div class="gauge-ends"><span>-1 gives it away</span><span>+1 guides</span></div>`;
 const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
 
-/* ---------------------------------------------------------------- Part 1: guessing game */
+/* ---------------------------------------------------------------- Part 1: chat */
+// Light markdown for model replies: paragraphs, numbered / bulleted lists, **bold**.
+function md(s) {
+  const lines = esc(tex(s)).replace(/\*\*([^*]+)\*\*/g, "<b>$1</b>").split(/\n/);
+  let html = "", list = null;
+  for (const raw of lines) {
+    const l = raw.trim(), num = l.match(/^\d+\.\s+(.*)/), bul = l.match(/^[-*]\s+(.*)/);
+    const want = num ? "ol" : bul ? "ul" : null;
+    if (list && want !== list) { html += `</${list}>`; list = null; }
+    if (want) { if (!list) { html += `<${want}>`; list = want; } html += `<li>${(num || bul)[1]}</li>`; }
+    else if (l) html += `<p>${l}</p>`;
+  }
+  return html + (list ? `</${list}>` : "");
+}
+const REDUCED = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const C = { log: [], tries: 0, wins: 0, idx: {}, busy: false, showBase: {} };
+const LABEL_PILL = l => l === 1 ? `<span class="pill g">Grader: guides</span>` : l === -1 ? `<span class="pill a">Grader: gives it away</span>` : l === 0 ? `<span class="pill n">Grader: neither</span>` : "";
+function nextItem(move) {
+  const pool = D.chat.pool[move] || [];
+  const i = C.idx[move] ?? Math.floor(Math.random() * pool.length);
+  C.idx[move] = (i + 1) % pool.length;
+  return pool[i];
+}
+function chatHTML() {
+  return C.log.map((m, k) => {
+    if (m.kind === "sys") return `<div class="bubble sys">${m.html}</div>`;
+    if (m.kind === "problem") return `<div class="bubble tutor wide"><span class="who">Tutor</span><p>Here's your problem:</p><p><i>${esc(tex(m.q))}</i></p></div>`;
+    if (m.kind === "student") return `<div class="bubble student wide"><span class="who">You</span>${esc(m.text)}</div>`;
+    if (m.kind === "typing") return `<div class="bubble tutor"><span class="who">Tutor</span><span class="typing" aria-label="typing"><i></i><i></i><i></i></span></div>`;
+    if (m.kind === "tutor") {
+      const e = m.e, open = C.showBase[k];
+      return `<div class="bubble tutor wide"><span class="who">Tutor (after training)</span><div class="txt">${m.partial ?? md(e.tutor)}</div></div>
+        ${m.partial === undefined ? `<div class="badges">${e.tutor_leak ? `<span class="pill a">It gave you the answer (${esc(e.answer)}). You win this one!</span>` : `<span class="pill g">It didn't hand you the answer (it's ${esc(e.answer)}).</span>`}
+          <button class="linkbtn" data-base="${k}" aria-expanded="${!!open}">${open ? "Hide" : "What did the untrained model say?"}</button></div>
+        ${open ? `<div class="base-box"><span class="eyebrow">Same message, before training</span><div>${md(e.base)}</div>
+          <div class="badges">${e.base_leak ? `<span class="pill a">Gave the answer away</span>` : ""}${LABEL_PILL(e.base_label)}${e.base_cut ? `<span class="small muted">(cut off at the length limit)</span>` : ""}</div></div>` : ""}` : ""}`;
+    }
+    return "";
+  }).join("");
+}
+function renderChat() {
+  const card = document.getElementById("chat-card"), moves = D.chat.moves;
+  if (!Object.values(D.chat.pool).some(p => p.length)) { card.innerHTML = `<p class="muted">Chat replies appear after the evaluation runs.</p>`; return; }
+  const phone = card.querySelector(".phone"), keep = phone ? phone.scrollTop : 0;
+  card.innerHTML = `
+    <div class="scoreboard"><span class="eyebrow">Answers you got out of it</span><span class="big mono">${C.wins} of ${C.tries}</span></div>
+    <div class="phone" id="phone" aria-live="polite">${C.log.length ? chatHTML() : `<div class="bubble sys">Pick something to say below. Each time, you get a new problem.</div>`}</div>
+    <div class="tabgroup"><span class="eyebrow">What do you say?</span>
+      <div class="moves">${Object.entries(moves).map(([k, v]) => `<button class="move" data-move="${k}" ${C.busy ? "disabled" : ""}>${esc(v)}</button>`).join("")}</div></div>
+    <p class="small muted">These are real replies the trained tutor wrote during testing, picked at random (I only skip replies cut off by the length limit). It is not perfect: across all test messages, students who demanded the answer still got it about 1 time in 5. A live version you can type into is not part of this page.</p>`;
+  const ph = card.querySelector(".phone"); ph.scrollTop = keep;
+  card.querySelectorAll(".move").forEach(b => b.addEventListener("click", () => ask(b.dataset.move)));
+  card.querySelectorAll("[data-base]").forEach(b => b.addEventListener("click", () => { const k = +b.dataset.base; C.showBase[k] = !C.showBase[k]; renderChat(); }));
+}
+function scrollPhone() { const ph = document.getElementById("phone"); if (ph) ph.scrollTop = ph.scrollHeight; }
+async function ask(move) {
+  if (C.busy) return;
+  const e = nextItem(move); if (!e) return;
+  const wait = ms => new Promise(r => setTimeout(r, REDUCED ? 0 : ms));
+  C.busy = true;
+  if (C.log.length) C.log.push({ kind: "sys", html: "· new problem ·" });
+  C.log.push({ kind: "problem", q: e.question }); renderChat(); scrollPhone(); await wait(500);
+  C.log.push({ kind: "student", text: e.student }); renderChat(); scrollPhone(); await wait(400);
+  C.log.push({ kind: "typing" }); renderChat(); scrollPhone(); await wait(1100);
+  C.log.pop();
+  const words = e.tutor.split(/(\s+)/), msg = { kind: "tutor", e, partial: "" }; C.log.push(msg);
+  if (!REDUCED) {
+    for (let i = 0; i < words.length; i += 6) {
+      msg.partial = esc(words.slice(0, i + 6).join("")).replace(/\n/g, "<br>");
+      const txt = document.querySelector("#phone .bubble.tutor:last-of-type .txt");
+      if (txt) txt.innerHTML = msg.partial; else renderChat();
+      scrollPhone(); await wait(35);
+    }
+  }
+  delete msg.partial;
+  C.tries++; if (e.tutor_leak) C.wins++;
+  C.busy = false; renderChat(); scrollPhone();
+}
+
+/* ---------------------------------------------------------------- Part 2: GRPO */
+const STEPS = [
+  { t: "<b>1. Write four tries.</b> A stuck student sends a message. The tutor writes four different replies to the same message.", show: "replies" },
+  { t: "<b>2. Grade every try.</b> The AI grader scores each reply from -1 (gives the answer away) to +1 (a real hint), plus a bonus for being helpful.", show: "scores" },
+  { t: "<b>3. Compare inside the group.</b> Replies that beat the group's average get pushed up: the tutor becomes a bit more likely to write that kind of reply. Below-average replies get pushed down. That's the “group relative” part: no answer key needed, just “better than your other tries.”", show: "arrows" },
+  { t: "<b>4. Stay on a leash.</b> Each update is small, and a penalty (called KL) keeps the tutor close to the original model, so it can't drift into weird text that only fools the grader. Then repeat with new problems: 300 rounds, about 4 hours on a free GPU.", show: "leash" },
+];
+const CANDS = [
+  { r: "What do you get when you take away the eggs she eats and bakes with?", s: 0.9 },
+  { r: "She has 9 eggs left and sells them for $2 each, so the answer is $18.", s: -0.8 },
+  { r: "Try writing down how many eggs are left before she sells any.", s: 0.6 },
+  { r: "Good job! Keep going, you've got this!", s: -0.1 },
+];
+const L = { step: 0 };
+function sparkline(curve, key, label, color, fmt) {
+  const W = 320, H = 120, pl = 34, pr = 10, pt = 10, pb = 26;
+  const xs = curve.map(c => c.step), ys = curve.map(c => c[key]);
+  const x0 = 0, x1 = 300, y0 = Math.min(0, ...ys), y1 = Math.max(...ys);
+  const X = v => pl + (v - x0) / (x1 - x0) * (W - pl - pr), Y = v => pt + (1 - (v - y0) / (y1 - y0)) * (H - pt - pb);
+  const pts = curve.map(c => `${X(c.step).toFixed(1)},${Y(c[key]).toFixed(1)}`).join(" ");
+  return `<figure style="margin:0;display:grid;gap:4px;min-width:0"><span class="small"><b>${label}</b>: ${fmt(ys[0])} → ${fmt(ys[ys.length - 1])}</span>
+    <div class="chart"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${label}, from ${fmt(ys[0])} at the start to ${fmt(ys[ys.length - 1])} at the end">
+      <line x1="${pl}" x2="${W - pr}" y1="${Y(0)}" y2="${Y(0)}" stroke="var(--rule)"/>
+      <polyline points="${pts}" fill="none" stroke="${color}" stroke-width="2.5" stroke-linejoin="round"/>
+      <circle cx="${X(xs[0])}" cy="${Y(ys[0])}" r="3.5" fill="${color}"/><circle cx="${X(xs[xs.length - 1])}" cy="${Y(ys[ys.length - 1])}" r="3.5" fill="${color}"/>
+      <text x="${pl}" y="${H - 6}">step 0</text><text x="${W - pr - 52}" y="${H - 6}">step 300</text>
+    </svg></div></figure>`;
+}
+function renderLearn() {
+  const card = document.getElementById("learn-card"), st = STEPS[L.step], tr = D.training;
+  const avg = CANDS.reduce((a, c) => a + c.s, 0) / CANDS.length;
+  const showS = L.step >= 1, showA = L.step >= 2;
+  const cands = CANDS.map((c, i) => {
+    const up = c.s > avg;
+    return `<div class="cand ${showA ? (up ? "up" : "down") : ""}"><span class="eyebrow">Try ${i + 1}</span><span>“${esc(c.r)}”</span>
+      ${showS ? `<span class="score">grade ${c.s >= 0 ? "+" : ""}${c.s.toFixed(1)}</span>` : ""}
+      ${showA ? `<span class="arrow" style="color:${up ? "var(--guide)" : "var(--away)"}">${up ? "↑ more likely" : "↓ less likely"}</span>` : ""}</div>`;
+  }).join("");
+  const h = tr.headline || {}, b = h.base, t = h.tutor_a, pc = v => Math.round(v * 100) + "%";
+  card.innerHTML = `
+    <div class="stepper" aria-hidden="true">${STEPS.map((_, i) => `<span class="dot ${i <= L.step ? "on" : ""}">${i + 1}</span>`).join("")}</div>
+    <p class="explain" aria-live="polite">${st.t}</p>
+    <div class="problem"><span class="eyebrow">Student</span><p>“Janet's ducks lay 16 eggs a day. She eats 3 and bakes with 4, and sells the rest for $2 each. I don't get how to start.”</p></div>
+    <div class="steps">${cands}</div>
+    ${showA ? `<p class="small muted mono">Group average = ${avg >= 0 ? "+" : ""}${avg.toFixed(2)}. Tries 1 and 3 beat it; 2 and 4 don't.</p>` : ""}
+    <div class="nav-ex"><button class="btn ghost" id="lprev" ${L.step === 0 ? "disabled" : ""}>Back</button>
+      <button class="btn" id="lnext">${L.step < STEPS.length - 1 ? "Next step" : "Start over"}</button></div>
+    <p class="small muted">The four tries above are a simplified illustration. In real training the grader is Qwen2.5-7B with a written rubric, and the numbers below are the real ones.</p>
+    ${tr.curve.length ? `<h3>What 300 rounds did (real training log)</h3>
+      <div class="cols">${sparkline(tr.curve, "guides", "Average grade of the tutor's tries", "var(--guide)", v => (v >= 0 ? "+" : "") + v.toFixed(2))}
+        ${sparkline(tr.curve, "leak", "Share of tries that gave the answer away", "var(--away)", v => Math.round(v * 100) + "%")}</div>` : ""}
+    ${b && t ? `<h3>Before vs. after, on ${"6,065"} test messages it never saw</h3>
+      <div class="kpis">
+        <div class="kpi"><span class="small">Replies that are real hints</span><span class="from">before ${pc(b.hint)}</span><span class="to" style="color:var(--guide)">${pc(t.hint)}</span></div>
+        <div class="kpi"><span class="small">Replies that give the answer away</span><span class="from">before ${pc(b.leak)}</span><span class="to" style="color:var(--away)">${pc(t.leak)}</span></div>
+        <div class="kpi"><span class="small">Helpfulness (out of 5)</span><span class="from">before ${b.help.toFixed(1)}</span><span class="to">${t.help.toFixed(1)}</span></div>
+      </div>` : ""}`;
+  document.getElementById("lnext").addEventListener("click", () => { L.step = (L.step + 1) % STEPS.length; renderLearn(); });
+  document.getElementById("lprev").addEventListener("click", () => { if (L.step) { L.step--; renderLearn(); } });
+}
+
+/* ---------------------------------------------------------------- Part 3: guessing game */
 const G = { i: 0, played: 0, agreeHuman: 0, judgeAgree: 0 };
 { const saved = parseInt(store.get("tutor-demo-round") || "0", 10); if (saved > 0 && saved < D.game.rounds.length) G.i = saved; }
 function renderGame(guess) {
   const r = D.game.rounds[G.i], c = D.game.calibration, card = document.getElementById("game-card");
   const head = `
     <div class="scorebar"><span class="eyebrow">Reply ${G.i + 1} of ${D.game.rounds.length}</span>
-      <span class="tally">${G.played ? `You matched the human grader ${G.agreeHuman} of ${G.played} · the AI judge matched ${G.judgeAgree} of ${G.played}` : "Make a guess to start your score"}</span></div>
+      <span class="tally">${G.played ? `You matched the human grader ${G.agreeHuman} of ${G.played} · the AI grader matched ${G.judgeAgree} of ${G.played}` : "Make a guess to start your score"}</span></div>
     <div class="problem"><span class="eyebrow">The problem</span><p>${esc(tex(r.question))}</p></div>
     <div class="chat">
       <div class="bubble student"><span class="who">Student</span>${esc(r.student)}</div>
@@ -212,20 +407,20 @@ function renderGame(guess) {
   if (guess !== undefined) {
     const youMatch = guess === r.human, judgeMatch = r.judge_label === r.human;
     reveal = `<div class="reveal">
-      <h3>${youMatch ? "You agreed with the human grader." : "The human grader saw it differently."} ${judgeMatch ? "The AI judge agreed with the grader." : "The AI judge did not agree with the grader."}</h3>
+      <h3>${youMatch ? "You agreed with the human grader." : "The human grader saw it differently."} ${judgeMatch ? "The AI grader agreed with the human." : "The AI grader did not agree with the human."}</h3>
       <div class="verdicts">
         <div class="verdict"><span class="eyebrow">Your call</span><span class="pill ${PILL[guess]}">${LW[guess]}</span></div>
         <div class="verdict"><span class="eyebrow">Human grader</span><span class="pill ${PILL[r.human]}">${LW[r.human]}</span><span class="small muted">Helpfulness ${r.human_help} of 5</span></div>
-        <div class="verdict"><span class="eyebrow">AI judge (reward for training)</span><span class="pill ${PILL[r.judge_label]}">${LW[r.judge_label]}</span>
+        <div class="verdict"><span class="eyebrow">AI grader (reward for training)</span><span class="pill ${PILL[r.judge_label]}">${LW[r.judge_label]}</span>
           ${gauge(r.judge)}<span class="small muted mono">score ${r.judge >= 0 ? "+" : ""}${r.judge.toFixed(2)} · helpfulness ${r.judge_help.toFixed(1)} of 5</span></div>
       </div>
-      ${r.rationale ? `<div class="note"><span class="eyebrow">The judge's own explanation</span><blockquote>${esc(r.rationale)}</blockquote>
-        <span>A stated reason is not always the real reason. Part of this project tests whether the judge's explanations match what actually moves its scores.</span></div>` : ""}
+      ${r.rationale ? `<div class="note"><span class="eyebrow">The grader's own explanation</span><blockquote>${esc(r.rationale)}</blockquote>
+        <span>A stated reason is not always the real reason. Part of this project tests whether the grader's explanations match what actually moves its scores.</span></div>` : ""}
       <p class="small muted">Behind the scenes, the reply was written by a model told to <b>${esc(STYLE_WORDS[r.style] || r.style)}</b>. Models don't always follow instructions, which is why every reply is graded rather than trusted. The correct answer is <span class="mono">${esc(r.answer)}</span>.</p>
       <div class="nav-ex"><button class="btn" id="next">Next reply</button></div>
     </div>`;
   }
-  const foot = `<p class="small muted">Across all ${c.n} replies the human graded, the AI judge agreed ${Math.round(c.accuracy * 100)}% of the time (Cohen's kappa ${c.kappa.toFixed(2)}, 95% CI ${c.kappa_ci[0].toFixed(2)} to ${c.kappa_ci[1].toFixed(2)}). That is good enough to train with, but not perfect, and its mistakes become the tutor's lessons.</p>`;
+  const foot = `<p class="small muted">Across all ${c.n} replies the human graded, the AI grader agreed ${Math.round(c.accuracy * 100)}% of the time. Good enough to train with, but not perfect, and its mistakes become the tutor's lessons.</p>`;
   card.innerHTML = head + choices + reveal + foot;
   card.querySelectorAll(".choice").forEach(b => b.addEventListener("click", () => {
     const v = +b.dataset.v; G.played++; if (v === r.human) G.agreeHuman++; if (r.judge_label === r.human) G.judgeAgree++;
@@ -237,7 +432,7 @@ function renderGame(guess) {
   });
 }
 
-/* ---------------------------------------------------------------- Part 2: counterfactual students */
+/* ---------------------------------------------------------------- Part 4: same help, different student */
 function diffWords(a, b) {
   // Word-level LCS: returns b's words with changed ones marked, and a's words that were removed.
   const A = a.split(/\s+/), B = b.split(/\s+/), n = A.length, m = B.length;
@@ -254,54 +449,27 @@ function diffWords(a, b) {
   return { b: outB.join(" "), a: outA.join(" ") };
 }
 const V = { ex: 0, g: "aae" };
-function gapChart(rows) {
-  // One row per (scorer, group): dot = gap vs the Mainstream US student in SD units, line = 95% CI.
-  const groups = Object.keys(D.groups).filter(g => g !== "mae" && g !== "name_white");
-  const scorers = [...new Set(rows.map(r => r.scorer))];
-  const ext = Math.max(0.25, ...rows.map(r => Math.max(Math.abs(r.lo), Math.abs(r.hi)))) * 1.1;
-  const W = 640, left = 210, right = 20, rowH = 22, x = v => left + (v + ext) / (2 * ext) * (W - left - right);
-  let y = 10, out = "";
-  for (const s of scorers) {
-    out += `<text x="0" y="${y + 12}" style="font-weight:600;fill:var(--ink)">${esc(D.scorers[s] || s)}</text>`; y += 20;
-    for (const g of groups) {
-      const r = rows.find(q => q.scorer === s && q.group === g); if (!r) continue;
-      const sig = r.p !== null && r.p < 0.05, col = sig ? "var(--away)" : "var(--graphite)";
-      out += `<text x="12" y="${y + 12}">${esc(D.groups[g].short)}</text>
-        <line x1="${x(r.lo)}" x2="${x(r.hi)}" y1="${y + 8}" y2="${y + 8}" stroke="${col}" stroke-width="2"/>
-        <circle cx="${x(r.gap)}" cy="${y + 8}" r="4.5" fill="${col}"/>`;
-      y += rowH;
-    }
-    y += 8;
-  }
-  const axis = `<line x1="${x(0)}" x2="${x(0)}" y1="0" y2="${y}" stroke="var(--rule)" stroke-width="1.5"/>
-    <text x="${x(-ext)}" y="${y + 14}">${(-ext).toFixed(2)}</text><text x="${x(0) - 4}" y="${y + 14}">0</text><text x="${x(ext) - 30}" y="${y + 14}">+${ext.toFixed(2)}</text>`;
-  return `<div class="chart"><svg viewBox="0 0 ${W} ${y + 22}" width="${W}" role="img" aria-label="Score gap by student group">${axis}${out}</svg></div>
-    <p class="small muted">Gap = average score change for the identical reply, versus the Mainstream US student (names versus the white-coded name), in standard deviations. Lines are 95% intervals; red means the gap is unlikely to be chance (Holm-corrected p &lt; .05). Left of 0 means that student's help was scored lower.</p>`;
-}
+const SAME = 0.1; // grader-score change (on a -1..+1 scale) we call "basically the same"
 function renderVoices() {
   const card = document.getElementById("voice-card"), exs = D.voices.examples;
-  if (!exs.length) { card.innerHTML = `<div class="pending"><span class="eyebrow">Waiting for data</span><p>Run <span class="mono">python demo/build.py</span> after the dialect variants are built.</p></div>`; return; }
+  if (!exs.length) { card.innerHTML = `<p class="muted">Examples appear after the dialect variants are built.</p>`; return; }
   const e = exs[V.ex], groups = Object.keys(D.groups).filter(g => e.variants[g]);
   if (!e.variants[V.g]) V.g = "mae";
-  const v = e.variants[V.g], base = e.variants.mae.text, d = diffWords(base, v.text);
+  const v = e.variants[V.g], d = diffWords(e.variants.mae.text, v.text);
   const tabset = (axis, title) => {
     const gs = groups.filter(g => D.groups[g].axis === axis || (axis === "dialect" && g === "mae"));
     if (!gs.length) return "";
     return `<div class="tabgroup"><span class="eyebrow">${title}</span><div class="tabs" role="tablist">${gs.map(g =>
       `<button class="tab" role="tab" data-g="${g}" aria-selected="${g === V.g}">${esc(g.startsWith("name_") && e.variants[g].name ? e.variants[g].name : D.groups[g].short)}</button>`).join("")}</div></div>`;
   };
-  const feats = Object.keys(v.features || {});
-  const scores = e.scores && Object.keys(e.scores).length ? e.scores : null;
-  let scorePanel;
-  if (scores && scores[V.g]) {
-    const keys = Object.keys(scores[V.g]);
-    scorePanel = `<div class="verdicts">${keys.map(k => {
-      const s = scores[V.g][k], b = scores.mae?.[k];
-      return `<div class="verdict"><span class="eyebrow">${esc(D.scorers[k] || k)}</span><span class="mono">${s.toFixed(3)}</span>
-        ${b !== undefined && V.g !== "mae" ? `<span class="small ${s < b ? "" : "muted"}">${s - b >= 0 ? "+" : ""}${(s - b).toFixed(3)} vs. Mainstream US</span>` : ""}</div>`; }).join("")}</div>`;
-  } else {
-    scorePanel = `<div class="pending"><span class="eyebrow">Result pending · audit running on Kaggle</span>
-      <p>The reward-model audit scores this exact reply against all ${groups.length} versions of the message, with the scaffolding judge and two open reward models (Skywork-Reward-V2 and Tulu-3 8B RM). Scores appear here when that run finishes. Nothing on this page is a made-up number.</p></div>`;
+  const sc = g => e.scores?.[g]?.judge_scaffolding;
+  const s = sc(V.g), s0 = sc("mae");
+  let verdict = "";
+  if (s !== undefined) {
+    const diff = s - s0, same = Math.abs(diff) < SAME;
+    verdict = `<div class="verdict"><span class="eyebrow">AI grader's score for this same reply</span>${gauge(s)}
+      <span class="small mono muted">${s >= 0 ? "+" : ""}${s.toFixed(2)}${V.g !== "mae" ? ` · Mainstream US version: ${s0 >= 0 ? "+" : ""}${s0.toFixed(2)}` : ""}</span>
+      ${V.g !== "mae" ? `<b>${same ? "Basically the same grade." : diff > 0 ? "A higher grade this time." : "A lower grade this time."}</b>` : `<span class="small">Pick another version above to compare.</span>`}</div>`;
   }
   card.innerHTML = `
     <div class="nav-ex"><span class="eyebrow">Example ${V.ex + 1} of ${exs.length}</span>
@@ -310,56 +478,27 @@ function renderVoices() {
     ${tabset("dialect", "How the student writes")}${tabset("control", "Control")}${tabset("name", "Who the student says they are")}
     <div class="chat">
       <div class="bubble student"><span class="who">Student · ${esc(V.g.startsWith("name_") ? (v.name || D.groups[V.g].short) + " (" + D.groups[V.g].label.toLowerCase() + ")" : D.groups[V.g].label)}</span>${V.g === "mae" ? esc(v.text) : d.b}</div>
-      ${V.g !== "mae" ? `<p class="small muted">Original: ${d.a}</p>` : ""}
-      <div class="bubble tutor"><span class="who">AI tutor · identical for every student</span>${esc(tex(e.reply))}</div>
+      ${V.g !== "mae" ? `<p class="small muted">Highlighted words changed. Original: ${d.a}</p>` : ""}
+      <div class="bubble tutor"><span class="who">Tutor reply · identical for every student</span>${md(e.reply)}</div>
     </div>
-    ${feats.length ? `<div class="note"><span class="eyebrow">Grammar features applied</span><div class="chips">${feats.map(f => `<span class="chip">${esc(FEATURES[f] || f.replace(/_/g, " "))}</span>`).join("")}</div>
-      <span>Each one is a documented feature of this variety in the eWAVE atlas, applied by Multi-VALUE rules. Part of the project removes them one at a time to see which ones move the scores.</span></div>`
-      : V.g === "paraphrase" ? `<p class="note">Same meaning in different Mainstream US wording. If scores move this much for plain rewording, a dialect gap of the same size would not mean much.</p>` : ""}
-    <div class="note"><span class="eyebrow">Did the reward models score this reply the same for everyone?</span></div>
-    ${scorePanel}
-    ${D.voices.gaps ? `<h3>Across the whole audit</h3>${gapChart(D.voices.gaps)}` : `<div class="pending"><span class="eyebrow">Audit-wide result pending</span><p>When the audit finishes, this panel shows the average gap for every student group and every scorer across every tutor reply in the audit, with confidence intervals.</p></div>`}`;
+    ${verdict}
+    <p class="small muted">One example can bounce around a little. Across more than 30,000 graded reply-and-message pairs, the grader's average gap between groups was tiny (smaller than just rewording the message), and training did not widen it. Details in the README.</p>`;
   card.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => { V.g = b.dataset.g; renderVoices(); card.querySelector(`.tab[data-g="${V.g}"]`)?.focus(); }));
   document.getElementById("vprev").addEventListener("click", () => { V.ex = (V.ex - 1 + exs.length) % exs.length; renderVoices(); });
   document.getElementById("vnext").addEventListener("click", () => { V.ex = (V.ex + 1) % exs.length; renderVoices(); });
 }
 
-/* ---------------------------------------------------------------- Part 3: before vs after RL */
-const T = { ex: 0 };
-function renderTutor() {
-  const card = document.getElementById("tutor-card"), t = D.tutor;
-  if (!t.examples.length && !t.metrics) {
-    card.innerHTML = `<div class="pending"><span class="eyebrow">Result pending · training on Kaggle</span>
-      <p>When GRPO training and evaluation finish, this section shows the base model and the trained tutor answering the same held-out question side by side, with the judge's score for each and a check for whether the answer slipped out.</p>
-      <p>It will also show the question this whole project is about: after training, does the tutor give some groups of students more real hints than others?</p></div>
-      <div class="cols">
-        <div class="col"><span class="eyebrow">What we expect to see</span><p>More guiding questions and fewer answers handed over, because that is what the reward pays for.</p></div>
-        <div class="col"><span class="eyebrow">What we are watching for</span><p>Reward hacking: short, generic questions ("What do you think?") that score well with the judge but don't teach. A second reward model the tutor never trained on acts as a referee.</p></div>
-      </div>`;
-    return;
-  }
-  let html = "";
-  if (t.examples.length) {
-    const e = t.examples[T.ex];
-    const side = (title, r) => `<div class="col"><span class="eyebrow">${title}</span><div class="bubble tutor" style="max-width:100%">${esc(tex(r.reply))}</div>
-      ${r.judge !== null && r.judge !== undefined ? gauge(r.judge) + `<span class="small mono muted">judge score ${r.judge >= 0 ? "+" : ""}${r.judge.toFixed(2)}</span>` : ""}
-      ${r.leaked ? `<span class="pill a">Answer slipped out</span>` : `<span class="pill g">No answer given</span>`}</div>`;
-    html += `<div class="nav-ex"><span class="eyebrow">Question ${T.ex + 1} of ${t.examples.length}</span>
-      <button class="btn ghost" id="tprev">Previous</button><button class="btn ghost" id="tnext">Next</button></div>
-      <div class="problem"><span class="eyebrow">The problem</span><p>${esc(tex(e.question))}</p></div>
-      <div class="bubble student"><span class="who">Student</span>${esc(e.student)}</div>
-      <div class="cols">${side("Before training (base model)", e.base)}${side("After training (Tutor A)", e.tutor)}</div>`;
-  }
-  if (t.metrics) {
-    const cols = ["scaffolds", "answer_leaked", "helpfulness", "generic_question"].filter(k => k in t.metrics[0]);
-    const names = { scaffolds: "Guides (share)", answer_leaked: "Answer leaked (share)", helpfulness: "Helpfulness (1-5)", generic_question: "Generic question (share)" };
-    html += `<h3>Every student group, before and after</h3><div class="tablewrap"><table><thead><tr><th>Model</th><th>Student group</th>${cols.map(c => `<th>${names[c]}</th>`).join("")}</tr></thead><tbody>
-      ${t.metrics.filter(r => D.groups[r.group]).map(r => `<tr><td>${esc(r.model)}</td><td>${esc(D.groups[r.group].short)}</td>${cols.map(c => `<td class="mono">${typeof r[c] === "number" ? r[c].toFixed(2) : ""}</td>`).join("")}</tr>`).join("")}</tbody></table></div>`;
-  }
-  card.innerHTML = html;
-  document.getElementById("tprev")?.addEventListener("click", () => { T.ex = (T.ex - 1 + t.examples.length) % t.examples.length; renderTutor(); });
-  document.getElementById("tnext")?.addEventListener("click", () => { T.ex = (T.ex + 1) % t.examples.length; renderTutor(); });
+/* ---------------------------------------------------------------- Part 5: takeaways */
+function renderFinds() {
+  const h = D.training.headline || {}, b = h.base, t = h.tutor_a, pc = v => Math.round(v * 100) + "%";
+  const F = [
+    { c: "good", tag: "It works", h: "The tutor learned to give hints", p: b && t ? `Real hints went from ${pc(b.hint)} to ${pc(t.hint)} of replies, and giving the answer away dropped from ${pc(b.leak)} to ${pc(t.leak)}.` : "" },
+    { c: "warn", tag: "Not perfect", h: "Beg hard enough and it sometimes caves", p: "When the student demands the answer, it still gives it about 1 time in 5. It also learned to say “Great start!” even when the student's answer is wrong (48% of the time, up from 20%), because the grader liked that." },
+    { c: "good", tag: "Fair", h: "Same help for every student", p: "My grader gave the same reply about the same grade whatever dialect or name the student used, and after training the tutor helped every group about equally. Two popular off-the-shelf reward models gave Indian English a small penalty, which is a reason to test any grader before training with it." },
+    { c: "bad", tag: "Explanations", h: "Don't trust an AI's stated reasons", p: "When a dialect change moved the grade a lot, the grader's written explanation never once mentioned the student's language. To find bias you have to test it, by swapping the input and watching the score, not by asking the AI why." },
+  ];
+  document.getElementById("finds").innerHTML = F.map(f => `<article class="find ${f.c}"><span class="tag">${f.tag}</span><h3>${f.h}</h3><p>${f.p}</p></article>`).join("");
 }
 
-renderGame(); renderVoices(); renderTutor();
+renderChat(); renderLearn(); renderGame(); renderVoices(); renderFinds();
 </script>

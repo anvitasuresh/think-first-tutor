@@ -2,18 +2,20 @@
 
   python demo/build.py            # -> demo/site/index.html (one self-contained file, no server or GPU)
 
-The page has three parts, and each one fills itself from whatever results exist when you run this:
+The page is for visitors, not for the full results (those are in the README). Its parts:
 
-  1. "Hint or answer?"  A guessing game on the 40 replies Anvita labeled by hand (E1). Uses
+  1. "Try to get the answer."  A chat where you pick what to say and the trained tutor replies. Every
+     reply is a real one the tutor wrote during evaluation (results/eval/replies.jsonl, Mainstream US
+     messages, replies cut off by the length limit skipped, sampled at random). A toggle shows what the
+     untrained base model said to the same message. It is not a live model.
+  2. "How the tutor learned."  GRPO in plain words, with the real training curve
+     (results/eval/training_curve.csv) and the before/after numbers (results/eval/metrics_by_group.csv).
+  3. "Hint or answer?"  A guessing game on the 40 replies Anvita labeled by hand (E1). Uses
      data/labels/*, results/judge/label_set_scores.jsonl and results/calibration/all/metrics.json.
-  2. "Same help, different student."  One tutor reply shown next to every version of the student's
-     message. Variants come from data/processed/variants.jsonl when the audit files are present, else from
-     demo/variants_sample.jsonl, a committed copy of just the demo's rows.
-     Reward-model gaps come from results/audit/gaps.csv once the audit (E2) has run; until then the
-     page says the result is pending. It never shows made-up scores.
-  3. "What the tutor learned."  Base model vs the GRPO tutor on the same prompts, from
-     results/eval/replies.jsonl + results/eval/scores/judge.jsonl and results/eval/metrics_by_group.csv
-     (E5-E7). Pending until stage 5 has run.
+  4. "Same help, different student."  One tutor reply shown next to every version of the student's
+     message, with the grader's score for each. Variants come from data/processed/variants.jsonl when
+     present, else demo/variants_sample.jsonl, a committed copy of just the demo's rows.
+  5. "What we found."  Four plain takeaways, linking to the README for the numbers.
 
 Only the standard library (plus the repo's own src/tutorbias/textutil.py) is used, so this runs anywhere
 with Python 3.10+, no install needed. Rerun it after each Kaggle
@@ -49,13 +51,6 @@ GROUPS = {
     "name_black": {"label": "Name often read as Black", "short": "Black-coded name", "axis": "name"},
     "name_hispanic": {"label": "Name often read as Hispanic", "short": "Hispanic-coded name", "axis": "name"},
     "name_south_asian": {"label": "Name often read as South Asian", "short": "South Asian-coded name", "axis": "name"},
-}
-SCORERS = {
-    "judge_scaffolding": "Scaffolding judge (Qwen2.5-7B + rubric)",
-    "judge_reward_scaffolding": "GRPO reward judge (4-bit)",
-    "skywork_v2": "Skywork-Reward-V2 8B",
-    "tulu3_rm": "Tulu-3 8B reward model",
-    "judge_helpfulness": "Judge helpfulness (1-5)",
 }
 LABEL_WORDS = {-1: "Gives it away", 0: "Neither", 1: "Guides"}
 
@@ -131,23 +126,6 @@ def load_variants(messages: set[tuple[str, str]]) -> tuple[dict[str, dict[str, d
     return by_msg, "audit variants (Multi-VALUE, configs/data.yaml)"
 
 
-def load_gaps() -> list[dict] | None:
-    path = ROOT / "results/audit/gaps.csv"
-    if not path.exists():
-        return None
-    rows = []
-    with open(path) as f:
-        for r in csv.DictReader(f):
-            if r.get("subset", "all") != "all" or r.get("vs", "mae") not in ("mae", "name_white"):
-                continue
-            if r["scorer"] not in SCORERS or r["group"] not in GROUPS:
-                continue
-            rows.append({"scorer": r["scorer"], "group": r["group"], "vs": r.get("vs", "mae"),
-                         "gap": float(r["gap_std"]), "lo": float(r["ci_lo"]), "hi": float(r["ci_hi"]),
-                         "p": float(r["p_holm"]) if r.get("p_holm") else None})
-    return rows
-
-
 def load_pair_scores() -> dict[tuple[str, str], dict[str, float]]:
     """(reply text, student message) -> scorer -> score, from the audit's per-pair score files."""
     pairs_path = ROOT / "data/processed/audit_pairs.jsonl"
@@ -189,45 +167,96 @@ def build_voices(game: dict) -> dict:
                   if (r["reply"], x["text"]) in pair_scores}
         examples.append({"id": r["id"], "question": r["question"], "reply": r["reply"], "style": r["style"],
                          "variants": variants, "scores": scores, "_rank": -n_dialect})
-    examples.sort(key=lambda e: e["_rank"])
+    # Most dialects first; among those, open on a typical example (smallest judge change across versions),
+    # since the audit-wide gaps are small. Bigger swings come later and the page says one example can vary.
+    def spread(e: dict) -> float:
+        js = [x.get("judge_scaffolding") for x in e["scores"].values() if x.get("judge_scaffolding") is not None]
+        return max(js) - min(js) if js else 0.0
+
+    examples.sort(key=lambda e: (e["_rank"], spread(e)))
     for e in examples:
         del e["_rank"]
-    return {"examples": examples[:8], "variant_source": source, "gaps": load_gaps()}
+    return {"examples": examples[:8], "variant_source": source}
 
 
-# ------------------------------------------------------------------------------------------ part 3
-def build_tutor() -> dict:
+# ------------------------------------------------------------------------------------------ chat + training
+# What the visitor can "say" in the chat, mapped to the eval's four kinds of student message.
+CHAT_MOVES = {
+    "wants_answer": "Just tell me the answer",
+    "dont_get": "I don't get it",
+    "wrong_answer": "I got it wrong and don't know why",
+    "tried_partial": "I started but I'm stuck",
+}
+
+
+def finished(reply: str) -> bool:
+    """False for replies cut off by the 256-token limit (they end mid-sentence)."""
+    return reply.rstrip()[-1:] in ".?!)*"
+
+
+def build_chat(per_move: int = 24) -> dict:
+    """Real recorded replies for the chat: the trained tutor and the untrained base model, same prompt.
+
+    Only Mainstream US messages, only replies that were not cut off, sampled at random (fixed seed), so
+    the share of replies that leak the answer is roughly the real one, not cherry-picked.
+    """
     replies_path = ROOT / "results/eval/replies.jsonl"
     judge_path = ROOT / "results/eval/scores/judge.jsonl"
-    metrics_path = ROOT / "results/eval/metrics_by_group.csv"
-    out: dict = {"examples": [], "metrics": None}
-    if metrics_path.exists():
-        with open(metrics_path) as f:
-            out["metrics"] = [{k: (float(v) if k not in ("model", "group") and v != "" else v) for k, v in r.items()}
-                              for r in csv.DictReader(f)]
-    if replies_path.exists():
-        judge = {r["id"]: r for r in read_jsonl(judge_path)} if judge_path.exists() else {}
-        by_prompt: dict[str, dict[str, dict]] = defaultdict(dict)
-        for r in read_jsonl(replies_path):
-            if r.get("group", "mae") == "mae":
-                j = judge.get(r["eval_id"], {})
-                by_prompt[r["prompt_id"]][r["model"]] = {
-                    "reply": r["reply"], "leaked": bool(r.get("answer_leaked")),
-                    "judge": j.get("scaffolding"), "q": r.get("question"), "student": r.get("student_message")}
-        for models in by_prompt.values():
-            if "base" in models and "tutor_a" in models:
-                b, t = models["base"], models["tutor_a"]
-                out["examples"].append({"question": b["q"], "student": b["student"], "base": b, "tutor": t})
-        random.Random(3).shuffle(out["examples"])
-        out["examples"] = out["examples"][:6]
+    if not replies_path.exists():
+        return {"moves": CHAT_MOVES, "pool": {}}
+    judge = {r["id"]: r for r in read_jsonl(judge_path)} if judge_path.exists() else {}
+    by_prompt: dict[str, dict[str, dict]] = defaultdict(dict)
+    for r in read_jsonl(replies_path):
+        if r.get("group") == "mae":
+            j = judge.get(r["eval_id"], {})
+            by_prompt[r["prompt_id"]][r["model"]] = {**r, "judge_label": j.get("scaffolding_label")}
+    pool: dict[str, list[dict]] = defaultdict(list)
+    for models in by_prompt.values():
+        b, t = models.get("base"), models.get("tutor_a")
+        if not b or not t or not finished(t["reply"]):
+            continue
+        pool[t["message_type"]].append({
+            "question": t["question"], "answer": t["answer"], "student": t["student_message"],
+            "tutor": t["reply"], "tutor_leak": bool(t["answer_leaked"]), "tutor_label": t["judge_label"],
+            "base": b["reply"], "base_leak": bool(b["answer_leaked"]), "base_label": b["judge_label"],
+            "base_cut": not finished(b["reply"])})
+    rng = random.Random(11)
+    out = {}
+    for move in CHAT_MOVES:
+        items = sorted(pool.get(move, []), key=lambda e: e["question"])
+        rng.shuffle(items)
+        out[move] = items[:per_move]
+    return {"moves": CHAT_MOVES, "pool": out}
+
+
+def build_training() -> dict:
+    """The real GRPO training curve (10-step bins of logged rewards) and the headline before/after numbers."""
+    out: dict = {"curve": [], "headline": {}}
+    curve = ROOT / "results/eval/training_curve.csv"
+    if curve.exists():
+        with open(curve) as f:
+            out["curve"] = [{"step": float(r["bin"]), "guides": float(r["scaffolding"]),
+                             "leak": float(r["answer_leaked"])} for r in csv.DictReader(f)]
+    replies, judge = ROOT / "results/eval/replies.jsonl", ROOT / "results/eval/scores/judge.jsonl"
+    if replies.exists() and judge.exists():
+        # Pooled over every test reply, the same way as the README's E5 numbers and the poster chart
+        # (scripts/plot_tutor.py): "hint" = judge score above 0, "leak" = final answer appears.
+        score = {r["id"]: r for r in read_jsonl(judge)}
+        acc: dict[str, list[tuple[float, float, float]]] = defaultdict(list)
+        for r in read_jsonl(replies):
+            j = score.get(r["eval_id"])
+            if j:
+                acc[r["model"]].append((j["scaffolding"] > 0, bool(r["answer_leaked"]), j["helpfulness"]))
+        out["headline"] = {m: {"hint": sum(x[0] for x in v) / len(v), "leak": sum(x[1] for x in v) / len(v),
+                               "help": sum(x[2] for x in v) / len(v)} for m, v in acc.items()}
     return out
 
 
 # ------------------------------------------------------------------------------------------ page
 def main() -> None:
     game = build_game()
-    data = {"game": game, "voices": build_voices(game), "tutor": build_tutor(),
-            "groups": GROUPS, "scorers": SCORERS, "label_words": LABEL_WORDS}
+    data = {"game": game, "voices": build_voices(game), "chat": build_chat(), "training": build_training(),
+            "groups": GROUPS, "label_words": LABEL_WORDS}
     body = (DEMO / "template.html").read_text()
     payload = json.dumps(data, ensure_ascii=False).replace("</", "<\\/")
     body = body.replace("/*__DATA__*/null", payload)
@@ -239,8 +268,8 @@ def main() -> None:
     OUT.write_text(page)
     v = data["voices"]
     print(f"[demo] game rounds: {len(game['rounds'])} | voice examples: {len(v['examples'])} "
-          f"(variants: {v['variant_source']}) | audit gaps: {'yes' if v['gaps'] else 'pending'} | "
-          f"tutor examples: {len(data['tutor']['examples'])} | wrote {OUT}")
+          f"(variants: {v['variant_source']}) | chat replies: "
+          f"{ {k: len(x) for k, x in data['chat']['pool'].items()} } | wrote {OUT}")
 
 
 if __name__ == "__main__":

@@ -1,6 +1,6 @@
-# Who Does the Tutor Learn From?
+# Hints, Not Answers: Teaching an AI Tutor to Make Kids Think
 
-**An AI math tutor that gives hints instead of answers, and a fairness check that makes sure it helps every student the same way.**
+**A small AI math tutor trained to give hints instead of answers, and a fairness check that makes sure it helps every student the same way.**
 
 **[Try the live demo](https://anvitasuresh.github.io/xai_proj2/)** · Anvita Suresh · Duke MIDS · Explainable AI, Fall 2026
 
@@ -75,6 +75,17 @@ flowchart LR
 | 5. Train tutor | A small model learns to tutor by trial and error, rewarded by our grader. | Qwen2.5-1.5B-Instruct + LoRA |
 | 6. Evaluate (E5-E7) | On new problems: does the trained tutor give hints instead of answers? Did it learn to game the grader? Is there a gap between student groups? | all of the above |
 
+### How the tutor is trained: GRPO in plain words
+
+The tutor is never shown a "correct" hint. It learns by trial and error, with our grader as the scorekeeper. The method is **GRPO** (Group Relative Policy Optimization, [Shao et al. 2024](https://arxiv.org/abs/2402.03300)), run with Hugging Face TRL. One training step:
+
+1. **Try several times.** A stuck student's message goes to the tutor, which writes **4 different replies** (`num_generations: 4`).
+2. **Grade every try.** The 4-bit copy of our grader scores each reply. Reward = scaffolding score (-1 answer to +1 hint) + 0.5 × helpfulness bonus (helpfulness 1-5 rescaled to -1..+1).
+3. **Compare inside the group.** Each reply's reward is compared with the average of its own group of 4. Replies above the average become more likely, below-average ones less likely. That is the "group relative" part: no separate value model is needed, just "better than your other tries".
+4. **Stay on a leash.** A KL penalty (`beta: 0.04`) keeps the tutor close to the original model, so it cannot drift into odd text that only fools the grader. Only small LoRA adapters are trained, not the whole model.
+
+This repeats for **300 steps** (about 4.3 hours on Kaggle's two free T4 GPUs). The grader's score rose from about -0.1 to +0.8 and the share of tries that leaked the answer fell from about 48% to 17% (figure below in Results). Settings: [configs/grpo.yaml](configs/grpo.yaml); code: [src/tutorbias/tutor/](src/tutorbias/tutor/).
+
 ## 4. Results
 
 | Question | Result |
@@ -99,9 +110,11 @@ Full tables: [results/audit/summary.md](results/audit/summary.md), [results/expl
 
 **[anvitasuresh.github.io/xai_proj2](https://anvitasuresh.github.io/xai_proj2/)** works in any browser, no setup:
 
-1. **Hint or answer?** Guess whether a tutor reply teaches or gives it away, then compare with a human and the AI grader.
-2. **Same help, different student.** Flip one student message between dialects and names, and watch the grader scores.
-3. **What the tutor learned.** The base model vs the trained tutor on the same question.
+1. **Can you get the answer out of it?** Pick what to say ("just tell me the answer", "I don't get it", ...) and see how the trained tutor replies, next to what the untrained model said. These are real replies recorded during testing, not a live model.
+2. **How the tutor learned.** Click through one GRPO step, then see the real training curve and before/after numbers.
+3. **Hint or answer?** Guess whether a tutor reply teaches or gives it away, then compare with a human and the AI grader.
+4. **Same help, different student.** Flip one student message between dialects and names, and watch the grader's score.
+5. **What I found.** Four plain-language takeaways. The detailed numbers stay in this README.
 
 The page is built from saved results by `python demo/build.py` ([demo/README.md](demo/README.md)).
 
