@@ -1,7 +1,7 @@
-# Expo poster (24 x 24 in)
+# Expo poster (36 x 24 in, landscape)
 
 - `template.html`: the poster text and layout (edit this).
-- `build.py`: adds QR codes (live demo + repo) and renders `poster.html`, `poster.pdf` (24 x 24 in, print this) and `preview.png`.
+- `build.py`: adds QR codes (live demo + repo) and renders `poster.html`, `poster.pdf` (36 x 24 in, print this) and `preview.png`.
 
 ```bash
 pip install segno playwright && playwright install chromium
@@ -14,3 +14,4 @@ tutor: `results/eval/`), then rebuild. Never print a placeholder. The only real 
 so far are the judge check (E1, `results/calibration/all/metrics.json`) and the grader's score on the
 Fig. 1 reply (`results/judge/label_set_scores.jsonl`, L0160). The answer-vs-hint example in section 1
 is written for the poster and labeled as such.
+- `make_figs.py`: draws Fig. 2 (training) and Fig. 4 (score gaps) as SVG from the results files; run it before `build.py`.

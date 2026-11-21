@@ -5,15 +5,15 @@
 <title>Who Does the Tutor Learn From? (Expo poster)</title>
 <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@600;700;800&family=Noto+Sans:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
 <style>
-/* 24 x 24 in poster = 2304 x 2304 CSS px. Boxes with class="pending" are results still to come. */
+/* 36 x 24 in landscape poster = 3456 x 2304 CSS px (96 px per inch). Boxes with class="pending" are results still to come. */
 :root {
   --navy: #0b2a6f; --navy2: #1f4a9c; --orange: #c8501e; --teal: #1d7a6c;
   --ink: #1a1a1a; --muted: #555; --grey: #efefef; --peach: #fcefe7; --blue: #e8eef8;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
-@page { size: 24in 24in; margin: 0; }
-html, body { width: 2304px; height: 2304px; background: #fff; }
-body { font-family: "Noto Sans", sans-serif; color: var(--ink); font-size: 23px; line-height: 1.32; overflow: hidden; }
+@page { size: 36in 24in; margin: 0; }
+html, body { width: 3456px; height: 2304px; background: #fff; }
+body { font-family: "Noto Sans", sans-serif; color: var(--ink); font-size: 25px; line-height: 1.32; overflow: hidden; }
 b { font-weight: 700; }
 .serif { font-family: "EB Garamond", serif; }
 
@@ -26,85 +26,83 @@ header .who .name { font-family: "EB Garamond", serif; font-size: 58px; font-wei
 header .who div { font-size: 22px; color: #dfe6f5; }
 
 /* grid */
-main { display: grid; grid-template-columns: 690px minmax(0,1fr) minmax(0,1fr); grid-template-rows: auto auto; column-gap: 44px; row-gap: 10px; padding: 18px 64px 0; }
-.col1 { grid-row: 1 / span 2; }
-.span23 { grid-column: 2 / span 2; }
-h2 { font-family: "EB Garamond", serif; font-size: 48px; color: var(--navy); font-weight: 700; border-bottom: 4px solid var(--navy); padding-bottom: 0; margin-bottom: 10px; line-height: 1.05; }
+main { display: grid; grid-template-columns: 730px 1270px minmax(0,1fr) minmax(0,1fr); column-gap: 50px; padding: 18px 64px 0; height: 1745px; }
+h2 { font-family: "EB Garamond", serif; font-size: 53px; color: var(--navy); font-weight: 700; border-bottom: 4px solid var(--navy); padding-bottom: 0; margin-bottom: 10px; line-height: 1.05; }
 h2 .n { color: var(--orange); margin-right: 12px; }
-h3 { font-size: 25px; color: var(--navy); font-weight: 700; margin: 12px 0 4px; }
+h3 { font-size: 28px; color: var(--navy); font-weight: 700; margin: 12px 0 4px; }
 p + p { margin-top: 8px; }
 .box { background: var(--grey); padding: 12px 20px; margin-top: 12px; }
 .box.peach { background: var(--peach); border-left: 8px solid var(--orange); }
 .box.blue { background: var(--blue); border-left: 8px solid var(--navy); }
 .box h3 { margin-top: 0; }
-.cap { font-size: 21px; color: var(--muted); margin-top: 8px; line-height: 1.3; }
+.cap { font-size: 23px; color: var(--muted); margin-top: 8px; line-height: 1.3; }
 .cap b { color: var(--ink); }
 ol { padding-left: 34px; } li { margin: 4px 0; }
-.small { font-size: 21px; color: var(--muted); }
+.small { font-size: 23px; color: var(--muted); }
 
 /* placeholders: dashed orange so they are impossible to miss before printing */
 .pending { border: 4px dashed var(--orange); background: repeating-linear-gradient(135deg, #fff, #fff 14px, #fff6f1 14px, #fff6f1 28px); color: var(--orange); font-weight: 700; text-align: center; }
-.tag { display: inline-block; font-size: 18px; font-weight: 700; color: #fff; background: var(--orange); padding: 2px 10px; border-radius: 6px; letter-spacing: .5px; vertical-align: middle; }
+.tag { display: inline-block; font-size: 20px; font-weight: 700; color: #fff; background: var(--orange); padding: 2px 10px; border-radius: 6px; letter-spacing: .5px; vertical-align: middle; }
 
 /* hint vs answer figure */
 .chat { margin-top: 10px; }
-.bubble { border-radius: 18px; padding: 12px 18px; font-size: 23px; line-height: 1.3; }
+.bubble { border-radius: 18px; padding: 12px 18px; font-size: 25px; line-height: 1.3; }
 .kid { background: #fff; border: 2px solid #c9c9c9; margin-right: 70px; }
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 12px; }
-.reply { border-radius: 14px; padding: 12px 16px; font-size: 22px; line-height: 1.3; background: #fff; }
+.reply { border-radius: 14px; padding: 12px 16px; font-size: 24px; line-height: 1.3; background: #fff; }
 .reply.ans { border: 4px solid var(--orange); }
 .reply.hint { border: 4px solid var(--teal); }
-.reply .lab { font-weight: 700; font-size: 22px; margin-bottom: 4px; }
+.reply .lab { font-weight: 700; font-size: 24px; margin-bottom: 4px; }
 .ans .lab { color: var(--orange); } .hint .lab { color: var(--teal); }
-.out { font-size: 21px; margin-top: 8px; font-weight: 600; }
+.out { font-size: 23px; margin-top: 8px; font-weight: 600; }
 .ans .out { color: var(--orange); } .hint .out { color: var(--teal); }
 
 /* pipeline */
 .pipe { display: grid; grid-template-columns: repeat(6, 1fr); gap: 0; margin-top: 6px; }
-.phase { display: grid; grid-template-columns: 4fr 2fr; gap: 18px; font-weight: 700; font-size: 22px; margin-top: 4px; }
+.phase { display: grid; grid-template-columns: 4fr 2fr; gap: 18px; font-weight: 700; font-size: 24px; margin-top: 4px; }
 .phase div { text-align: center; padding: 4px; border-radius: 6px; color: #fff; }
 .phase .a { background: var(--navy); } .phase .b { background: var(--teal); }
 .step { position: relative; background: #fff; border: 3px solid var(--navy); border-radius: 14px; margin: 12px 30px 0 0; padding: 10px 12px 12px; min-height: 0; }
 .step.t { border-color: var(--teal); }
 .step:not(:last-child)::after { content: ""; position: absolute; right: -30px; top: 50%; border: 15px solid transparent; border-left: 22px solid var(--navy); transform: translate(6px, -50%); }
 .step.t:not(:last-child)::after { border-left-color: var(--teal); }
-.step .num { font-family: "EB Garamond", serif; font-weight: 800; color: var(--orange); font-size: 34px; line-height: 1; }
-.step .ttl { font-weight: 700; font-size: 23px; color: var(--navy); line-height: 1.15; margin: 4px 0 6px; }
+.step .num { font-family: "EB Garamond", serif; font-weight: 800; color: var(--orange); font-size: 37px; line-height: 1; }
+.step .ttl { font-weight: 700; font-size: 25px; color: var(--navy); line-height: 1.15; margin: 4px 0 6px; }
 .step.t .ttl { color: var(--teal); }
-.step .d { font-size: 19px; color: #333; line-height: 1.28; }
+.step .d { font-size: 21px; color: #333; line-height: 1.28; }
 .icon { height: 54px; float: right; margin: -4px -4px 0 6px; }
 
 /* same help, different student */
 .two { display: grid; grid-template-columns: 1.25fr 1fr; gap: 34px; margin-top: 12px; }
 .variants { display: grid; grid-template-columns: 1fr; gap: 7px; margin-top: 8px; }
 .v { display: grid; grid-template-columns: 210px 1fr 140px; align-items: center; gap: 14px; background: #fff; border: 2px solid #cfcfcf; border-radius: 12px; padding: 5px 12px; }
-.v .g { font-weight: 700; color: var(--navy); font-size: 22px; line-height: 1.15; }
-.v .t { font-size: 20px; line-height: 1.22; }
+.v .g { font-weight: 700; color: var(--navy); font-size: 24px; line-height: 1.15; }
+.v .t { font-size: 22px; line-height: 1.22; }
 .v .t mark { background: #ffe1cf; color: var(--ink); padding: 0 3px; border-radius: 4px; }
-.v .s { text-align: center; font-size: 19px; font-weight: 700; border-radius: 10px; padding: 6px 4px; }
+.v .s { text-align: center; font-size: 21px; font-weight: 700; border-radius: 10px; padding: 6px 4px; }
 .v .s.real { background: var(--teal); color: #fff; }
 .v .s.pending { border-width: 3px; }
-.fixed { border: 4px solid var(--teal); border-radius: 14px; background: #fff; padding: 10px 16px; font-size: 22px; line-height: 1.3; margin-top: 10px; }
+.fixed { border: 4px solid var(--teal); border-radius: 14px; background: #fff; padding: 10px 16px; font-size: 24px; line-height: 1.3; margin-top: 10px; }
 .fixed .lab { font-weight: 700; color: var(--teal); }
 
 /* grader scale */
-.scale { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 10px; text-align: center; font-size: 21px; font-weight: 700; }
+.scale { display: grid; grid-template-columns: 1fr 1fr 1fr; margin-top: 10px; text-align: center; font-size: 23px; font-weight: 700; }
 .scale div { padding: 10px 4px; color: #fff; }
 .scale .m1 { background: var(--orange); border-radius: 10px 0 0 10px; }
 .scale .z { background: #9a9a9a; }
 .scale .p1 { background: var(--teal); border-radius: 0 10px 10px 0; }
-.scale span { display: block; font-size: 30px; font-family: "EB Garamond", serif; }
+.scale span { display: block; font-size: 33px; font-family: "EB Garamond", serif; }
 
 /* results */
 .main-finding { display: grid; grid-template-columns: 170px 1fr; gap: 26px; background: var(--peach); border-left: 12px solid var(--orange); padding: 16px 22px; }
-.main-finding .big { text-align: center; padding: 18px 8px; font-family: "EB Garamond", serif; font-size: 72px; line-height: 1; }
-.main-finding .big small { display: block; font-family: "Noto Sans"; font-size: 19px; margin-top: 10px; }
-.main-finding h3 { font-family: "EB Garamond", serif; font-size: 36px; margin: 0 0 6px; }
+.main-finding .big { text-align: center; padding: 18px 8px; font-family: "EB Garamond", serif; font-size: 79px; line-height: 1; }
+.main-finding .big small { display: block; font-family: "Noto Sans"; font-size: 21px; margin-top: 10px; }
+.main-finding h3 { font-family: "EB Garamond", serif; font-size: 40px; margin: 0 0 6px; }
 .bars { margin-top: 8px; }
-.brow { display: grid; grid-template-columns: 170px 1fr 70px; align-items: center; gap: 12px; margin: 6px 0; font-size: 22px; }
+.brow { display: grid; grid-template-columns: 170px 1fr 70px; align-items: center; gap: 12px; margin: 6px 0; font-size: 24px; }
 .track { height: 30px; background: #e2e2e2; border-radius: 6px; overflow: hidden; display: flex; }
 .track i { display: block; height: 100%; }
-.legend { font-size: 19px; color: var(--muted); margin-top: 4px; }
+.legend { font-size: 21px; color: var(--muted); margin-top: 4px; }
 .legend i { display: inline-block; width: 18px; height: 18px; vertical-align: -3px; margin: 0 6px 0 14px; border-radius: 3px; }
 .forest { width: 100%; height: auto; display: block; }
 
@@ -112,13 +110,13 @@ ol { padding-left: 34px; } li { margin: 4px 0; }
 .qrs { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-top: 8px; }
 .qrbox { display: grid; grid-template-columns: 150px minmax(0,1fr); gap: 16px; align-items: center; }
 svg.qr { width: 150px; height: 150px; display: block; }
-.qrbox .k { font-weight: 700; color: var(--navy); font-size: 28px; line-height: 1.1; }
-.qrbox .k small { display: block; font-weight: 400; color: var(--muted); font-size: 17px; word-break: break-all; margin-top: 4px; }
+.qrbox .k { font-weight: 700; color: var(--navy); font-size: 31px; line-height: 1.1; }
+.qrbox .k small { display: block; font-weight: 400; color: var(--muted); font-size: 19px; word-break: break-all; margin-top: 4px; }
 
 /* bottom band */
 .band { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 28px; padding: 18px 64px 0; }
-.xband .box { margin-top: 0; font-size: 21px; line-height: 1.3; }
-.xband .box h3 { font-size: 25px; }
+.xband .box { margin-top: 0; font-size: 23px; line-height: 1.3; }
+.xband .box h3 { font-size: 28px; }
 .refs { padding: 10px 64px 0; font-size: 16px; color: var(--muted); line-height: 1.3; }
 .refs b { color: var(--ink); }
 </style>
@@ -139,7 +137,7 @@ svg.qr { width: 150px; height: 150px; display: block; }
 
 <main>
   <!-- ============ COLUMN 1 ============ -->
-  <section class="col1">
+  <section>
     <h2><span class="n">1</span>Motivation</h2>
     <p>Kids already use AI for homework. If it just <b>hands over the answer</b>, the homework gets done but the kid <b>learns less</b>. My goal: <b>AI that makes kids better at math, not more dependent on it, for every kid.</b> <b>For:</b> teachers, schools writing AI rules (like NYC public schools), and teams building AI tutors.</p>
 
@@ -171,19 +169,10 @@ svg.qr { width: 150px; height: 150px; display: block; }
       <li><b>What</b> in the student's writing moves the score, and does the grader <b>admit it</b> in its own explanation?</li>
       <li>Does that bias <b>carry over</b> into a tutor trained by the grader?</li>
     </ol>
-    <div class="box blue" style="margin-top:18px">
-      <h3>Why it matters</h3>
-      AI tutors are coming to classrooms. A tutor that gives <b>some kids hints and others answers</b> would quietly widen gaps between students. This shows how to <b>check the grader before you train with it</b>.
-    </div>
-    <div class="box peach">
-      <h3>What this does not claim</h3>
-      It does not measure how real students write or how a real classroom tutor behaves. Dialect is not race or nationality: the test asks whether the grader reacts to <b>language features</b>, not whether it is “biased against” any group of people. All student messages are synthetic; no real students or minors.
-    </div>
-
   </section>
 
   <!-- ============ HOW IT WORKS (cols 2-3) ============ -->
-  <section class="span23">
+  <section>
     <h2><span class="n">3</span>What I built</h2>
     <div class="phase"><div class="a">Part A · Test the grader</div><div class="b">Part B · Train and test the tutor</div></div>
     <div class="pipe">
@@ -245,16 +234,19 @@ svg.qr { width: 150px; height: 150px; display: block; }
         </div>
       </div>
     </div>
+    <h3 style="margin-top:22px">Training the tutor: the reward went up, answer leaks went down</h3>
+    <div class="forest">{{FIG_TRAIN}}</div>
+    <div class="cap"><b>Fig. 2.</b> 300 GRPO steps (4.3 h on two free T4 GPUs), each point = 10 steps. The grader's score is the reward; the leak rate is a separate check.</div>
   </section>
 
-  <!-- ============ RESULTS (col 2) ============ -->
+  <!-- ============ RESULTS ============ -->
   <section>
     <h2><span class="n">4</span>Results</h2>
     <div class="main-finding">
-      <div class="big" style="color:var(--orange)">86%<small style="display:block;font-family:'Noto Sans';font-size:19px;color:var(--ink);margin-top:8px">of replies are hints after training (was 34%)</small></div>
+      <div class="big" style="color:var(--orange)">86%<small style="display:block;font-family:'Noto Sans';font-size:21px;color:var(--ink);margin-top:8px">of replies are hints after training (was 34%)</small></div>
       <div>
         <h3>Main finding</h3>
-        <p style="font-size:22px">The trained tutor <b>teaches instead of telling</b>, <b>equally for every student</b>. My grader shows no dialect penalty; public reward models show small ones (most for Indian English and for any name).</p>
+        <p style="font-size:24px">The trained tutor <b>teaches instead of telling</b>, <b>equally for every student</b>. My grader shows no dialect penalty; public reward models show small ones (most for Indian English and for any name).</p>
       </div>
     </div>
 
@@ -264,35 +256,64 @@ svg.qr { width: 150px; height: 150px; display: block; }
       <div class="brow"><div>I said <b>“hint”</b></div><div class="track"><i style="width:81.5%;background:var(--teal)"></i><i style="width:14.8%;background:#9a9a9a"></i><i style="width:3.7%;background:var(--orange)"></i></div><div><b>22/27</b></div></div>
     </div>
     <div class="legend"><i style="background:var(--teal);margin-left:0"></i>grader agreed with me <i style="background:#9a9a9a"></i>said “neither” <i style="background:var(--orange)"></i>said the opposite</div>
-    <div class="cap"><b>Fig. 2.</b> I labeled 40 replies; the grader matched me on 33 (kappa 0.65, 95% CI 0.41–0.85).</div>
+    <div class="cap"><b>Fig. 3.</b> I labeled 40 replies; the grader matched me on 33 (kappa 0.65, 95% CI 0.41–0.85).</div>
 
     <h3 style="margin-top:12px">Q2 · Same help, different score?</h3>
     <div class="forest">{{FIG_GAPS}}</div>
-    <div class="cap"><b>Fig. 3.</b> Score change, 95% CI. <b style="color:var(--orange)">Orange</b> = penalty beyond rewording alone. All tiny: 0.2 SD counts as “small”.</div>
-    <h3 style="margin-top:10px">Q3 · What moves the score?</h3>
-    <p style="font-size:22px">No single grammar feature beats chance. Inside my grader, dialect is easy to detect (84%) but barely tied to the score. When a score did jump, its written reason <b>never</b> mentioned the student's language (0 of 30): it described the same reply differently.</p>
+    <div class="cap"><b>Fig. 4.</b> Score change, 95% CI. <b style="color:var(--orange)">Orange</b> = penalty beyond rewording alone. All tiny: 0.2 SD counts as “small”.</div>
+
+    <h3 style="margin-top:22px">Same student, before and after training</h3>
+    <div class="bubble kid" style="font-size:23px;margin-right:40px">I started by doing 2 x 55 and I got 110. Now I don't know what I am supposed to do next. <span class="small">(110 chips, 5 people)</span></div>
+    <div class="pair">
+      <div class="reply ans" style="font-size:22px"><div class="lab">Before: grader −0.85</div>“…divide the total number of chips by the number of people: 110 ÷ 5 = 22. So, each person gets 22 chips.”</div>
+      <div class="reply hint" style="font-size:22px"><div class="lab">After: grader +1.00</div>“…you would divide 110 by 5. What do you get when you do this division?”</div>
+    </div>
+    <div class="cap"><b>Fig. 5.</b> Real test replies (shortened) from the base model and the trained tutor.</div>
   </section>
 
   <!-- ============ RESULTS cont + DEMO (col 3) ============ -->
   <section>
+    <h3 style="margin-top:0">Q3 · What moves the score?</h3>
+    <p style="font-size:24px">No single grammar feature beats chance. Inside my grader, dialect is easy to detect (84%) but barely tied to the score. When a score did jump, its written reason <b>never</b> mentioned the student's language (0 of 30): it described the same reply differently.</p>
 
-    <h3 style="margin-top:0">Q4 · Does the bias reach the trained tutor?</h3>
-    <table style="width:100%;border-collapse:collapse;font-size:21px;margin-top:4px">
+    <h3 style="margin-top:22px">Q4 · Does the bias reach the trained tutor?</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:23px;margin-top:4px">
       <tr style="color:var(--navy);font-weight:700;border-bottom:3px solid var(--navy)"><td style="padding:4px 4px">On new problems</td><td style="text-align:center">Before training</td><td style="text-align:center">Tutor A (after)</td></tr>
       <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives a hint</td><td style="text-align:center">34%</td><td style="text-align:center;font-weight:700;color:var(--teal)">86%</td></tr>
       <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gives the answer</td><td style="text-align:center">52%</td><td style="text-align:center;font-weight:700;color:var(--teal)">18%</td></tr>
       <tr style="border-bottom:1px solid #ccc"><td style="padding:4px 4px">Gap between groups</td><td style="text-align:center">none</td><td style="text-align:center;font-weight:700;color:var(--teal)">none (did not grow)</td></tr>
-      <tr><td style="padding:4px 4px">Gamed the grader?</td><td colspan="2" style="text-align:center">A little: praises wrong answers more</td></tr>
-    </table>
-    <div class="cap"><b>Fig. 4.</b> 6,065 new test messages per model. “None” = no group differs beyond chance. “Great start!” on wrong answers: 20% → 48%.</div>
+          </table>
+    <div class="cap"><b>Fig. 6.</b> 6,065 new test messages per model. “None” = no group differs beyond chance.</div>
 
-    <h2 style="margin-top:14px"><span class="n">5</span>Try it yourself</h2>
+    <div class="box peach" style="margin-top:18px">
+      <h3>Did the tutor game the grader? A little.</h3>
+      <ul style="padding-left:26px">
+        <li>Says <b>“great start!”</b> to wrong answers 48% of the time (was 20%), and the grader rewards it.</li>
+        <li>About <b>1 in 10</b> replies I read had a math slip the grader missed: it checks <i>how</i> the tutor teaches, not the math.</li>
+        <li>A second reward model scored the tutor lower only because it <b>rewards giving the answer</b>.</li>
+      </ul>
+    </div>
+
+    <h2 style="margin-top:22px"><span class="n">5</span>Try it yourself</h2>
     <p>On your phone: guess <b>hint or answer</b>, then <b>flip the student's dialect or name</b> and watch the score.</p>
     <div class="qrs">
       <div class="qrbox">{{QR_DEMO}}<div class="k">Live demo<small>anvitasuresh.github.io/xai_proj2</small></div></div>
       <div class="qrbox">{{QR_REPO}}<div class="k">Code &amp; write-up<small>github.com/anvitasuresh/xai_proj2</small></div></div>
     </div>
-    <div class="box" style="margin-top:12px">
+  </section>
+</main>
+
+<div class="band xband">
+    <div class="box blue">
+      <h3>Why it matters</h3>
+      AI tutors are coming to classrooms. A tutor that gives <b>some kids hints and others answers</b> would quietly widen gaps between students. This shows how to <b>check the grader before you train with it</b>.
+    </div>
+    <div class="box peach">
+      <h3>What this does not claim</h3>
+      It does not measure how real students write or how a real classroom tutor behaves. Dialect is not race or nationality: the test asks whether the grader reacts to <b>language features</b>, not whether it is “biased against” any group of people. All student messages are synthetic; no real students or minors.
+    </div>
+
+    <div class="box">
       <h3>Limitations</h3>
       Dialects are rule-based rewrites, cleaner than real speech. Small models, one training run: a demonstration, not a verdict on real products. Grader checked on only 40 labels by one person, and it checks <i>how</i> the tutor teaches, not whether its math is right. Math only, one turn. “Same help = fair” assumes every kid needs the same help.
     </div>
@@ -300,8 +321,7 @@ svg.qr { width: 150px; height: 150px; display: block; }
       <h3>Future work</h3>
       <b>Tutor B:</b> a grader that only sees the student's message in Mainstream American English, so it cannot react to dialect. Then: more labelers, real (consented) messages, longer chats, more subjects.
     </div>
-  </section>
-</main>
+</div>
 
 
 <div class="refs"><b>References.</b> Bastani et al. 2025, Generative AI without guardrails can harm learning, PNAS · Hofmann et al. 2024, AI generates covertly racist decisions about people based on their dialect, Nature · Ziems et al. 2023, Multi-VALUE, ACL · Kortmann et al., eWAVE · Cobbe et al. 2021, GSM8K · Shao et al. 2024, DeepSeekMath (GRPO) · Lambert et al. 2024, RewardBench · Liu et al. 2023, G-Eval · Zheng et al. 2023, LLM-as-a-judge · Turpin et al. 2023, Language models don't always say what they think · Gao et al. 2022, Reward model overoptimization · Bertrand &amp; Mullainathan 2004, AER. Every number and source: the repository write-up.</div>

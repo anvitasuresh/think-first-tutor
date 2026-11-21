@@ -1,4 +1,4 @@
-"""Poster figure 3: score gap by student group for each grader (SVG, text set in the poster's font).
+"""Poster figures as SVG (text set in the poster's font): Fig. 4 score gaps by student group, Fig. 2 training.
 
   python poster/make_figs.py     (needs the audit scores in results/audit/scores/ and audit_pairs.jsonl)
 
@@ -38,10 +38,36 @@ def gaps() -> pd.DataFrame:
     return g[(g["subset"] == "all") & (g["vs"] == "mae")]
 
 
+def training() -> None:
+    """Fig. 2: reward, grader hint score and answer-leak rate over GRPO steps (results/eval/training_curve.csv)."""
+    c = pd.read_csv("results/eval/training_curve.csv")
+    panels = [("reward", "Reward (max 1.5)", 1), ("scaffolding", "Hint score (-1 to +1)", 1),
+              ("answer_leaked", "Replies leaking the answer (%)", 100)]
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.6))
+    for ax, (col, title, k) in zip(axes, panels):
+        y = c[col] * k
+        color = ORANGE if col == "answer_leaked" else NAVY
+        ax.plot(c["bin"], y, color=color, lw=3)
+        ax.scatter(c["bin"].iloc[[0, -1]], y.iloc[[0, -1]], color=color, s=60, zorder=3)
+        fmt = (lambda v: f"{v:.0f}%") if k == 100 else (lambda v: f"{v:+.2f}")
+        ax.set_title(f"{title}\n{fmt(y.iloc[0])} \u2192 {fmt(y.iloc[-1])}", fontsize=20, color=NAVY, fontweight="bold")
+        ax.set_xlabel("training step", color=MUTED)
+        ax.tick_params(colors=MUTED)
+        ax.spines["left"].set_visible(True)
+        ax.spines["left"].set_color("#bbbbbb")
+        ax.spines["bottom"].set_color("#bbbbbb")
+        ax.grid(axis="y", color="#e5e5e5", lw=0.8)
+        if k == 100:
+            ax.set_ylim(0, 62)
+    fig.tight_layout(w_pad=2.5)
+    fig.savefig(HERE / "fig_train.svg", transparent=True, bbox_inches="tight", pad_inches=0.02)
+
+
 def main() -> None:
+    training()
     g = gaps()
     g.to_csv(HERE / "fig_gaps.csv", index=False)
-    fig, axes = plt.subplots(1, 3, figsize=(9.2, 3.2), sharey=True)
+    fig, axes = plt.subplots(1, 3, figsize=(9.2, 4.4), sharey=True)
     for ax, (s, title) in zip(axes, SCORERS):
         d = g[g["scorer"] == s].set_index("group")
         for y, (grp, _) in enumerate(ROWS):
