@@ -6,14 +6,14 @@ from tutorbias.kaggle import check_gpus, destination, plan_restore, restore
 
 
 def test_destination_rules():
-    assert destination(Path("xai_proj2/data/processed/variants.jsonl")) == Path("data/processed/variants.jsonl")
-    assert destination(Path("xai_proj2/results/audit/scores/judge.jsonl")) == Path("results/audit/scores/judge.jsonl")
+    assert destination(Path("think-first-tutor/data/processed/variants.jsonl")) == Path("data/processed/variants.jsonl")
+    assert destination(Path("think-first-tutor/results/audit/scores/judge.jsonl")) == Path("results/audit/scores/judge.jsonl")
     # laptop upload of data/processed with files at the top level
     assert destination(Path("items_audit.jsonl")) == Path("data/processed/items_audit.jsonl")
     assert destination(Path("label_set.jsonl")) == Path("data/labels/label_set.jsonl")
-    assert destination(Path("xai_proj2/.git/config")) is None
-    assert destination(Path("xai_proj2/src/tutorbias/io.py")) is None
-    assert destination(Path("xai_proj2/src/tutorbias/data/build.py")) is None
+    assert destination(Path("think-first-tutor/.git/config")) is None
+    assert destination(Path("think-first-tutor/src/tutorbias/io.py")) is None
+    assert destination(Path("think-first-tutor/src/tutorbias/data/build.py")) is None
     assert destination(Path("random.txt")) is None
     assert destination(Path("skywork_v2.jsonl")) == Path("results/audit/scores/skywork_v2.jsonl")
 
@@ -25,8 +25,8 @@ def _write(p: Path, text: str) -> None:
 
 def test_restore_keeps_largest_copy(tmp_path):
     inp, repo = tmp_path / "input", tmp_path / "repo"
-    _write(inp / "nb01-output/xai_proj2/results/audit/scores/judge.jsonl", "a\n")
-    _write(inp / "nb02-partial/xai_proj2/results/audit/scores/judge.jsonl", "a\nb\nc\n")
+    _write(inp / "nb01-output/think-first-tutor/results/audit/scores/judge.jsonl", "a\n")
+    _write(inp / "nb02-partial/think-first-tutor/results/audit/scores/judge.jsonl", "a\nb\nc\n")
     _write(inp / "tutorbias-data/items_audit.jsonl", "{}\n")
     _write(repo / "data/processed/items_audit.jsonl", "{}\n{}\n")  # repo copy is larger: keep it
     plan = plan_restore(inp, repo)

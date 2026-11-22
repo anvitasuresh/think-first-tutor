@@ -47,4 +47,4 @@ these variants (`tutorbias.textutil.garbled_reason`), and the demo uses the same
 
 `.github/workflows/pages.yml` deploys `demo/site/` to GitHub Pages on every push to `main` that touches
 `demo/`. One-time setup: repo **Settings > Pages > Source: GitHub Actions**. The page is then at
-https://anvitasuresh.github.io/xai_proj2/. To view it locally, open `demo/site/index.html` in a browser.
+https://anvitasuresh.github.io/think-first-tutor/. To view it locally, open `demo/site/index.html` in a browser.

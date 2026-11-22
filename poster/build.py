@@ -13,8 +13,8 @@ from playwright.sync_api import sync_playwright
 
 HERE = Path(__file__).resolve().parent
 QR = {
-    "QR_DEMO": "https://anvitasuresh.github.io/xai_proj2/",
-    "QR_REPO": "https://github.com/anvitasuresh/xai_proj2",
+    "QR_DEMO": "https://anvitasuresh.github.io/think-first-tutor/",
+    "QR_REPO": "https://github.com/anvitasuresh/think-first-tutor",
 }
 
 

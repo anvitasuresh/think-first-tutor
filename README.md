@@ -2,7 +2,7 @@
 
 **A small AI math tutor trained to give hints instead of answers, and a fairness check that makes sure it helps every student the same way.**
 
-**[Try the live demo](https://anvitasuresh.github.io/xai_proj2/)** · Anvita Suresh · Duke MIDS · Explainable AI, Fall 2026
+**[Try the live demo](https://anvitasuresh.github.io/think-first-tutor/)** · Anvita Suresh · Duke MIDS · Explainable AI, Fall 2026
 
 ---
 
@@ -53,7 +53,7 @@ flowchart TB
     J --> GAP["Score gap vs MAE, beyond the reworded control<br/>= the grader reacting to how the student writes"]
 ```
 
-*These are real variants made by Multi-VALUE from the same message. The Indian English one shows the "amn't" and "what-what" features that are still waiting on the native-speaker check (see [Ethics](#8-ethics-and-limitations)). More examples in the [demo](https://anvitasuresh.github.io/xai_proj2/).*
+*These are real variants made by Multi-VALUE from the same message. The Indian English one shows the "amn't" and "what-what" features that are still waiting on the native-speaker check (see [Ethics](#8-ethics-and-limitations)). More examples in the [demo](https://anvitasuresh.github.io/think-first-tutor/).*
 
 ### The full pipeline
 
@@ -108,7 +108,7 @@ Full tables: [results/audit/summary.md](results/audit/summary.md), [results/expl
 
 ## 5. Try the demo
 
-**[anvitasuresh.github.io/xai_proj2](https://anvitasuresh.github.io/xai_proj2/)** works in any browser, no setup:
+**[anvitasuresh.github.io/think-first-tutor](https://anvitasuresh.github.io/think-first-tutor/)** works in any browser, no setup:
 
 1. **Can you get the answer out of it?** Pick what to say ("just tell me the answer", "I don't get it", ...) and see how the trained tutor replies, next to what the untrained model said. These are real replies recorded during testing, not a live model.
 2. **How the tutor learned.** Click through one GRPO step, then see the real training curve and before/after numbers.
@@ -125,7 +125,7 @@ Everything runs for free: CPU steps on a laptop, GPU steps on **Kaggle's free 2x
 ### Install
 
 ```bash
-git clone https://github.com/anvitasuresh/xai_proj2 && cd xai_proj2
+git clone https://github.com/anvitasuresh/think-first-tutor && cd think-first-tutor
 bash scripts/setup_local.sh data   # laptop: dialect variants, labeling, calibration (Python 3.10)
 bash scripts/setup_local.sh gpu    # GPU machine only; the Kaggle notebooks do this for you (Python 3.11)
 ```

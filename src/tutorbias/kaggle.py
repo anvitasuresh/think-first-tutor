@@ -47,7 +47,7 @@ def destination(rel: Path) -> Path | None:
     parts = rel.parts
     if any(p in SKIP_PARTS or p.startswith(".venv") for p in parts):
         return None
-    # The *last* data/ or results/ component wins, so a nested clone (xai_proj2/data/...) maps correctly.
+    # The *last* data/ or results/ component wins, so a nested clone (think-first-tutor/data/...) maps correctly.
     for i in range(len(parts) - 1, -1, -1):
         if parts[i] in ("data", "results") and i < len(parts) - 1:
             return Path(*parts[i:])

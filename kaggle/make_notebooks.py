@@ -12,7 +12,7 @@ import json
 from pathlib import Path
 
 HERE = Path(__file__).parent
-REPO = "https://github.com/anvitasuresh/xai_proj2"
+REPO = "https://github.com/anvitasuresh/think-first-tutor"
 
 
 def md(text: str) -> dict:
@@ -48,8 +48,8 @@ SETUP = code(f'''
 %%bash
 set -e
 cd /kaggle/working
-[ -d xai_proj2 ] || git clone --depth 1 {REPO}
-cd xai_proj2 && git pull --ff-only && git log --oneline -1
+[ -d think-first-tutor ] || git clone --depth 1 {REPO}
+cd think-first-tutor && git pull --ff-only && git log --oneline -1
 nvidia-smi --query-gpu=name,memory.total --format=csv
 # Copy data/ and results/ from every attached Input (your data dataset, earlier notebooks' outputs).
 PYTHONPATH=src python3 -m tutorbias.kaggle restore --repo .
@@ -62,7 +62,7 @@ echo "GPU env ready"
 TIDY = code('''
 %%bash
 # Keep the output small and self-contained: drop the venv symlinks (they point into /tmp).
-cd /kaggle/working/xai_proj2 && rm -f .venv-gpu .venv-data
+cd /kaggle/working/think-first-tutor && rm -f .venv-gpu .venv-data
 du -sh data results 2>/dev/null || true
 ''')
 
@@ -114,7 +114,7 @@ ls results/tutor/$R && cat results/tutor/$R/run_info.json"""
 
 
 def stage(cmd: str) -> dict:
-    return code(f"%%bash\ncd /kaggle/working/xai_proj2\n{cmd}")
+    return code(f"%%bash\ncd /kaggle/working/think-first-tutor\n{cmd}")
 
 
 NOTEBOOKS = {
