@@ -1,4 +1,4 @@
-# Hints, Not Answers: Teaching an AI Tutor to Make Kids Think
+# Hints, Not Answers: Teaching an AI Tutor to Help Kids Learn
 
 **A small AI math tutor trained to give hints instead of answers, and a fairness check that makes sure it helps every student the same way.**
 
