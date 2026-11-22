@@ -5,6 +5,7 @@ Edit poster/template.html for text; boxes marked class="pending" are results sti
 """
 
 import os
+import re
 from pathlib import Path
 
 import segno
@@ -19,7 +20,11 @@ QR = {
 
 def qr_svg(url: str) -> str:
     """Inline SVG QR code, navy on white, scales to its container."""
-    svg = segno.make(url, error="m").svg_inline(scale=10, border=2, dark="#0b2a6f", light="#ffffff")
+    # Border 4 = the quiet zone scanners need. segno writes a fixed width/height and no viewBox, so the
+    # CSS size would crop the code instead of scaling it; swap in a viewBox so it scales whole.
+    # Pure black on white scans most reliably.
+    svg = segno.make(url, error="m").svg_inline(scale=10, border=4, dark="#000000", light="#ffffff")
+    svg = re.sub(r'width="(\d+)" height="(\d+)"', r'viewBox="0 0 \1 \2"', svg, count=1)
     return svg.replace("<svg ", '<svg class="qr" ', 1)
 
 
