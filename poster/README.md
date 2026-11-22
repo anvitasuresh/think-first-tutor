@@ -8,10 +8,10 @@ pip install segno playwright && playwright install chromium
 python poster/build.py          # prints the page height; it must say 2304 (nothing spills off the page)
 ```
 
-**Before printing:** every orange dashed box is a result that is not in yet. Fill each one from the
-named results file (audit: `results/audit/summary.md` and `forest_all.png`; explain: stage 3 outputs;
-tutor: `results/eval/`), then rebuild. Never print a placeholder. The only real numbers on the poster
-so far are the judge check (E1, `results/calibration/all/metrics.json`) and the grader's score on the
-Fig. 1 reply (`results/judge/label_set_scores.jsonl`, L0160). The answer-vs-hint example in section 1
-is written for the poster and labeled as such.
+**Status:** complete, no placeholders. Every number comes from `results/` (see the README results table).
+The answer-vs-hint example in section 1 is written for the poster and labeled as such.
+
+**Print file:** render `poster.pdf` at 200 dpi to a 7200 x 4800 JPG (`pdftoppm -r 200 -jpeg -jpegopt quality=95 poster/poster.pdf poster_36x24_print`) for print shops that want an image.
+Check that both QR codes scan after every rebuild.
+
 - `make_figs.py`: draws Fig. 2 (training) and Fig. 4 (score gaps) as SVG from the results files; run it before `build.py`.

@@ -1,0 +1,22 @@
+{
+  "message_types": {
+    "rl_train": {
+      "tried_partial": 500,
+      "wrong_answer": 500,
+      "dont_get": 500,
+      "wants_answer": 500
+    },
+    "audit": {
+      "tried_partial": 75,
+      "wrong_answer": 75,
+      "dont_get": 75,
+      "wants_answer": 75
+    },
+    "test": {
+      "tried_partial": 75,
+      "wrong_answer": 75,
+      "dont_get": 75,
+      "wants_answer": 75
+    }
+  }
+}

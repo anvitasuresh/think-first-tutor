@@ -1,0 +1,118 @@
+{
+  "n_rows": 22600,
+  "sha256": "3677821193597b9a",
+  "by_group": {
+    "paraphrase": {
+      "n": 2600,
+      "changed": 2600,
+      "numbers_ok": 2600,
+      "errors": 0,
+      "features": {},
+      "changed_rate": 1.0,
+      "numbers_ok_rate": 1.0
+    },
+    "aae": {
+      "n": 2600,
+      "changed": 2176,
+      "numbers_ok": 2600,
+      "errors": 22,
+      "features": {
+        "aint_before_main": 1395,
+        "negative_concord": 914,
+        "aint_be": 719,
+        "drop_aux_be_progressive": 346,
+        "past_for_past_participle": 195,
+        "uninflect": 178,
+        "dont": 124,
+        "drop_copula_be_NP": 1
+      },
+      "changed_rate": 0.837,
+      "numbers_ok_rate": 1.0
+    },
+    "indian": {
+      "n": 2600,
+      "changed": 2555,
+      "numbers_ok": 2600,
+      "errors": 22,
+      "features": {
+        "null_referential_pronouns": 3607,
+        "progressives": 1775,
+        "present_perfect_for_past": 1233,
+        "inverted_indirect_question": 1108,
+        "plural_interrogative": 674,
+        "reduplicate_interrogative": 651,
+        "invariant_tag_non_concord": 648,
+        "acomp_focusing_like": 432,
+        "remove_det_definite": 413,
+        "definite_for_indefinite_articles": 346,
+        "object_pronoun_drop": 310,
+        "fronting_pobj": 297,
+        "remove_det_indefinite": 116,
+        "mass_noun_plurals": 110,
+        "definite_abstract": 106
+      },
+      "changed_rate": 0.983,
+      "numbers_ok_rate": 1.0
+    },
+    "l2": {
+      "n": 2600,
+      "changed": 1753,
+      "numbers_ok": 2600,
+      "errors": 22,
+      "features": {
+        "bare_past_tense": 1064,
+        "remove_det_definite": 630,
+        "zero_plural": 506,
+        "remove_det_indefinite": 139,
+        "uninflect": 133
+      },
+      "changed_rate": 0.674,
+      "numbers_ok_rate": 1.0
+    },
+    "mae": {
+      "n": 2600,
+      "changed": 0,
+      "numbers_ok": 2600,
+      "errors": 0,
+      "features": {},
+      "changed_rate": 0.0,
+      "numbers_ok_rate": 1.0
+    },
+    "name_black": {
+      "n": 2400,
+      "changed": 2400,
+      "numbers_ok": 2400,
+      "errors": 0,
+      "features": {},
+      "changed_rate": 1.0,
+      "numbers_ok_rate": 1.0
+    },
+    "name_hispanic": {
+      "n": 2400,
+      "changed": 2400,
+      "numbers_ok": 2400,
+      "errors": 0,
+      "features": {},
+      "changed_rate": 1.0,
+      "numbers_ok_rate": 1.0
+    },
+    "name_south_asian": {
+      "n": 2400,
+      "changed": 2400,
+      "numbers_ok": 2400,
+      "errors": 0,
+      "features": {},
+      "changed_rate": 1.0,
+      "numbers_ok_rate": 1.0
+    },
+    "name_white": {
+      "n": 2400,
+      "changed": 2400,
+      "numbers_ok": 2400,
+      "errors": 0,
+      "features": {},
+      "changed_rate": 1.0,
+      "numbers_ok_rate": 1.0
+    }
+  }
+}

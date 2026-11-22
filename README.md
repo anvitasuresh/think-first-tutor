@@ -136,11 +136,13 @@ There are two environments because Multi-VALUE needs old versions of spaCy and s
 
 | # | Where | What to run | Time |
 |---|---|---|---|
-| 0 | Laptop | `bash scripts/run_stage.sh items` then `bash scripts/run_stage.sh variants`. Upload `data/processed/` as a private Kaggle dataset named `tutorbias-data`. | 1-3 h CPU |
+| 0 | Laptop | `bash scripts/run_stage.sh items` then `bash scripts/run_stage.sh variants`. Upload `data/processed/` as a private Kaggle dataset named `tutorbias-data`. (Already built and committed, so this step is optional.) | 1-3 h CPU |
 | 1 | Kaggle | [`kaggle/01_replies_judge.ipynb`](kaggle/01_replies_judge.ipynb): tutor replies, label set, grader scores | ~1.5 h |
-| 1b | Laptop | `python -m tutorbias.labeling.calibrate --split all`: grader vs human labels (E1) | minutes |
+| 1b | Kaggle | [`kaggle/01b_rescore_judge.ipynb`](kaggle/01b_rescore_judge.ipynb): optional, re-score the label set with a revised rubric (tried, not used: rubric v1 kept) | ~15 min |
+| 1c | Laptop | `python -m tutorbias.labeling.calibrate --split all`: grader vs human labels (E1) | minutes |
 | 2 | Kaggle | [`kaggle/02_audit.ipynb`](kaggle/02_audit.ipynb): fairness audit with 3 graders (E2) | ~4-5 h |
 | 3 | Kaggle | [`kaggle/03_grpo_tutor_a.ipynb`](kaggle/03_grpo_tutor_a.ipynb): train the tutor with RL | ~3-4 h |
+| 3r | Kaggle | [`kaggle/03r_grpo_resume.ipynb`](kaggle/03r_grpo_resume.ipynb): only if 03 stopped early, continue training from its last checkpoint | what's left |
 | 4 | Kaggle | [`kaggle/04_explain.ipynb`](kaggle/04_explain.ipynb): feature effects, explanation check, probes (E3-E4) | ~1-1.5 h |
 | 5 | Kaggle | [`kaggle/05_eval.ipynb`](kaggle/05_eval.ipynb): base model vs trained tutor (E5-E7) | ~1.5 h |
 
@@ -165,7 +167,7 @@ Two checks run on the saved audit results, with no GPU:
 | Audited reward model | [allenai/Llama-3.1-Tulu-3-8B-RM](https://huggingface.co/allenai/Llama-3.1-Tulu-3-8B-RM) | Llama 3.1 license |
 | Human labels | [data/labels/](data/labels/) (40 replies, labeled by Anvita) | MIT |
 
-Generated data is not committed (it is rebuilt by step 0). What is in it: [data/DATASHEET.md](data/DATASHEET.md).
+The generated dataset is committed in [data/processed/](data/processed/) (2,600 math problems with stuck-student messages, and all 22,600 dialect and name versions), so you can skip step 0 and upload that folder to Kaggle directly. The native-speaker rating sheets are in [data/validation/](data/validation/). What is in the data: [data/DATASHEET.md](data/DATASHEET.md). Large GPU outputs (grader scores for every pair, the trained LoRA adapter, model activations) stay in the Kaggle notebook outputs because of their size; every table and chart made from them is in [results/](results/).
 
 ## 7. Design decisions
 

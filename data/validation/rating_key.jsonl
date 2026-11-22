@@ -1,0 +1,120 @@
+{"row": "aae-001", "group": "aae", "variant_id": "gsm8k-train-01902::aae", "features": ["dont"]}
+{"row": "aae-002", "group": "aae", "variant_id": "gsm8k-train-05353::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-003", "group": "aae", "variant_id": "gsm8k-train-07098::aae", "features": ["aint_before_main", "dont"]}
+{"row": "aae-004", "group": "aae", "variant_id": "gsm8k-train-04765::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-005", "group": "aae", "variant_id": "gsm8k-test-00687::aae", "features": ["uninflect"]}
+{"row": "aae-006", "group": "aae", "variant_id": "gsm8k-train-00112::aae", "features": ["uninflect"]}
+{"row": "aae-007", "group": "aae", "variant_id": "gsm8k-train-04815::aae", "features": ["uninflect"]}
+{"row": "aae-008", "group": "aae", "variant_id": "gsm8k-test-00620::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-009", "group": "aae", "variant_id": "gsm8k-train-04259::aae", "features": ["uninflect"]}
+{"row": "aae-010", "group": "aae", "variant_id": "gsm8k-test-00426::aae", "features": ["past_for_past_participle"]}
+{"row": "aae-011", "group": "aae", "variant_id": "gsm8k-train-04998::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-012", "group": "aae", "variant_id": "gsm8k-train-07181::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-013", "group": "aae", "variant_id": "gsm8k-train-06008::aae", "features": ["uninflect"]}
+{"row": "aae-014", "group": "aae", "variant_id": "gsm8k-train-03358::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-015", "group": "aae", "variant_id": "gsm8k-train-00781::aae", "features": ["aint_before_main"]}
+{"row": "aae-016", "group": "aae", "variant_id": "gsm8k-train-03933::aae", "features": ["uninflect"]}
+{"row": "aae-017", "group": "aae", "variant_id": "gsm8k-train-01771::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-018", "group": "aae", "variant_id": "gsm8k-train-00049::aae", "features": ["aint_before_main", "negative_concord"]}
+{"row": "aae-019", "group": "aae", "variant_id": "gsm8k-train-04312::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-020", "group": "aae", "variant_id": "gsm8k-train-07271::aae", "features": ["uninflect"]}
+{"row": "aae-021", "group": "aae", "variant_id": "gsm8k-train-05577::aae", "features": ["aint_before_main", "dont", "negative_concord"]}
+{"row": "aae-022", "group": "aae", "variant_id": "gsm8k-train-00526::aae", "features": ["dont", "negative_concord"]}
+{"row": "aae-023", "group": "aae", "variant_id": "gsm8k-train-04264::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-024", "group": "aae", "variant_id": "gsm8k-train-05019::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-025", "group": "aae", "variant_id": "gsm8k-train-06478::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-026", "group": "aae", "variant_id": "gsm8k-train-03625::aae", "features": ["aint_before_main", "drop_aux_be_progressive"]}
+{"row": "aae-027", "group": "aae", "variant_id": "gsm8k-train-04328::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "aae-028", "group": "aae", "variant_id": "gsm8k-train-06318::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-029", "group": "aae", "variant_id": "gsm8k-train-00235::aae", "features": ["uninflect"]}
+{"row": "aae-030", "group": "aae", "variant_id": "gsm8k-train-03676::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-031", "group": "aae", "variant_id": "gsm8k-train-04389::aae", "features": ["uninflect"]}
+{"row": "aae-032", "group": "aae", "variant_id": "gsm8k-train-06424::aae", "features": ["aint_be", "aint_before_main"]}
+{"row": "aae-033", "group": "aae", "variant_id": "gsm8k-train-00888::aae", "features": ["uninflect"]}
+{"row": "aae-034", "group": "aae", "variant_id": "gsm8k-train-06317::aae", "features": ["uninflect"]}
+{"row": "aae-035", "group": "aae", "variant_id": "gsm8k-train-04922::aae", "features": ["drop_copula_be_NP"]}
+{"row": "aae-036", "group": "aae", "variant_id": "gsm8k-train-00861::aae", "features": ["uninflect"]}
+{"row": "aae-037", "group": "aae", "variant_id": "gsm8k-test-00448::aae", "features": ["drop_aux_be_progressive"]}
+{"row": "aae-038", "group": "aae", "variant_id": "gsm8k-train-05079::aae", "features": ["uninflect"]}
+{"row": "aae-039", "group": "aae", "variant_id": "gsm8k-train-02878::aae", "features": ["negative_concord"]}
+{"row": "aae-040", "group": "aae", "variant_id": "gsm8k-train-00388::aae", "features": ["aint_be", "negative_concord"]}
+{"row": "indian-001", "group": "indian", "variant_id": "gsm8k-train-03281::indian", "features": ["acomp_focusing_like", "invariant_tag_non_concord", "remove_det_definite"]}
+{"row": "indian-002", "group": "indian", "variant_id": "gsm8k-train-00684::indian", "features": ["definite_for_indefinite_articles", "progressives", "remove_det_indefinite"]}
+{"row": "indian-003", "group": "indian", "variant_id": "gsm8k-train-05321::indian", "features": ["acomp_focusing_like", "definite_for_indefinite_articles", "invariant_tag_non_concord", "mass_noun_plurals", "remove_det_definite"]}
+{"row": "indian-004", "group": "indian", "variant_id": "gsm8k-train-04635::indian", "features": ["acomp_focusing_like", "fronting_pobj", "plural_interrogative", "present_perfect_for_past", "progressives", "reduplicate_interrogative"]}
+{"row": "indian-005", "group": "indian", "variant_id": "gsm8k-train-05328::indian", "features": ["acomp_focusing_like", "definite_for_indefinite_articles", "invariant_tag_non_concord", "mass_noun_plurals", "null_referential_pronouns", "remove_det_definite"]}
+{"row": "indian-006", "group": "indian", "variant_id": "gsm8k-train-03385::indian", "features": ["definite_for_indefinite_articles", "invariant_tag_non_concord", "mass_noun_plurals"]}
+{"row": "indian-007", "group": "indian", "variant_id": "gsm8k-train-05491::indian", "features": ["acomp_focusing_like", "definite_abstract", "null_referential_pronouns", "plural_interrogative", "progressives", "reduplicate_interrogative"]}
+{"row": "indian-008", "group": "indian", "variant_id": "gsm8k-test-01123::indian", "features": ["remove_det_indefinite"]}
+{"row": "indian-009", "group": "indian", "variant_id": "gsm8k-train-01836::indian", "features": ["inverted_indirect_question", "object_pronoun_drop", "present_perfect_for_past", "progressives"]}
+{"row": "indian-010", "group": "indian", "variant_id": "gsm8k-train-06166::indian", "features": ["inverted_indirect_question", "reduplicate_interrogative"]}
+{"row": "indian-011", "group": "indian", "variant_id": "gsm8k-train-02518::indian", "features": ["definite_for_indefinite_articles", "object_pronoun_drop"]}
+{"row": "indian-012", "group": "indian", "variant_id": "gsm8k-train-06692::indian", "features": ["inverted_indirect_question", "object_pronoun_drop", "present_perfect_for_past"]}
+{"row": "indian-013", "group": "indian", "variant_id": "gsm8k-train-01778::indian", "features": ["acomp_focusing_like", "definite_for_indefinite_articles", "invariant_tag_non_concord", "mass_noun_plurals"]}
+{"row": "indian-014", "group": "indian", "variant_id": "gsm8k-train-02939::indian", "features": ["acomp_focusing_like", "definite_abstract", "inverted_indirect_question", "reduplicate_interrogative"]}
+{"row": "indian-015", "group": "indian", "variant_id": "gsm8k-train-05161::indian", "features": ["acomp_focusing_like", "invariant_tag_non_concord", "mass_noun_plurals", "remove_det_definite"]}
+{"row": "indian-016", "group": "indian", "variant_id": "gsm8k-test-00380::indian", "features": ["remove_det_definite", "remove_det_indefinite"]}
+{"row": "indian-017", "group": "indian", "variant_id": "gsm8k-train-01937::indian", "features": ["acomp_focusing_like", "definite_abstract", "inverted_indirect_question", "null_referential_pronouns"]}
+{"row": "indian-018", "group": "indian", "variant_id": "gsm8k-test-00244::indian", "features": ["acomp_focusing_like", "definite_for_indefinite_articles", "mass_noun_plurals"]}
+{"row": "indian-019", "group": "indian", "variant_id": "gsm8k-train-07367::indian", "features": ["null_referential_pronouns", "remove_det_indefinite"]}
+{"row": "indian-020", "group": "indian", "variant_id": "gsm8k-train-00545::indian", "features": ["definite_abstract", "null_referential_pronouns", "progressives"]}
+{"row": "indian-021", "group": "indian", "variant_id": "gsm8k-train-03658::indian", "features": ["inverted_indirect_question", "plural_interrogative", "remove_det_definite"]}
+{"row": "indian-022", "group": "indian", "variant_id": "gsm8k-train-06439::indian", "features": ["acomp_focusing_like", "fronting_pobj", "null_referential_pronouns", "plural_interrogative", "reduplicate_interrogative"]}
+{"row": "indian-023", "group": "indian", "variant_id": "gsm8k-train-04971::indian", "features": ["definite_abstract", "reduplicate_interrogative"]}
+{"row": "indian-024", "group": "indian", "variant_id": "gsm8k-train-05794::indian", "features": ["definite_for_indefinite_articles", "object_pronoun_drop", "progressives"]}
+{"row": "indian-025", "group": "indian", "variant_id": "gsm8k-train-06135::indian", "features": ["definite_for_indefinite_articles", "null_referential_pronouns", "object_pronoun_drop"]}
+{"row": "indian-026", "group": "indian", "variant_id": "gsm8k-train-03468::indian", "features": ["definite_for_indefinite_articles", "object_pronoun_drop", "present_perfect_for_past", "progressives"]}
+{"row": "indian-027", "group": "indian", "variant_id": "gsm8k-train-03940::indian", "features": ["acomp_focusing_like", "fronting_pobj", "present_perfect_for_past", "reduplicate_interrogative"]}
+{"row": "indian-028", "group": "indian", "variant_id": "gsm8k-train-03850::indian", "features": ["definite_for_indefinite_articles", "null_referential_pronouns", "progressives", "remove_det_definite", "remove_det_indefinite"]}
+{"row": "indian-029", "group": "indian", "variant_id": "gsm8k-train-03039::indian", "features": ["null_referential_pronouns", "present_perfect_for_past", "progressives"]}
+{"row": "indian-030", "group": "indian", "variant_id": "gsm8k-train-01763::indian", "features": ["acomp_focusing_like", "inverted_indirect_question", "null_referential_pronouns", "plural_interrogative", "progressives"]}
+{"row": "indian-031", "group": "indian", "variant_id": "gsm8k-test-00904::indian", "features": ["definite_abstract", "plural_interrogative", "progressives", "reduplicate_interrogative"]}
+{"row": "indian-032", "group": "indian", "variant_id": "gsm8k-train-02940::indian", "features": ["acomp_focusing_like", "fronting_pobj", "null_referential_pronouns", "present_perfect_for_past"]}
+{"row": "indian-033", "group": "indian", "variant_id": "gsm8k-test-00745::indian", "features": ["definite_for_indefinite_articles", "null_referential_pronouns", "remove_det_indefinite"]}
+{"row": "indian-034", "group": "indian", "variant_id": "gsm8k-train-05440::indian", "features": ["progressives", "remove_det_definite", "remove_det_indefinite"]}
+{"row": "indian-035", "group": "indian", "variant_id": "gsm8k-train-05176::indian", "features": ["definite_for_indefinite_articles", "null_referential_pronouns", "object_pronoun_drop", "present_perfect_for_past"]}
+{"row": "indian-036", "group": "indian", "variant_id": "gsm8k-train-00081::indian", "features": ["acomp_focusing_like", "definite_for_indefinite_articles", "mass_noun_plurals", "null_referential_pronouns"]}
+{"row": "indian-037", "group": "indian", "variant_id": "gsm8k-train-04259::indian", "features": ["fronting_pobj", "plural_interrogative", "progressives", "reduplicate_interrogative"]}
+{"row": "indian-038", "group": "indian", "variant_id": "gsm8k-test-00554::indian", "features": ["acomp_focusing_like", "definite_for_indefinite_articles", "invariant_tag_non_concord", "mass_noun_plurals", "null_referential_pronouns"]}
+{"row": "indian-039", "group": "indian", "variant_id": "gsm8k-train-02117::indian", "features": ["fronting_pobj", "progressives", "reduplicate_interrogative"]}
+{"row": "indian-040", "group": "indian", "variant_id": "gsm8k-test-00830::indian", "features": ["definite_for_indefinite_articles", "null_referential_pronouns", "object_pronoun_drop", "progressives"]}
+{"row": "l2-001", "group": "l2", "variant_id": "gsm8k-train-05373::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-002", "group": "l2", "variant_id": "gsm8k-train-02117::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-003", "group": "l2", "variant_id": "gsm8k-test-00493::l2", "features": ["remove_det_definite"]}
+{"row": "l2-004", "group": "l2", "variant_id": "gsm8k-train-07394::l2", "features": ["remove_det_definite"]}
+{"row": "l2-005", "group": "l2", "variant_id": "gsm8k-train-04221::l2", "features": ["zero_plural"]}
+{"row": "l2-006", "group": "l2", "variant_id": "gsm8k-train-07298::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-007", "group": "l2", "variant_id": "gsm8k-test-00632::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-008", "group": "l2", "variant_id": "gsm8k-train-04974::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-009", "group": "l2", "variant_id": "gsm8k-train-04526::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-010", "group": "l2", "variant_id": "gsm8k-train-02575::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-011", "group": "l2", "variant_id": "gsm8k-train-02940::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-012", "group": "l2", "variant_id": "gsm8k-train-03051::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-013", "group": "l2", "variant_id": "gsm8k-train-02949::l2", "features": ["remove_det_definite", "zero_plural"]}
+{"row": "l2-014", "group": "l2", "variant_id": "gsm8k-train-03466::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-015", "group": "l2", "variant_id": "gsm8k-train-01924::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-016", "group": "l2", "variant_id": "gsm8k-train-01849::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-017", "group": "l2", "variant_id": "gsm8k-test-00834::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-018", "group": "l2", "variant_id": "gsm8k-train-04461::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-019", "group": "l2", "variant_id": "gsm8k-train-00431::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-020", "group": "l2", "variant_id": "gsm8k-train-02138::l2", "features": ["bare_past_tense"]}
+{"row": "l2-021", "group": "l2", "variant_id": "gsm8k-train-05626::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-022", "group": "l2", "variant_id": "gsm8k-train-02954::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-023", "group": "l2", "variant_id": "gsm8k-train-05455::l2", "features": ["zero_plural"]}
+{"row": "l2-024", "group": "l2", "variant_id": "gsm8k-train-02608::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-025", "group": "l2", "variant_id": "gsm8k-train-00713::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-026", "group": "l2", "variant_id": "gsm8k-train-02028::l2", "features": ["remove_det_indefinite"]}
+{"row": "l2-027", "group": "l2", "variant_id": "gsm8k-train-00493::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-028", "group": "l2", "variant_id": "gsm8k-train-01326::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-029", "group": "l2", "variant_id": "gsm8k-train-06042::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-030", "group": "l2", "variant_id": "gsm8k-train-04286::l2", "features": ["remove_det_definite", "remove_det_indefinite"]}
+{"row": "l2-031", "group": "l2", "variant_id": "gsm8k-train-05108::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-032", "group": "l2", "variant_id": "gsm8k-train-04438::l2", "features": ["remove_det_definite"]}
+{"row": "l2-033", "group": "l2", "variant_id": "gsm8k-train-05140::l2", "features": ["uninflect"]}
+{"row": "l2-034", "group": "l2", "variant_id": "gsm8k-train-06142::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-035", "group": "l2", "variant_id": "gsm8k-test-01251::l2", "features": ["zero_plural"]}
+{"row": "l2-036", "group": "l2", "variant_id": "gsm8k-train-00337::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-037", "group": "l2", "variant_id": "gsm8k-train-04259::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-038", "group": "l2", "variant_id": "gsm8k-train-06120::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-039", "group": "l2", "variant_id": "gsm8k-train-04037::l2", "features": ["bare_past_tense", "uninflect"]}
+{"row": "l2-040", "group": "l2", "variant_id": "gsm8k-train-04389::l2", "features": ["uninflect"]}

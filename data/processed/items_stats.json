@@ -1,0 +1,21 @@
+{
+  "train": {
+    "raw": 7473,
+    "ok": 6435,
+    "step_count": 665,
+    "answer_in_question": 370,
+    "non_integer_answer": 3
+  },
+  "test": {
+    "raw": 1319,
+    "ok": 1125,
+    "answer_in_question": 80,
+    "step_count": 112,
+    "non_integer_answer": 2
+  },
+  "split_sizes": {
+    "rl_train": 2000,
+    "audit": 300,
+    "test": 300
+  }
+}

@@ -9,7 +9,7 @@ logs/*
 !logs/.gitkeep
 # Large or regenerable data. Small, reviewed files (names, labels) are committed.
 data/raw/
-data/processed/
+data/processed/*.shard*
 results/**/*.jsonl
 !results/.gitkeep
 .env
