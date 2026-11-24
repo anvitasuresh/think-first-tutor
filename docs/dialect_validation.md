@@ -18,14 +18,14 @@ Aim for **2 raters per sheet**. Agreement between them is part of the evidence. 
 
 ## Instructions to give raters
 
-> You'll see pairs of short messages a student might send to a math tutor. The first is written in Mainstream American English. The second was changed by a computer program to use grammar features of [African American English / Indian English / learner English]. We are checking whether the program's output reads as natural, or as fake or stereotyped. For each pair:
+> You'll see pairs of short messages a student might send to a math tutor. The first is written in Mainstream American English. The second was changed by a computer program to use grammar features of [African American English / Indian English / learner English]. I'm checking whether the program's output reads as natural, or as fake or stereotyped. For each pair:
 >
 > - **natural_1to5:** How natural is the second message as something a real [speaker] might write to a tutor? 1 = nobody would write this, 3 = possible but odd, 5 = completely natural.
 > - **stereotyped_yn:** Does it read as exaggerated, mocking, or like a stereotype? (y/n)
 > - **meaning_same_yn:** Does it still mean the same thing as the first message? (y/n)
 > - **notes (optional):** Which word or phrase felt off, if any.
 >
-> There are no right answers. Your own judgment is what we need. It takes about 15 minutes.
+> There are no right answers. Your own judgment is what I need. It takes about 15 minutes.
 
 ## Decision rule (fixed before seeing ratings)
 A feature is dropped if it appears in at least 5 rated rows and either

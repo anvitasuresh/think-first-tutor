@@ -12,7 +12,7 @@ Many people worry that AI makes students "dumber": a student gets stuck, asks a 
 
 It doesn't have to work that way. A good human tutor does not give the answer. They give a hint, ask a question, and let the student do the thinking. **The goal of this project is a tool that uses AI to help kids learn better, not to think less.**
 
-To build that tutor, we train a small AI model with reinforcement learning (RL). It practices on thousands of "I'm stuck" messages, and a grader model scores each reply: a good hint scores high, giving away the answer scores low. The tutor learns whatever the grader rewards.
+To build that tutor, I trained a small AI model with reinforcement learning (RL). It practiced on thousands of "I'm stuck" messages, and a grader model scores each reply: a good hint scores high, giving away the answer scores low. The tutor learns whatever the grader rewards.
 
 That creates a fairness risk. **If the grader scores the same help differently depending on how a student writes**, for example in African American English or Indian English instead of Mainstream American English, then the tutor can learn to coach some students and just hand others the answer. The students who most need real teaching would get the version that teaches the least.
 
@@ -38,7 +38,7 @@ flowchart LR
 
 ### The fairness test: same help, different student
 
-We keep the tutor's reply exactly the same and change only how the student's message is written. If the score moves, the only thing that could have caused it is the student's writing. This is called a **counterfactual** test.
+I keep the tutor's reply exactly the same and change only how the student's message is written. If the score moves, only the student's writing could have caused it. This is called a **counterfactual** test.
 
 ```mermaid
 flowchart TB
@@ -69,30 +69,30 @@ flowchart LR
 | Step | What happens | Models |
 |---|---|---|
 | 1. Data | 2,600 GSM8K math problems split into train / audit / test. Templated "I'm stuck" student messages, each rewritten into AAE, Indian English, learner (L2) English, a reworded MAE control, and with different first names. About 1,500 fixed tutor replies in 8 styles, from pure hints to the full answer. | Multi-VALUE (rule-based, no AI) |
-| 2. Grader check (E1) | Our grader rates each reply from -1 (gives the answer) to +1 (good hint), plus 1-5 helpfulness. Compared with 40 replies Anvita labeled by hand. | Qwen2.5-7B-Instruct |
-| 3. Fairness audit (E2) | Every reply is scored with every version of its student's message, by three graders. | our grader, Skywork-Reward-V2, Tulu-3-8B-RM |
-| 4. Explain (E3, E4) | Which single grammar features move the score; whether the grader's written reasons mention the student's language; probes inside the model. | our grader |
-| 5. Train tutor | A small model learns to tutor by trial and error, rewarded by our grader. | Qwen2.5-1.5B-Instruct + LoRA |
+| 2. Grader check (E1) | My grader rates each reply from -1 (gives the answer) to +1 (good hint), plus 1-5 helpfulness. Compared with 40 replies I labeled by hand. | Qwen2.5-7B-Instruct |
+| 3. Fairness audit (E2) | Every reply is scored with every version of its student's message, by three graders. | my grader, Skywork-Reward-V2, Tulu-3-8B-RM |
+| 4. Explain (E3, E4) | Which single grammar features move the score; whether the grader's written reasons mention the student's language; probes inside the model. | my grader |
+| 5. Train tutor | A small model learns to tutor by trial and error, rewarded by my grader. | Qwen2.5-1.5B-Instruct + LoRA |
 | 6. Evaluate (E5-E7) | On new problems: does the trained tutor give hints instead of answers? Did it learn to game the grader? Is there a gap between student groups? | all of the above |
 
 ### How the tutor is trained: GRPO in plain words
 
-The tutor is never shown a "correct" hint. It learns by trial and error, with our grader as the scorekeeper. The method is **GRPO** (Group Relative Policy Optimization, [Shao et al. 2024](https://arxiv.org/abs/2402.03300)), run with Hugging Face TRL. One training step:
+The tutor is never shown a "correct" hint. It learns by trial and error, with my grader as the scorekeeper. I used **GRPO** (Group Relative Policy Optimization, [Shao et al. 2024](https://arxiv.org/abs/2402.03300)) with Hugging Face TRL. One training step:
 
 1. **Try several times.** A stuck student's message goes to the tutor, which writes **4 different replies** (`num_generations: 4`).
-2. **Grade every try.** The 4-bit copy of our grader scores each reply. Reward = scaffolding score (-1 answer to +1 hint) + 0.5 × helpfulness bonus (helpfulness 1-5 rescaled to -1..+1).
+2. **Grade every try.** The 4-bit copy of my grader scores each reply. Reward = scaffolding score (-1 answer to +1 hint) + 0.5 × helpfulness bonus (helpfulness 1-5 rescaled to -1..+1).
 3. **Compare inside the group.** Each reply's reward is compared with the average of its own group of 4. Replies above the average become more likely, below-average ones less likely. That is the "group relative" part: no separate value model is needed, just "better than your other tries".
 4. **Stay on a leash.** A KL penalty (`beta: 0.04`) keeps the tutor close to the original model, so it cannot drift into odd text that only fools the grader. Only small LoRA adapters are trained, not the whole model.
 
-This repeats for **300 steps** (about 4.3 hours on Kaggle's two free T4 GPUs). The grader's score rose from about -0.1 to +0.8 and the share of tries that leaked the answer fell from about 48% to 17% (figure below in Results). Settings: [configs/grpo.yaml](configs/grpo.yaml); code: [src/tutorbias/tutor/](src/tutorbias/tutor/).
+I ran this for **300 steps** (about 4.3 hours on Kaggle's two free T4 GPUs). The grader's score rose from about -0.1 to +0.8 and the share of tries that leaked the answer fell from about 48% to 17% (figure below in Results). Settings: [configs/grpo.yaml](configs/grpo.yaml); code: [src/tutorbias/tutor/](src/tutorbias/tutor/).
 
 ## 4. Results
 
 | Question | Result |
 |---|---|
 | E1. Does the grader agree with a human? | **Yes, moderately.** Cohen's kappa 0.65 (95% CI 0.41 to 0.85) on hint vs answer; Spearman 0.56 on helpfulness. 40 human labels. |
-| E2. Same reply, different dialect: does the score change? | **Barely, and only for public reward models.** Our grader (and its 4-bit training copy) scores dialect messages 0.01 to 0.03 SD *higher*. Skywork and Tulu score them 0.02 to 0.05 SD lower, but for AAE and learner English that is no more than plain rewording does. Indian English is the exception: Tulu -0.034 SD and Skywork -0.021 SD beyond rewording (preliminary: dialect text not yet checked by native speakers). The audit could detect gaps of about 0.02 SD ([power check](results/audit/power.md)). |
-| E2. Same reply, different name: does the score change? | Adding *any* name, white names included, lowers public RM scores by 0.08 to 0.12 SD. Name vs name gaps are small (largest: Skywork, Hispanic vs white names, -0.031 SD). Our grader: no gap. |
+| E2. Same reply, different dialect: does the score change? | **Barely, and only for public reward models.** My grader (and its 4-bit training copy) scores dialect messages 0.01 to 0.03 SD *higher*. Skywork and Tulu score them 0.02 to 0.05 SD lower, but for AAE and learner English that is no more than plain rewording does. Indian English is the exception: Tulu -0.034 SD and Skywork -0.021 SD beyond rewording (preliminary: dialect text not yet checked by native speakers). The audit could detect gaps of about 0.02 SD ([power check](results/audit/power.md)). |
+| E2. Same reply, different name: does the score change? | Adding *any* name, white names included, lowers public RM scores by 0.08 to 0.12 SD. Name vs name gaps are small (largest: Skywork, Hispanic vs white names, -0.031 SD). My grader: no gap. |
 | E2. Does the gap flip which reply wins? | Rarely: 1 to 5% of reply pairs, less often than plain rewording flips them. |
 | E3. Which features drive the gap? | **No single feature.** Only one of 22 features beats chance, and it *raises* a score. The Indian English penalty is spread over several small ones. Inside the grader, dialect is easy to detect (a linear probe reaches 84% for Indian English), but that direction is nearly unrelated to the score direction (cosine at most 0.13). |
 | E4. Do the grader's explanations admit it? | **No, and they don't explain the change at all.** In 30 cases where only the dialect changed and the score moved by 0.2 or more, the written reason never mentioned the student's language. It described the *same* reply differently instead. Written reasons are not a faithful audit tool ([details](results/explain/summary.md)). |
@@ -162,53 +162,53 @@ Two checks run on the saved audit results, with no GPU:
 | Math problems | [GSM8K](https://huggingface.co/datasets/openai/gsm8k) | MIT |
 | Dialect rewriting | [Multi-VALUE](https://github.com/SALT-NLP/multi-value), features from [eWAVE](https://ewave-atlas.org) | Apache 2.0 |
 | Tutor | [Qwen/Qwen2.5-1.5B-Instruct](https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct) (fallback: [0.5B](https://huggingface.co/Qwen/Qwen2.5-0.5B-Instruct)) | Apache 2.0 |
-| Our grader | [Qwen/Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) + our rubric ([src/tutorbias/judge/prompts/](src/tutorbias/judge/prompts/)) | Apache 2.0 |
+| My grader | [Qwen/Qwen2.5-7B-Instruct](https://huggingface.co/Qwen/Qwen2.5-7B-Instruct) + my rubric ([src/tutorbias/judge/prompts/](src/tutorbias/judge/prompts/)) | Apache 2.0 |
 | Audited reward model | [Skywork/Skywork-Reward-V2-Llama-3.1-8B](https://huggingface.co/Skywork/Skywork-Reward-V2-Llama-3.1-8B) | Skywork license |
 | Audited reward model | [allenai/Llama-3.1-Tulu-3-8B-RM](https://huggingface.co/allenai/Llama-3.1-Tulu-3-8B-RM) | Llama 3.1 license |
-| Human labels | [data/labels/](data/labels/) (40 replies, labeled by Anvita) | MIT |
+| Human labels | [data/labels/](data/labels/) (40 replies, labeled by me) | MIT |
 
 The generated dataset is committed in [data/processed/](data/processed/) (2,600 math problems with stuck-student messages, and all 22,600 dialect and name versions), so you can skip step 0 and upload that folder to Kaggle directly. The native-speaker rating sheets are in [data/validation/](data/validation/). What is in the data: [data/DATASHEET.md](data/DATASHEET.md). Large GPU outputs (grader scores for every pair, the trained LoRA adapter, model activations) stay in the Kaggle notebook outputs because of their size; every table and chart made from them is in [results/](results/).
 
 ## 7. Design decisions
 
-The main choices, in plain words. Full reasoning: [docs/design_decisions.md](docs/design_decisions.md).
+The main choices I made, in plain words. Full reasoning: [docs/design_decisions.md](docs/design_decisions.md).
 
 - **Counterfactual pairs instead of real student data.** Changing only the student's writing, and nothing else, means any score gap has one cause. It also means no real children are involved.
 - **Hints vs answers as the target.** This is what separates AI that helps learning from AI that replaces it, and it can be scored on a simple -1 to +1 scale.
-- **The grader reads its own probabilities instead of writing a number.** The score is the expected value over the labels -1, 0, +1 (as in G-Eval), which gives a smooth score and fewer formatting failures. Its written reason comes *after* the score, so we can check whether the reason matches what really drove the score.
-- **Checked against a human before use.** The grader had to pass an agreement check (E1) before any fairness result counts. Rubric v1 was kept; later rubric versions moved the grader away from the human labels, so they were dropped.
-- **Three graders, not one.** Our own grader plus two public reward models, to see if the problem is general. ArmoRM was planned but replaced by **Tulu-3-8B-RM**, because ArmoRM's code no longer loads with current libraries.
+- **The grader reads its own probabilities instead of writing a number.** The score is the expected value over the labels -1, 0, +1 (as in G-Eval), which gives a smooth score and fewer formatting failures. Its written reason comes *after* the score, so I can check whether the reason matches what really drove the score.
+- **Checked against a human before use.** The grader had to pass an agreement check (E1) before any fairness result counts. Rubric v1 was kept; later rubric versions moved the grader away from the human labels, so I dropped them.
+- **Three graders, not one.** My own grader plus two public reward models, to see if the problem is general. ArmoRM was planned but replaced by **Tulu-3-8B-RM**, because ArmoRM's code no longer loads with current libraries.
 - **GRPO with LoRA on a small model.** It fits on free T4 GPUs and needs no separate value model.
 - **Fairness as a test.** The bias limit lives in a config file and is checked in CI ([configs/bias_gate.yaml](configs/bias_gate.yaml)). The limit (0.05 SD) is about the smallest gap the audit can measure reliably, per the power check.
-- **Free compute only.** Everything is built to run on Kaggle's free tier, with saved progress at every step.
+- **Free compute only.** I built everything to run on Kaggle's free tier, with saved progress at every step.
 
 ## 8. Ethics and limitations
 
-This project changes how a student writes to test for unfairness. Done carelessly, that could repeat the very stereotypes it is trying to catch. These are the rules it follows. More detail: [docs/ethics.md](docs/ethics.md).
+This project changes how a student writes to test for unfairness. Done carelessly, that could repeat the very stereotypes I'm trying to catch, so I followed these rules. More detail: [docs/ethics.md](docs/ethics.md).
 
-### What this project does and does not claim
+### What I do and don't claim
 
-- **A dialect is not a race.** African American English (AAE) is a rule-based variety of English used by many, but not all, Black Americans, and by some people who are not Black. Indian English is used by people of many backgrounds. Our groups are defined by **grammar features**, so results say "the grader reacts to these features", never "the grader is biased against Black or Indian students".
+- **A dialect is not a race.** African American English (AAE) is a rule-based variety of English used by many, but not all, Black Americans, and by some people who are not Black. Indian English is used by people of many backgrounds. My groups are defined by **grammar features**, so my results say "the grader reacts to these features", never "the grader is biased against Black or Indian students".
 - **Learner (L2) English is not a dialect.** It describes a stage of learning a language, not a group of people.
-- **Names are signals, not people.** A name tells a model something about perceived race, ethnicity or gender. We measure the model's reaction to that signal only.
+- **Names are signals, not people.** A name tells a model something about perceived race, ethnicity or gender. I measure the model's reaction to that signal only.
 - **Synthetic text is not real speech.** Results show the grader's sensitivity to dialect features. They do not measure how much real students are harmed.
-- **We say "Mainstream American English (MAE)"**, not "standard" or "correct" English, and never call other varieties "broken" or "nonstandard".
+- **I say "Mainstream American English (MAE)"**, not "standard" or "correct" English, and never call other varieties "broken" or "nonstandard".
 
 ### Grounded in research, not guesses
 
 - No AI model is asked to "write like" a group. Every dialect change comes from **Multi-VALUE** (Ziems et al., 2023), which implements grammar features documented in **eWAVE**, the World Atlas of Varieties of English (Kortmann et al., 2020).
-- We use only features that eWAVE rates **pervasive or obligatory** in that variety. Each is applied with 50% chance, so messages don't pile up every feature and read as exaggerated. The full list is in [docs/dialect_features.md](docs/dialect_features.md).
-- Some features are blocked on purpose, with reasons (for example, "y'all" because the student talks to one tutor). Multi-VALUE's slang add-ons ("I'ma", "gotta", "tryna") are switched off.
+- I use only features that eWAVE rates **pervasive or obligatory** in that variety. Each is applied with 50% chance, so messages don't pile up every feature and read as exaggerated. The full list is in [docs/dialect_features.md](docs/dialect_features.md).
+- I blocked some features on purpose, with reasons (for example, "y'all" because the student talks to one tutor). I switched off Multi-VALUE's slang add-ons ("I'ma", "gotta", "tryna").
 - This matters because AI models are known to judge people by dialect: Hofmann et al. (Nature, 2024) found language models made more negative judgments about speakers of AAE, even when race was never mentioned.
 
-### Problems we found and how we handled them
+### Problems I found and how I handled them
 
-- **Broken AAE variants are removed.** Reading the variants showed two Multi-VALUE bugs. `aint_before_main` sometimes turns a positive "do/did" into a bare "ai" ("what I ai wrong"), and `past_for_past_participle` can produce "I am did with it". No speaker writes like this, so a score gap on them would measure a reaction to broken text, not to a dialect. These variants (about 1 in 4 AAE messages) are filtered out everywhere: the audit, the explanations, training and evaluation.
-- **Possible caricature in Indian English, still being checked.** Two features appear often: "amn't" and repeated question words ("what-what"). Both are documented in eWAVE, but used this often they could read like a caricature. They are kept for now and flagged for the **native-speaker check**, and the feature analysis (E3) reports them separately. If raters flag them, they are dropped by a rule written down in advance ([docs/dialect_validation.md](docs/dialect_validation.md)). **Dialect results are not final until that check is done.**
+- **Broken AAE variants are removed.** Reading the variants, I found two Multi-VALUE bugs. `aint_before_main` sometimes turns a positive "do/did" into a bare "ai" ("what I ai wrong"), and `past_for_past_participle` can produce "I am did with it". No speaker writes like this, so a score gap on them would measure a reaction to broken text, not to a dialect. I filter these variants (about 1 in 4 AAE messages) out everywhere: the audit, the explanations, training and evaluation.
+- **Possible caricature in Indian English, still being checked.** Two features appear often: "amn't" and repeated question words ("what-what"). Both are documented in eWAVE, but used this often they could read like a caricature. I kept them for now, flagged them for the **native-speaker check**, and report them separately in the feature analysis (E3). If raters flag them, I drop them by a rule I wrote down in advance ([docs/dialect_validation.md](docs/dialect_validation.md)). **Dialect results are not final until that check is done.**
 
 ### Data and people
 
-- **No real student data. No minors.** Every student message is synthetic, made from templates. Tutor replies are generated by models. The only human labels are Anvita's own 40 ratings.
+- **No real student data. No minors.** Every student message is synthetic, made from templates. Tutor replies are generated by models. The only human labels are my own 40 ratings.
 - Native-speaker raters are adult volunteers who rate how natural each sentence sounds; they are not studied themselves.
 
 ### Who is affected (stakeholders)
@@ -222,14 +222,14 @@ This project changes how a student writes to test for unfairness. Done carelessl
 
 ### How this could be misused
 
-- **"Fairness washing."** Someone could tune a grader until it passes *this* test and then call it fair. Passing one synthetic test does not make a system fair. We publish per-feature results and the full variant set, not just a pass/fail number.
+- **"Fairness washing."** Someone could tune a grader until it passes *this* test and then call it fair. Passing one synthetic test does not make a system fair, so I publish per-feature results and the full variant set, not just a pass/fail number.
 - **Making dialect text to stereotype people.** The variant generator could be used to produce mocking text. It only uses documented features, removes broken output, and every variant is marked as synthetic.
 - **Overclaiming.** A gap here is not proof that a deployed tutor harms real students. It is a warning sign worth testing in real settings.
 
 ### Limitations
 
-- **Small human check.** The grader was compared with 40 human labels from one person. The agreement interval is wide (kappa 0.41 to 0.85). "Good tutoring" here means one rubric and one person's judgment.
-- **Small models on free GPUs.** A 1.5B tutor, a 7B grader, and one short RL run. This shows the mechanism; it does not describe large commercial tutors. The training grader runs in 4-bit to fit on the GPU, and the audit reports how closely it matches the full grader.
+- **Small human check.** The grader was compared with 40 human labels from one person (me). The agreement interval is wide (kappa 0.41 to 0.85). "Good tutoring" here means one rubric and one person's judgment.
+- **Small models on free GPUs.** A 1.5B tutor, a 7B grader, and one short RL run. This shows the mechanism, but it does not describe large commercial tutors. The training grader runs in 4-bit to fit on the GPU, and the audit reports how closely it matches the full grader.
 - **Math only, one message only.** Real tutoring is a long conversation about many subjects.
 - **Rule-based dialects.** Not every speaker uses every feature, and people may write more formally to a tutor. AAE and learner English share some features, so these groups overlap. The native-speaker check uses a small group of volunteers.
 - **Some name lists are placeholders** (Hispanic and South Asian names) until a published source replaces them. They are marked in `data/names/names.yaml`.
@@ -248,7 +248,7 @@ This project changes how a student writes to test for unfairness. Done carelessl
 ```
 src/tutorbias/
   data/        math problems, stuck messages, dialect and name versions
-  judge/       our grader and its rubric
+  judge/       my grader and its rubric
   labeling/    labeling app and grader-vs-human check (E1)
   audit/       fairness audit (E2)
   explain/     feature effects, probes, explanation check (E3, E4)

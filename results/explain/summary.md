@@ -21,7 +21,7 @@ each inside the null band. Reading: the penalty is diffuse, not one feature the 
   (Spearman 0.53 to 0.74), which is expected: those layers are where the score is formed.
 
 So the grader notices how the student writes, and mostly keeps that out of its scoring. This matches E2:
-no dialect penalty for our grader.
+no dialect penalty for my grader.
 
 ## E4. Does the grader's written reason admit it?
 

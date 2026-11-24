@@ -1,17 +1,17 @@
 # Ethics: dialects, identity, and how the variants are built
 
-This project changes how a synthetic student writes and checks whether AI graders treat the same help differently. Done carelessly, that kind of work can reproduce the stereotypes it is meant to measure. These are the rules the project follows, and why.
+This project changes how a synthetic student writes and checks whether AI graders treat the same help differently. Done carelessly, that kind of work can reproduce the stereotypes it is meant to measure. These are the rules I followed, and why.
 
-## What we claim and what we don't
+## What I claim and what I don't
 
-- **A dialect is not a race or a nationality.** African American English (AAE) is a rule-governed variety of English used by many, but not all, Black Americans, and by some people who are not Black. Indian English is a national variety used by speakers of many backgrounds. Our groups are defined by *grammatical features*, and every result is reported as "the grader responds to these features", never as "the grader is biased against Black or Indian students".
+- **A dialect is not a race or a nationality.** African American English (AAE) is a rule-governed variety of English used by many, but not all, Black Americans, and by some people who are not Black. Indian English is a national variety used by speakers of many backgrounds. My groups are defined by *grammatical features*, and every result is reported as "the grader responds to these features", never as "the grader is biased against Black or Indian students".
 - **Synthetic text is not real speech.** Rule-based variants are cleaner and more uniform than how anyone actually writes. A score gap shows sensitivity to dialect features; it doesn't estimate real-world harm to real students.
 - **Learner English is not a dialect.** The `l2` group uses features common in second-language English. It describes a stage of learning, not an ethnic or national group.
-- **Names are cues, not identities.** A name signals perceived race, ethnicity, or gender to a model. We measure the model's reaction to that cue only.
+- **Names are cues, not identities.** A name signals perceived race, ethnicity, or gender to a model. I measure the model's reaction to that cue only.
 
 ## Wording
 
-| We say | We avoid | Why |
+| I say | I avoid | Why |
 |---|---|---|
 | Mainstream American English (MAE) | "Standard" or "correct" English | Implies other varieties are substandard; MAE is the term used in current sociolinguistics and NLP fairness work |
 | African American English (AAE) | "AAVE" in prose, "broken English", "slang" | AAE is the broader linguistic term; the code keeps Multi-VALUE's class name `AfricanAmericanVernacular` only because that's the library's API |
@@ -20,11 +20,11 @@ This project changes how a synthetic student writes and checks whether AI grader
 
 ## How variants are built, with safeguards against caricature
 
-1. **Documented features only.** Variants are produced by Multi-VALUE (Ziems et al., 2023), which implements features from eWAVE, the electronic World Atlas of Varieties of English (Kortmann, Lunkenheimer & Ehret, 2020). We never ask an LLM to "write like" a group.
-2. **Only pervasive features.** For AAE and Indian English we keep only features eWAVE rates **A: pervasive or obligatory** in that variety. Features rated B or C (less common or rare) are not used. The full list, with eWAVE numbers and examples, is in [dialect_features.md](dialect_features.md).
-3. **A blocklist with reasons.** Features that are wrong in our context are removed, with the reason recorded in `configs/data.yaml`. Examples: *y'all* (our student addresses one tutor, so a plural pronoun would be ungrammatical) and *fixin' to* (a Southern US form that Multi-VALUE files under the same eWAVE feature as AAE *finna*).
+1. **Documented features only.** Variants are produced by Multi-VALUE (Ziems et al., 2023), which implements features from eWAVE, the electronic World Atlas of Varieties of English (Kortmann, Lunkenheimer & Ehret, 2020). I never ask an LLM to "write like" a group.
+2. **Only pervasive features.** For AAE and Indian English I keep only features eWAVE rates **A: pervasive or obligatory** in that variety. Features rated B or C (less common or rare) are not used. The full list, with eWAVE numbers and examples, is in [dialect_features.md](dialect_features.md).
+3. **A blocklist with reasons.** Features that are wrong in my context are removed, with the reason recorded in `configs/data.yaml`. Examples: *y'all* (my student addresses one tutor, so a plural pronoun would be ungrammatical) and *fixin' to* (a Southern US form that Multi-VALUE files under the same eWAVE feature as AAE *finna*).
 4. **No stacking.** Each allowed feature is used in a given message with probability 0.5, so a message doesn't pile on every feature at once, which reads as exaggerated. The features used in each variant are recorded.
-5. **No untracked slang.** Multi-VALUE also rewrites "going to" to "I'ma", "have to" to "gotta", and "trying to" to "tryna" for *every* dialect, outside any eWAVE feature. We disable those substitutions and keep only its spelling-repair rules.
+5. **No untracked slang.** Multi-VALUE also rewrites "going to" to "I'ma", "have to" to "gotta", and "trying to" to "tryna" for *every* dialect, outside any eWAVE feature. I disable those substitutions and keep only its spelling-repair rules.
 6. **Meaning and numbers are preserved.** A variant that changes any number is excluded from the audit.
 7. **Native-speaker validation** before the variants are used for any reported result: see [dialect_validation.md](dialect_validation.md). Features that raters flag as unnatural or stereotyped are dropped by a rule fixed in advance, and the variants are rebuilt.
 
@@ -56,7 +56,7 @@ This project changes how a synthetic student writes and checks whether AI grader
 
 ## Misuse
 
-The variants and audit could be used to tune a grader until it "passes" this test without being fair in general (fairness washing). We publish per-feature results and the full variant set (marked synthetic), not only a pass/fail number.
+The variants and audit could be used to tune a grader until it "passes" this test without being fair in general (fairness washing). I publish per-feature results and the full variant set (marked synthetic), not only a pass/fail number.
 
 The variant generator could also be used to produce mocking dialect text. It is limited to documented features, broken output is filtered, and every variant is marked synthetic. Finally, a gap in this synthetic setting is a warning sign, not proof that a deployed tutor harms real students; results should not be cited as that.
 
