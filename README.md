@@ -2,7 +2,7 @@
 
 **A small AI math tutor trained to give hints instead of answers, and a fairness check that makes sure it helps every student the same way.**
 
-**[Try the live demo](https://anvitasuresh.github.io/think-first-tutor/)** · Anvita Suresh · Duke MIDS · Explainable AI, Fall 2026
+**[Try the live demo](https://anvitasuresh.github.io/think-first-tutor/)** · **[Poster (PDF)](poster/poster.pdf)** · Anvita Suresh · Duke MIDS · Explainable AI, Fall 2026
 
 ---
 
