@@ -1,6 +1,6 @@
 # Labeling guide: tutor replies
 
-You'll label about 300 tutor replies on two scales. These labels are the ground truth the judge is checked against (E1), so consistency matters more than speed. Expect about 30-40 seconds per item.
+This is the guide I used to label tutor replies on two scales (40 replies in the final check). These labels are the ground truth the judge is checked against (E1), so consistency matters more than speed. Expect about 30-40 seconds per item.
 
 **What you see:** a middle-school math problem, its correct answer, a stuck student's message, and one tutor reply. You never see which model wrote the reply, what it was told to do, or the judge's score. Grade **only the reply**, as a response to **this** student.
 
@@ -51,5 +51,5 @@ Student: *"I started by doing 48 / 2 and I got 24. Now I don't know what I am su
 
 1. **Pilot (first ~30 items, dev split).** Label them, then read the judge's scores and rationales on those items only. If the rubric was unclear *to you*, write down the rule you used and add it to this guide. Don't change the rubric to match the judge.
 2. **Label the rest** in the app (`make label-app`). Use **Flag** + a note when an item is broken or the rubric doesn't fit; flagged items are reported, not silently dropped.
-3. **Second labeler** labels the ~100 double-label items with `--labeler second --double-only`, after reading this guide (and only this guide). Don't discuss individual items before they finish.
+3. **Second labeler:** the app supports one (`--labeler second --double-only`, after reading only this guide), but I didn't get one in time, so every human label is mine. The README lists this as a limitation.
 4. **Rubric changes:** iterate on the **dev** split only. When the rubric is frozen, run calibration on **test** once and report that number.
